@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -314,23 +314,16 @@ not watched in previous events section, you will need to add litemage esi observ
  
 This config file will be updated with module upgrade. If you modified the settings here, please make sure
 you keep a copy. -->
-                <!-- blocks only purged by login/logout, no purge_events config required. login/logout will auto purge all the private blocks -->
                 <welcome>
+                    <!-- blocks only purged by login/logout, no purge_events config required. login/logout will auto purge all the private blocks -->
                     <access>private</access>
-                    <blocks>welcome, litemage.jsvar</blocks>
+                    <blocks>welcome, litemage.jsvar,nickname$v</blocks>
+                    <!-- valueonly will only output block html with no added html tags, comments, also will not show on LITEMAGE_DEBUG=SHOWHOLES, denoted by $v -->
                 </welcome>
-                <nickname>
-                    <access>private</access>
-                    <blocks>nickname</blocks>
-                    <!-- valueonly will only output block html with no added html tags, comments -->
-                    <valueonly/>
-                </nickname>
                 <cart>
                     <access>private</access>
-                    <!-- other possible block names under same purge events, customized block names from different themes.
-              If you are familiar with what blocks used in your theme, you can add/remove block names here.
-                mini-cart(from sns theme), mini-cartpro (from sm_market) -->
-                    <blocks>cart_sidebar, minicart_head, mini-cart, mini-cartpro</blocks>
+                    <!-- blocks can be set by class type, which will include all the blocks that inherited this type. Denoted by prefix "T:" -->
+                    <blocks>T:Mage_Checkout_Block_Cart_Abstract</blocks>
                     <purge_events>
                         <sales_quote_save_after/>
                     </purge_events>
@@ -338,15 +331,13 @@ you keep a copy. -->
                 <toplinks>
                     <access>private</access>
                     <blocks>top.links</blocks>
-                    <purge_events>
-                        <wishlist_item_save_after/>
-                        <wishlist_item_delete_after/>
-                        <sales_quote_save_after/>
-                    </purge_events>
+                    <purge_tags>cart, wishlist</purge_tags>
+                    <!-- this is composite block that purge events are the combination of other purged tags, 
+                    by including purge_tags, you don't need to redefine purge events  -->
                 </toplinks>
                 <compare>
                     <access>private</access>
-                    <blocks>catalog.compare.sidebar, right.reports.product.compared</blocks>
+                    <blocks>T:Mage_Catalog_Block_Product_Compare_Sidebar, T:Mage_Reports_Block_Product_Compared</blocks>
                     <purge_events>
                         <catalog_product_compare_add_product/>
                         <catalog_product_compare_remove_product/>
@@ -355,14 +346,14 @@ you keep a copy. -->
                 </compare>
                 <viewed>
                     <access>private</access>
-                    <blocks>right.reports.product.viewed, left.reports.product.viewed</blocks>
+                    <blocks>T:Mage_Reports_Block_Product_Viewed</blocks>
                     <purge_events>
                         <catalog_controller_product_view/>
                     </purge_events>
                 </viewed>
                 <poll>
                     <access>private</access>
-                    <blocks>right.poll</blocks>
+                    <blocks>T:Mage_Poll_Block_ActivePoll</blocks>
                     <purge_events>
                         <poll_vote_add/>
                     </purge_events>
@@ -370,7 +361,7 @@ you keep a copy. -->
                 <!-- messages is specially handled, cannot change the tag name here, has to be "messages" -->
                 <messages>
                     <access>private</access>
-                    <blocks>global_messages, messages</blocks>
+                    <blocks>T:Mage_Core_Block_Messages</blocks>
                     <purge_events>
                         <core_session_abstract_add_message/>
                     </purge_events>
@@ -378,7 +369,7 @@ you keep a copy. -->
                 <!-- Blocks only visible when logged in -->
                 <reorder>
                     <access>private</access>
-                    <blocks>sale.reorder.sidebar</blocks>
+                    <blocks>T:Mage_Sales_Block_Reorder_Sidebar</blocks>
                     <purge_events>
                         <sales_quote_save_after/>
                         <checkout_onepage_controller_success_action/>
@@ -386,7 +377,7 @@ you keep a copy. -->
                 </reorder>
                 <wishlist>
                     <access>private</access>
-                    <blocks>wishlist_sidebar</blocks>
+                    <blocks>T:Mage_Wishlist_Block_Customer_Sidebar</blocks>
                     <purge_events>
                         <wishlist_item_save_after/>
                         <wishlist_item_delete_after/>
