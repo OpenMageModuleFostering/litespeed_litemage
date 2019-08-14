@@ -19,9 +19,10 @@
  *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
  *
  * @package   LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @copyright  Copyright (c) 2015-2017 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
  * @license     https://opensource.org/licenses/GPL-3.0
  */
+
 class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
 {
 
@@ -47,13 +48,25 @@ class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
 	
 	public function __call($method, $args)
 	{
-		Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_name . " called $method - ignore");
-
+		$m = substr($method, 0, 3);
+		$key = parent::_underscore(substr($method,3));
+		switch ($m) {
+			case 'set':
+				return $this->setData($key, isset($args[0]) ? $args[0] : null);
+			case 'uns':
+				return $this->unsetData($key);
+			case 'get':
+				return parent::getData($key, isset($args[0]) ? $args[0] : null);
+			case 'has':
+				return isset($this->_data[$key]);
+			default:
+				return null;
+		}
 	}
 
 	public static function __callStatic($method, $args)
 	{
-		Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_name . " called static $method - ignore");
+		Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_nameInLayout . " called static $method - ignore");
 	}
 	
 
@@ -85,13 +98,33 @@ class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
 
     public function setData($key, $value=null)
     {
-		if (is_scalar($key) && is_scalar($value) 
-				&& ($key == 'form_action')) {
+		if ($key == 'module_name') {
+			return parent::setData($key, $value);
+		}
+		
+		$ignored = 1;
+		if (is_scalar($key) && is_scalar($value)) {
 			$bconf = $this->getData('litemage_bconf');
-			$bconf['extra'][$key] = $value;
-			parent::setData('litemage_bconf', $bconf);
+			if (!empty($bconf)) {
+				$bconf['extra'][$key] = $value;
+				parent::setData('litemage_bconf', $bconf);
+				$ignored = 0;
+			}
 		}		
+		Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_nameInLayout . " called setData $key=$value ignored=$ignored");
 		return parent::setData($key, $value);
     }
 	
+	public function unsetData($key=null)
+	{
+		$ignored = 1;
+		$bconf = $this->getData('litemage_bconf');
+		if (isset($bconf['extra'][$key])) {
+			unset($bconf['extra'][$key]);
+			parent::setData('litemage_bconf', $bconf);
+			$ignored = 0;
+		}
+		Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_nameInLayout . " called unsetData $key ignored=$ignored");
+		return parent::unsetData($key);
+	}
 }

@@ -18,7 +18,7 @@
  *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
  *
  * @package   LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @copyright  Copyright (c) 2015-2017 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
  * @license     https://opensource.org/licenses/GPL-3.0
  */
 
@@ -26,10 +26,10 @@
 class Litespeed_Litemage_Helper_Esi
 {
 
-    const LSHEADER_PURGE = 'X-LiteSpeed-Purge' ;
-    const LSHEADER_CACHE_CONTROL = 'X-LiteSpeed-Cache-Control' ;
-    const LSHEADER_CACHE_TAG = 'X-LiteSpeed-Tag' ;
-    const LSHEADER_CACHE_VARY = 'X-LiteSpeed-Vary';
+    const LSHEADER_PURGE = 'X-Litespeed-Purge' ;
+    const LSHEADER_CACHE_CONTROL = 'X-Litespeed-Cache-Control' ;
+    const LSHEADER_CACHE_TAG = 'X-Litespeed-Tag' ;
+    const LSHEADER_CACHE_VARY = 'X-Litespeed-Vary';
     const TAG_PREFIX_CMS = 'G.' ;
     const TAG_PREFIX_CATEGORY = 'C.' ;
     const TAG_PREFIX_PRODUCT = 'P.' ;

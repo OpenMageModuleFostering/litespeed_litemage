@@ -27,7 +27,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.3.3</label>
+            <label>LiteMage Cache 1.3.4</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -44,7 +44,7 @@
                 <info translate="label,comment" module="litemage">
                     <label>About LiteMage</label>
                     <comment> <![CDATA[
-<p>LiteMage Cache is a powerful full page cache built for Magento stores running on LiteSpeed Web Server. For more information on the installation and configuration of the LiteMage Cache module, visit the <a href="https://www.litespeedtech.com/support/wiki/doku.php/litespeed_wiki:cache:litemage" target="_blank">LiteMage Cache Wiki</a>.</p>
+<p>LiteMage Cache is a powerful full page cache built for Magento stores running on LiteSpeed Web Server or Web ADC. For more information on the installation and configuration of the LiteMage Cache module, visit the <a href="https://www.litespeedtech.com/support/wiki/doku.php/litespeed_wiki:cache:litemage" target="_blank">LiteMage Cache Wiki</a>.</p>
 ]]></comment>
                     <frontend_type>label</frontend_type>
                     <show_in_default>1</show_in_default>

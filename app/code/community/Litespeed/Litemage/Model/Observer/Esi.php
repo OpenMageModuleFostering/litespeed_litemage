@@ -18,7 +18,7 @@
  *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
  *
  * @package   LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @copyright  Copyright (c) 2015-2017 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
  * @license     https://opensource.org/licenses/GPL-3.0
  */
 
@@ -76,7 +76,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 
 	protected function _catchMissedChecks()
 	{
-		if ($this->_internal['route_info'] == 'customer_account_loginPost') {
+		if (isset($this->_internal['route_info']) && ($this->_internal['route_info'] == 'customer_account_loginPost')) {
 			if (!isset($this->_internal['purgeUserPrivateCache']) && Mage::getSingleton('customer/session')->isLoggedIn()) {
 				$this->_viewVary[] = 'env';
 				$this->_viewVary[] = 'review';
@@ -107,6 +107,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
         $curActionName = $controller->getFullActionName() ;
         $reqUrl = $req->getRequestString() ;
 		$session = Mage::getSingleton('core/session');
+		$this->_reservForwardInfo($req);
 		
 		if (!isset($_COOKIE['frontend']) && isset($_COOKIE['litemage_key'])) {
 			//restore formkey
@@ -236,7 +237,52 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 
     }
 
-    // return reason string. if can be cached, return false;
+	protected function _reservForwardInfo($req)
+	{
+		$info = $req->getBeforeForwardInfo();
+		if (!empty($info) && !isset($this->_internal['before_forward'])) {
+			$tags = array();
+			if ($info['controller_name'] == 'product') {
+				if (isset($info['params']['id']) && $info['params']['id'] ) {
+					$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_PRODUCT . $info['params']['id'];
+				}
+				if (isset($info['params']['category']) && $info['params']['category'] ) {
+					$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $info['params']['category'];
+				}
+			}
+			elseif ($info['controller_name'] == 'category') {
+				if (isset($info['params']['id']) && $info['params']['id'] ) {
+					$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $info['params']['id'];
+				}
+			}			
+			else {
+				if ($this->_isDebug)
+					$this->_config->debugMesg('Uncaptured Forwarded Info ' . print_r($info,true));
+			}
+			$this->_internal['before_forward'] = $tags;
+		}		
+	}
+	
+	protected function _addForwardTags($resp)
+	{
+		if (isset($this->_internal['before_forward']) && !empty($this->_internal['before_forward'])) {
+			$headers = $resp->getHeaders();
+			$xtag = Litespeed_Litemage_Helper_Esi::LSHEADER_CACHE_TAG;
+			$value = implode(',', $this->_internal['before_forward']);
+			foreach ($headers as $header) {
+				if (strcasecmp($header['name'],$xtag) == 0) {
+					$value = implode(',', array_unique(array_merge(explode(',', $header['value']), $this->_internal['before_forward'])));
+					break;
+				}
+			}
+			if ($this->_isDebug) {
+				$this->_config->debugMesg('Updated header ' . $xtag . ': ' . $value);
+			}
+			$resp->setHeader($xtag, $value, true);
+		}
+	}
+	
+	// return reason string. if can be cached, return false;
     protected function _cannotCache( $req, $curActionName, $requrl )
     {
         if ( $req->isPost() ) {
@@ -398,6 +444,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 			if (isset($this->_routeCache['content']['respcode'])) {
 				$resp->setHttpResponseCode($this->_routeCache['content']['respcode']);
 			}
+			$this->_addForwardTags($resp);
             if ($this->_isDebug) {
                 // last debug mesg
                 $this->_config->debugMesg('###### Served whole route from cache') ;
@@ -434,6 +481,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
             $this->_config->saveInternalCache(serialize($content), $this->_routeCache['cacheId']);
         }
 
+		$this->_addForwardTags($resp);
         if ($this->_isDebug) {
             $this->_config->debugMesg('###### end of process, body length ' . strlen($resp->getBody()));
         }
