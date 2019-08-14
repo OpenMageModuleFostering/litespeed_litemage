@@ -4,14 +4,14 @@
  * LiteMage by LiteSpeed Technologies, Inc.
  * 
  * @package    LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015 LiteSpeed Technologies (http://www.litespeedtech.com)
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies (http://www.litespeedtech.com)
  */
 -->
 
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.0.14</label>
+            <label>LiteMage Cache 1.0.15</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
