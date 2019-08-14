@@ -11,7 +11,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.0.15</label>
+            <label>LiteMage Cache 1.0.16</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -272,12 +272,22 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </max_time>
+                        <interval translate="label,comment">
+                            <label>Warm Up Interval (seconds)</label>
+                            <comment>Specify how often the full list is crawled. Crawler requests will always be served directly by the backend. If you set this interval to be less than the public TTL, your cache will always be kept warm.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-digits-range digits-range-600-</validate>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </interval>
                         <priority translate="label,comment">
                             <label>Warm Up Priority</label>
                             <comment>Sets a custom warm up sequence at the store level. This value should be larger than 0, the lower the number, the higher the priority.</comment>
                             <frontend_type>text</frontend_type>
                             <validate>validate-digits validate-greater-than-zero</validate>
-                            <sort_order>50</sort_order>
+                            <sort_order>60</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -286,7 +296,7 @@
                             <label>Crawl Non-Default Currencies</label>
                             <comment>Warm up pages for non-default currencies. Set to "ALL" to include all available currencies, or list only the most used currencies. Space, comma separated currency codes, like "USD,GBP,EUR".</comment>
                             <frontend_type>text</frontend_type>
-                            <sort_order>60</sort_order>
+                            <sort_order>70</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -324,7 +334,7 @@
                             <comment>Specify how often you want to crawl the custom Url list.</comment>
                             <frontend_type>text</frontend_type>
                             <validate>validate-digits validate-digits-range-600-</validate>
-                            <sort_order>90</sort_order>
+                            <sort_order>100</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>

@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.15</version>
+            <version>1.0.16</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -435,11 +435,12 @@
                 <load_limit>5</load_limit>
                 <thread_limit>6</thread_limit>
                 <max_time>300</max_time>
+                <interval>28800</interval>
                 <priority>100</priority>
                 <multi_currency/>
                 <custlist/>
                 <custlist_priority>50</custlist_priority>
-                <custlist_interval>3600</custlist_interval>
+                <custlist_interval>7200</custlist_interval>
             </warmup>
             <default>
                 <!-- Full or partial match on controller full action name for cacheable routes. Space, return, and comma separated -->
