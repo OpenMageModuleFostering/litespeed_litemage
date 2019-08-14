@@ -123,18 +123,36 @@
                     </fields>
                 </default>
                 <donotcache translate="label" module="litemage">
-                    <label>User-Defined Do-Not-Cache</label>
+                    <label>User-Defined Cache Rules</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>30</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
                     <fields>
+                        <cache_routes translate="label comment">
+                            <label>Cacheable Routes</label>
+                            <frontend_type>textarea</frontend_type>
+                            <comment>Routes to be cached. Partial matches will also be cached. Space, comma, return separated.</comment>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </cache_routes>
+                        <nocache_subroutes translate="label comment">
+                            <label>Do-Not-Cache Subroutes</label>
+                            <frontend_type>textarea</frontend_type>
+                            <comment>Subroutes within cacheable routes to be excluded from caching. Space, comma, return separated.</comment>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </nocache_subroutes>
                         <vars translate="label comment">
                             <label>Do-Not-Cache GET Parameters</label>
-                            <comment>Comma-separated list of GET variables that prevent caching in addition to system-defined do-not-cache GET variables.</comment>
+                            <comment>Comma-separated list of GET variables that prevents caching URLs within Cacheable Routes.</comment>
                             <frontend_type>text</frontend_type>
-                            <sort_order>20</sort_order>
+                            <sort_order>30</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -142,8 +160,8 @@
                         <urls translate="label comment">
                             <label>URL Blacklist</label>
                             <frontend_type>textarea</frontend_type>
-                            <comment>List of relative URLs to exclude from caching. </comment>
-                            <sort_order>30</sort_order>
+                            <comment>List of relative URLs contained in Cacheable Routes that you would like to exclude from caching. Space, comma, return separated.</comment>
+                            <sort_order>40</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -179,7 +197,7 @@
                         </load_limit>
                         <max_time translate="label comment">
                             <label>Maximum Run Time (seconds)</label>
-                            <comment>Limit how long the warm up can run. Warm up cron job is set to run every 10 minutes. Warm up time limit should be less than the cron job interval.</comment>
+                            <comment>Limit how long Cache Warm Up can run. Warm up cron job is set to run every 10 minutes. Set this value lower than the cron job time interval.</comment>
                             <frontend_type>text</frontend_type>
                             <validate>validate-greater-than-zero</validate>
                             <sort_order>30</sort_order>

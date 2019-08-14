@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.5</version>
+            <version>1.0.6</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -426,6 +426,9 @@
                 <fullcache_routes><![CDATA[cms_index_noRoute]]></fullcache_routes>
             </default>
             <donotcache>
+                <!-- configured through Admin Panel, do not update here. Customized settings will be picked up from database -->
+                <cache_routes/>
+                <nocache_subroutes/>
                 <vars/>
                 <urls/>
             </donotcache>
