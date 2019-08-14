@@ -46,6 +46,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
     protected $_routeCache;
     protected $_injectedBlocks = array();
 	protected $_startDynamic = false;
+	protected $_internal = array();
 
     protected function _construct()
     {
@@ -66,10 +67,23 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
     public function purgeUserPrivateCache( $eventObj )
     {
         if ( $this->_moduleEnabledForUser ) {
-            $this->_helper->setPurgeHeader(array('*'), $eventObj->getEvent()->getName(), NULL, true) ;
+            // do not purge all private, session is new anyway
             $this->_viewVary[] = 'env';
+			$this->_viewVary[] = 'review';
+			$this->_internal['purgeUserPrivateCache'] = 1;
         }
     }
+
+	protected function _catchMissedChecks()
+	{
+		if ($this->_internal['route_info'] == 'customer_account_loginPost') {
+			if (!isset($this->_internal['purgeUserPrivateCache']) && Mage::getSingleton('customer/session')->isLoggedIn()) {
+				$this->_viewVary[] = 'env';
+				$this->_viewVary[] = 'review';
+				$this->_internal['purgeUserPrivateCache'] = 1;
+			}
+		}
+	}
 
     //customer_login
     //other are captured when pre-dispatch by action name
@@ -91,6 +105,12 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
         $req = Mage::app()->getRequest() ;
         $controller = $eventObj->getControllerAction();
         $curActionName = $controller->getFullActionName() ;
+        $reqUrl = $req->getRequestString() ;
+
+		$this->_helper->setInternal(array('route_info' => $curActionName,
+			'is_ajax' => $req->isXmlHttpRequest())); // here do not use isAjax()
+		$this->_internal['route_info'] = $curActionName;
+
         $reason = '';
 
 		if ($this->_helper->notCacheable()) {
@@ -101,7 +121,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 			return;
 		}
 
-        if (($lmdebug = $req->getParam('LITEMAGE_DEBUG')) !== NULL) {
+        if (($lmdebug = $req->getParam('LITEMAGE_DEBUG')) !== null) {
             // either isDebug or IP match
             if ($this->_isDebug || $this->_config->isRestrainedIP() || $this->_config->isAdminIP()) {
                 if ($lmdebug == 'SHOWHOLES') {
@@ -122,7 +142,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
         }
 
         if ($reason == '') {
-            $reason = $this->_cannotCache($req, $curActionName);
+            $reason = $this->_cannotCache($req, $curActionName, $reqUrl);
         }
 
         if ($reason != '') {
@@ -147,7 +167,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
                 $this->_setWholeRouteCache($curActionName, $controller);
             }
 
-            if (($lmctrl = $req->getParam('LITEMAGE_CTRL')) !== NULL) {
+            if (($lmctrl = $req->getParam('LITEMAGE_CTRL')) !== null) {
                 // either isDebug or IP match
                 if ($this->_config->isAdminIP()) {
                     if ($lmctrl == 'PURGE') {
@@ -172,11 +192,21 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 			}
             $this->_helper->setCacheControlFlag(Litespeed_Litemage_Helper_Esi::CHBM_CACHEABLE, $ttl) ;
 
-            if (Mage::getSingleton('core/cookie')->get('litemage_cron') == Litespeed_Litemage_Model_Observer_Cron::USER_AGENT) {
+			$fullUrl = ltrim($reqUrl, '/');
+			if (!empty($_SERVER['QUERY_STRING'])) {
+				$fullUrl .= '?' . $_SERVER['QUERY_STRING'];
+			}
+
+			$internalData = array( 'url' => $fullUrl);
+
+			if ( $cron = Mage::getSingleton('core/cookie')->get('litemage_cron') ) {
+				$internalData['cron'] = $cron;
                 $currency = Mage::getSingleton('core/cookie')->get('currency');
                 if ($currency != '')
                     Mage::app()->getStore()->setCurrentCurrencyCode($currency);
             }
+			$this->_helper->setInternal($internalData);
+
         }
 
         if ( $this->_isDebug ) {
@@ -186,10 +216,8 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
     }
 
     // return reason string. if can be cached, return false;
-    protected function _cannotCache( $req, $curActionName )
+    protected function _cannotCache( $req, $curActionName, $requrl )
     {
-        $requrl = $req->getRequestString() ;
-
         if ( $req->isPost() ) {
             return 'POST';
         }
@@ -257,6 +285,10 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 				$this->_injectedBlocks[] = $block;
 			}
         }
+		elseif ($block instanceof Mage_Review_Block_Form) {
+			$this->_helper->initNickName($block);
+			$this->_viewVary[] = 'review';
+		}
     }
 
     //controller_action_layout_generate_blocks_after
@@ -337,6 +369,8 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
             return;
         }
 
+		$this->_catchMissedChecks();
+
         if ( count($this->_viewVary) ) {
             // this needs to run before helper's beforeResponseSend
             Mage::Helper('litemage/viewvary')->persistViewVary($this->_viewVary) ;
@@ -344,8 +378,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 
         $extraHeaders = $this->_helper->beforeResponseSend($resp) ;
 
-        if (isset($this->_routeCache['cacheId']) && Mage::app()->useCache('layout')) {
-            $tags = array(Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG);
+        if (isset($this->_routeCache['cacheId']) && $this->_config->useInternalCache()) {
             $content = array();
             $content['body'] = $resp->getBody();
 			$cheaders = array();
@@ -362,7 +395,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 				$content['respcode'] = $curRespCode;
 			}
 
-            Mage::app()->saveCache(serialize($content), $this->_routeCache['cacheId'], $tags);
+            $this->_config->saveInternalCache(serialize($content), $this->_routeCache['cacheId']);
         }
 
         if ($this->_isDebug) {

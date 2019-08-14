@@ -90,6 +90,8 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 				break ;
 			case 'getFormKey': $this->getFormKeyAction() ;
 				break ;
+			case 'getNickName': $this->getNickNameAction() ;
+				break ;
 			case 'getBlock': $this->getBlockAction() ;
 				break ;
 			case 'getMessage': $this->getMessageAction() ;
@@ -108,6 +110,11 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 	}
 
 	public function getFormKeyAction()
+	{
+		$this->_getSingle() ;
+	}
+
+	public function getNickNameAction()
 	{
 		$this->_getSingle() ;
 	}
@@ -193,42 +200,6 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			}
 		}
 
-		return $out ;
-	}
-
-	protected function _renderEsiBlock1( $esiData, $saveLayout )
-	{
-		$blockIndex = $esiData->getLayoutAttribute('bi') ;
-		$isFullLayout = $saveLayout ;
-		$block = $this->_layout->getEsiBlock($blockIndex, $isFullLayout) ;
-		if ( ! $block ) {
-			if ( $this->_isDebug ) {
-				$this->_config->debugMesg('cannot get esi block ' . $blockIndex) ;
-			}
-			return '' ;
-		}
-		try {
-			$out = $block->toHtml() ;
-			if ( $this->_env['translate_inline'] ) {
-				Mage::getSingleton('core/translate_inline')->processResponseBody($out) ;
-			}
-		} catch ( Exception $e ) {
-			if ( $this->_isDebug ) {
-				$this->_config->debugMesg('_renderEsiBlock, exception for block ' . $blockIndex . ' : ' . $e->getMessage()) ;
-			}
-		}
-
-		if ( $saveLayout && Mage::app()->useCache('layout') ) {
-			$cacheId = $esiData->getLayoutCacheId() ;
-			if ( $cacheId ) {
-				$layoutXml = $block->getData('lm_xml') ;
-				if ( $layoutXml ) {
-					$tags = array( Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG,
-						Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG ) ;
-					Mage::app()->saveCache($layoutXml, $cacheId, $tags) ;
-				}
-			}
-		}
 		return $out ;
 	}
 
@@ -338,38 +309,41 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 
 		foreach ( $this->_processed as $url => $esiData ) {
 			if ( is_string($esiData) ) {
-				$body .= $esiData ;
+				$inlineHtml = $esiData;
+				$refreshed = 4; // direct string
 			}
 			else {
 				$inlineHtml = $esiData->getInlineHtml($esiInlineTag, $shared) ;
 				$refreshed = $this->_refreshCacheEntry($url, $esiData, $inlineHtml) ;
-				if ( $this->_isDebug ) {
-					if ( $refreshed == -1 )
-						$status = ':no_cache' ;
-					elseif ( $refreshed == 0 )
-						$status = '' ;
-					elseif ( $refreshed == 1 )
-						$status = ':upd_entry' ;
-					elseif ( $refreshed == 2 )
-						$status = ':upd_detail' ;
-					elseif ( $refreshed == 3 )
-						$status = ':match_shared' ;
+			}
+			if ( $this->_isDebug ) {
+				switch ($refreshed) {
+					case -1: $status = ':no_cache' ; break;
+					case 1: $status = ':upd_entry' ; break;
+					case 2: $status = ':upd_detail' ; break;
+					case 3: $status = ':match_shared' ; break;
+					case 4: $status = ':use_shared ' ; break;
+					case 0:
+					default: $status = '';
+				}
 
+				if ($refreshed != 4) {
 					$status .= ' ' . $esiData->getBatchId() . ' ' ;
 					$cacheId = $esiData->getLayoutCacheId() ;
 					if ( $cacheId ) {
 						$status .= substr($cacheId, 11, 10) . ' ' ;
 					}
-					$this->_config->debugMesg('out' . $status . substr($inlineHtml, 0, strpos($inlineHtml, "\n"))) ;
 				}
-				$body .= $inlineHtml ;
+				$this->_config->debugMesg('out' . $status . substr($inlineHtml, 0, strpos($inlineHtml, "\n"))) ;
 			}
+			$body .= $inlineHtml ;
 		}
 		$this->getResponse()->setBody($body) ;
 
-		if ( $this->_env['cache_updated'] && Mage::app()->useCache('layout') ) {
-			$tags = array( Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG ) ;
-			Mage::app()->saveCache(serialize($this->_esiCache), $this->_env['cache_id'], $tags) ;
+
+
+		if ( $this->_env['cache_updated'] && $this->_config->useInternalCache() ) {
+			$this->_config->saveInternalCache(serialize($this->_esiCache), $this->_env['cache_id']) ;
 		}
 	}
 
@@ -385,11 +359,11 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 				$this->_processLayout($urllist);
 			}
 			else {
-				$hanldes = $this->_env['defaultHandles'] ;
+				$handles = $this->_env['defaultHandles'] ;
 				if ( $batchId != Litespeed_Litemage_Model_EsiData::BATCH_HANLE ) {
-					$hanldes = array_merge(explode(',', $batchId), $hanldes) ;
+					$handles = array_merge(explode(',', $batchId), $handles) ;
 				}
-				$this->_layout->loadHanleXml($hanldes) ;
+				$this->_layout->loadHanleXml($handles) ;
 				$this->_saveEsiXml($urllist);
 				$this->_processLayout($urllist);
 			}
@@ -402,7 +376,7 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			$bi = $esiData->getLayoutAttribute('bi') ;
 			if ( $block = $this->_layout->getBiBlock($bi) ) {
 				if ($layoutXml = $block->getXmlString($bi) ) {
-					$esiData->saveLayoutCache($this->_env['layout_unique'], $layoutXml);
+					$esiData->saveLayoutCache($this->_env['layout_unique'], $layoutXml, $this->_config);
 				}
 			}
 			else {
@@ -411,7 +385,6 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 				}
 			}
 		}
-
 	}
 
 	protected function _processLayout($urllist)
@@ -423,7 +396,6 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			$esiData->setRawOutput($output, $response->getHttpResponseCode()) ;
 			$this->_processed[$url] = $esiData ;
 		}
-
 	}
 
 	protected function _processDirect( $urllist )
@@ -432,6 +404,9 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			switch ( $esiData->getAction() ) {
 				case Litespeed_Litemage_Model_EsiData::ACTION_GET_FORMKEY:
 					$this->_procDirectFormKey($esiData) ;
+					break ;
+				case Litespeed_Litemage_Model_EsiData::ACTION_GET_NICKNAME:
+					$this->_procDirectNickName($esiData) ;
 					break ;
 				case Litespeed_Litemage_Model_EsiData::ACTION_LOG:
 					$this->_procDirectLog($esiData) ;
@@ -458,6 +433,17 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		}
 
 		$esiData->setRawOutput($real_formkey) ;
+	}
+
+	protected function _procDirectNickName( $esiData )
+	{
+		$nickname = '';
+        $session = Mage::getSingleton('customer/session');
+        if ($session->isLoggedIn()) {
+            $nickname = Mage::helper('core')->escapeHtml($session->getCustomer()->getFirstname());
+        }
+
+		$esiData->setRawOutput($nickname) ;
 	}
 
 	protected function _procDirectLog( $esiData )
@@ -555,7 +541,7 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			}
 		}
 
-		$this->_layout->getUpdate()->setCachePrefix($unique) ;
+		$this->getLayout()->getUpdate()->setCachePrefix($unique) ;
 	}
 
 	protected function _getShared( $url )
@@ -574,9 +560,11 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			return -1 ;
 		}
 
+		$isEntryOnly = ($esiData->getAction() == Litespeed_Litemage_Model_EsiData::ACTION_GET_FORMKEY );
+
 		if ( $this->_env['shared'] ) {
 			if ( empty($this->_esiCache[$url]) ) {
-				$this->_esiCache[$url] = $inlineHtml ;
+				$this->_esiCache[$url] = $isEntryOnly ? self::ESICACHE_ENTRYONLY : $inlineHtml ;
 				$this->_env['cache_updated'] = true ;
 				return 2 ;
 			}
@@ -585,11 +573,7 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 
 		if ( ! isset($this->_esiCache[$url]) ) {
 			// insert if entry not exist
-			if ( $esiData->getAction() == Litespeed_Litemage_Model_EsiData::ACTION_GET_FORMKEY )
-				$this->_esiCache[$url] = self::ESICACHE_ENTRYONLY ;
-			else
-				$this->_esiCache[$url] = '' ;
-
+			$this->_esiCache[$url] = $isEntryOnly ? self::ESICACHE_ENTRYONLY : '' ;
 			$this->_env['cache_updated'] = true ;
 			return 1 ;
 		}

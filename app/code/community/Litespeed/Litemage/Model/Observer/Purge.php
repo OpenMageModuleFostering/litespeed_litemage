@@ -26,8 +26,6 @@
 class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
 {
 
-    const WARMUP_DELTA_CACHE_ID = 'litemage_warmup_delta' ;
-
     protected $_curProductId ;
 
     /**
@@ -81,7 +79,7 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
                         $cacheTags[] = $type . '.' . $tag;
                     }
                     if (count($cacheTags)) {
-                        $this->_purgeTagByAdmin($cacheTags, 'by ID ' . $ids . ' (from cache management)');
+                        $this->_purgeTagByAdmin($cacheTags, 'by tag ' . implode(',', $cacheTags) . ' (from cache management)');
                     }
                 }
             }
@@ -175,57 +173,82 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
         } catch ( Exception $e ) {
             Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCatalogCategory: ' . $e->getMessage()) ;
         }
+
     }
 
     //admin catalog_product_save_commit_after
     public function adminPurgeCatalogProduct( $eventObj )
-    {
-        try {
-            if ( Mage::helper('litemage/data')->moduleEnabled() ) {
-                $product = $eventObj->getEvent()->getProduct() ;
-                if ( $product != null ) {
-                    $this->_purgeByProduct($product, 'adminPurgeCatalogProduct') ;
-                }
-            }
-        } catch ( Exception $e ) {
-            Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCatalogProduct: ' . $e->getMessage()) ;
-        }
-    }
-
-    // global cataloginventory_stock_item_save_after
-    public function purgeCatalogProductByStock_orig( $eventObj )
-    {
-        try {
-            if ( Mage::helper('litemage/data')->moduleEnabled() ) {
-                $item = $eventObj->getEvent()->getItem() ;
-                if ( $item->getStockStatusChangedAutomatically() || ($item->getOriginalInventoryQty() <= 0 && $item->getQty() > 0 && $item->getQtyCorrection() > 0) ) {
-                    $product = Mage::getModel('catalog/product')->load($item->getProductId());
-                    $this->_purgeByProduct($product, 'purgeCatalogProductByStock') ;
-					Mage::helper('litemage/data')->debugMesg("in cataloginventory_stock_item_save_after with qy change");
-                }
-				else {
-					Mage::helper('litemage/data')->debugMesg("in cataloginventory_stock_item_save_after -- no change");
+	{
+		try {
+			if ( Mage::helper('litemage/data')->moduleEnabled() ) {
+				$product = $eventObj->getEvent()->getProduct() ;
+				if ( ($product != null) &&
+						( $tags = $this->_getPurgeProductTags($product, true)) ) {
+					$this->_purgeTagByAdmin($tags, $product->getName(), 'adminPurgeCatalogProduct - catalog_product_save_commit_after') ;
 				}
-            }
-        } catch ( Exception $e ) {
-            Mage::helper('litemage/data')->debugMesg('Error on purgeCatalogProductByStock: ' . $e->getMessage()) ;
-        }
-    }
+			}
+		} catch ( Exception $e ) {
+			Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCatalogProduct: ' . $e->getMessage()) ;
+		}
+	}
 
+	// global cataloginventory_stock_item_save_after
     public function purgeCatalogProductByStock( $eventObj )
     {
         try {
-            if ( Mage::helper('litemage/data')->moduleEnabled() ) {
+			$helper = Mage::helper('litemage/data');
+            if ( $helper->moduleEnabled() ) {
                 $item = $eventObj->getEvent()->getItem() ;
+				$option = $helper->getConf(Litespeed_Litemage_Helper_Data::CFG_FLUSH_PRODCAT) ;
 
-                if ( $item->getStockStatusChangedAutomatically() ) {
-					$product = Mage::getModel('catalog/product')->load($item->getProductId());
-					$this->_purgeByProduct($product, 'purgeCatalogProductByStock - getStockStatusChangedAutomatically') ;
+				$changedauto = $item->getStockStatusChangedAutomatically() ;
+				$origqty = $item->getOriginalInventoryQty();
+				$qty = $item->getQty();
+				$qtycorrection = $item->getQtyCorrection();
+
+				$qtyChanged = $qtycorrection > 0;
+				$stockStatusChanged = $changedauto || ($origqty <= 0 && $qty > 0 && $qtycorrection > 0);
+
+				$purgeProd = false;
+				$purgeCategory = false;
+
+				switch ($option) {
+					case 1:	// Only flush product and categories when stock status change
+						if ($stockStatusChanged) {
+							$purgeProd = true;
+							$purgeCategory = true;
+						}
+						break;
+					case 2:	// Flush product when stock status change, do not flush categories
+						if ($stockStatusChanged) {
+							$purgeProd = true;
+						}
+						break;
+					case 3:	// Always flush product and categories when qty/stock status change
+						if ($qtyChanged || $stockStatusChanged) {
+							$purgeProd = true;
+							$purgeCategory = true;
+						}
+						break;
+					case 0:	// Flush product when qty/stock status change, flush categories only when stock status change
+					default:
+						if ($qtyChanged || $stockStatusChanged) {
+							$purgeProd = true;
+						}
+						if ($stockStatusChanged) {
+							$purgeCategory = true;
+						}
+
 				}
-				else if ($item->getOriginalInventoryQty() <= 0 && $item->getQty() > 0 && $item->getQtyCorrection() > 0 ) {
-                    $product = Mage::getModel('catalog/product')->load($item->getProductId());
-                    $this->_purgeByProduct($product, 'purgeCatalogProductByStock - qty ') ;
-                }
+
+				$reason = "in cataloginventory_stock_item_save_after  option = $option purgeprod = $purgeProd purgeCategory = $purgeCategory statusChangedAuto = $changedauto , origQty = $origqty , qty = $qty, qtyCorrection = $qtycorrection";
+				if ($purgeProd) {
+					$product = Mage::getModel('catalog/product')->load($item->getProductId());
+					if ($tags = $this->_getPurgeProductTags($product, $purgeCategory)) {
+						Mage::helper('litemage/esi')->setPurgeHeader($tags, $reason) ;
+					}
+				}
+				Mage::helper('litemage/data')->debugMesg($reason);
             }
         } catch ( Exception $e ) {
             Mage::helper('litemage/data')->debugMesg('Error on purgeCatalogProductByStock: ' . $e->getMessage()) ;
@@ -251,11 +274,11 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
         }
     }
 
-    protected function _purgeByProduct( $product, $reason )
+    protected function _getPurgeProductTags( $product, $purgeCategory )
     {
         $productId = $product->getId() ;
         if ( $this->_curProductId == $productId )
-            return ; // already purged
+            return null; // already purged
         $this->_curProductId = $productId ;
 
         $cids = $product->getCategoryIds() ;
@@ -278,37 +301,27 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
             }
         }
 
-        $cids = array_unique($cids) ;
-        $pcids = array() ;
+		if ($purgeCategory) {
+			$cids = array_unique($cids) ;
+			$pcids = array() ;
 
-        foreach ( $cids as $cid ) {
-            $tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $cid ;
-            $cat = Mage::getModel('catalog/category')->load($cid) ;
-            $pcids = array_merge($pcids, $cat->getParentIds()) ;
-        }
+			foreach ( $cids as $cid ) {
+				$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $cid ;
+				$cat = Mage::getModel('catalog/category')->load($cid) ;
+				$pcids = array_merge($pcids, $cat->getParentIds()) ;
+			}
 
-        $pcids = array_diff(array_unique($pcids), $cids) ;
-        foreach ( $pcids as $cid ) {
-            $cat = Mage::getModel('catalog/category')->load($cid) ;
-            $dispmode = $cat->getDisplayMode() ;
-            if ( $dispmode == Mage_Catalog_Model_Category::DM_PRODUCT || $dispmode == Mage_Catalog_Model_Category::DM_MIXED )
-                $tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $cid ;
-        }
+			$pcids = array_diff(array_unique($pcids), $cids) ;
+			foreach ( $pcids as $cid ) {
+				$cat = Mage::getModel('catalog/category')->load($cid) ;
+				$dispmode = $cat->getDisplayMode() ;
+				if ( $dispmode == Mage_Catalog_Model_Category::DM_PRODUCT || $dispmode == Mage_Catalog_Model_Category::DM_MIXED )
+					$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $cid ;
+			}
+		}
 
-        $this->_purgeTagByAdmin($tags, $product->getName(), $reason) ;
+        return $tags;
     }
 
-    /* protected function _addDelta($urls)
-      {
-      $app = Mage::app();
-      if ($delta = $app->loadCache( self::WARMUP_DELTA_CACHE_ID )) {
-      $delta .= "\n" . implode("\n", $urls);
-      }
-      else {
-      $delta = time() . "\n" . implode("\n", $urls);
-      }
-      $tags = array(Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG);
-      $app->saveCache($delta, self::WARMUP_DELTA_CACHE_ID, $tags);
 
-      } */
 }

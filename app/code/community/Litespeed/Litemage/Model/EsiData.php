@@ -27,6 +27,7 @@ class Litespeed_Litemage_Model_EsiData
 {
 
 	const ACTION_GET_FORMKEY = 'getFormKey';
+	const ACTION_GET_NICKNAME = 'getNickName';
 	const ACTION_LOG = 'log';
 	const ACTION_GET_BLOCK = 'getBlock';
 	const ACTION_GET_COMBINED = 'getCombined';
@@ -57,6 +58,9 @@ class Litespeed_Litemage_Model_EsiData
 		switch ($this->_action) {
 			case self::ACTION_GET_FORMKEY:
 				$this->_initFormKey($configHelper);
+				break;
+			case self::ACTION_GET_NICKNAME:
+				$this->_initNickName($configHelper);
 				break;
 			case self::ACTION_LOG:
 				$this->_initLogProduct($params);
@@ -123,14 +127,13 @@ class Litespeed_Litemage_Model_EsiData
 		return $this->_batchId;
 	}
 
-	public function saveLayoutCache($layoutUnique, $xmlString)
+	public function saveLayoutCache($layoutUnique, $xmlString, $helper)
 	{
 		$this->_layoutCacheId = 'LAYOUT_ESI_' . md5($layoutUnique . '_' . $this->_layoutIdentifier);
 		$this->_layoutXml = $xmlString;
-		if ( Mage::app()->useCache('layout') ) {
-			$tags = array( Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG,
-					Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG ) ;
-			Mage::app()->saveCache($xmlString, $this->_layoutCacheId, $tags) ;
+		if ( $helper->useInternalCache() ) {
+			$tags = array(Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG ) ;
+			$helper->saveInternalCache($xmlString, $this->_layoutCacheId, $tags) ;
 		}
 	}
 
@@ -153,7 +156,7 @@ class Litespeed_Litemage_Model_EsiData
 	{
 		$this->_rawOutput = trim($rawOutput);
 		$this->_responseCode = $responseCode;
-		if ( $this->_cacheAttr['ttl'] > 0 && ! in_array($responseCode, array( 200, 301, 404 )) ) {
+		if ( $this->_cacheAttr['ttl'] > 0 && ($responseCode != 200)) { // for esi req, 301 and 404 also treat as error, nocache
 			$this->_cacheAttr['ttl'] = 0 ;
 		}
 	}
@@ -251,6 +254,13 @@ class Litespeed_Litemage_Model_EsiData
 		$this->_batchId = self::BATCH_DIRECT;
 	}
 
+	protected function _initNickName($configHelper)
+	{
+		$this->_cacheAttr['ttl'] = $configHelper->getConf(Litespeed_Litemage_Helper_Data::CFG_PRIVATETTL) ;
+		$this->_cacheAttr['tag'] = 'E.welcome';
+		$this->_batchId = self::BATCH_DIRECT;
+	}
+
 	protected function _initLogProduct( $params)
 	{
 		// ttl is 0, no cache
@@ -334,7 +344,6 @@ class Litespeed_Litemage_Model_EsiData
 		$dparams['_layout_Id_'] = $url1;
 		return $dparams ;
 	}
-
 
 }
 

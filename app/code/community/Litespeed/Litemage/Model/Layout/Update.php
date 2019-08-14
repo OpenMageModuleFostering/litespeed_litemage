@@ -49,14 +49,6 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 		parent::__construct() ;
 	}
 
-	public function resetUpdates()
-	{
-		if ( $this->_modified ) {
-			$this->_resetInternals() ;
-		}
-		return parent::resetUpdates() ;
-	}
-
 	public function resetHandles()
 	{
 		if ( $this->_modified ) {

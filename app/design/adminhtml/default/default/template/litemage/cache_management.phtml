@@ -137,7 +137,7 @@ if ($status = $this->getCrawlerStatus()) : ?>
 <div class="content-header">
     <table class="form-list" cellspacing="0">
         <tr>
-            <td><h3><?php echo $lmhelper->__('LiteMage Crawler Warm-up Status') ?><button type="submit" class="scalable"><span><?php echo $lmhelper->__('Refresh') ?></span></button></h3></td>
+            <td><h3><?php echo $lmhelper->__('LiteMage Crawler Warm-up Status') ?> <button type="submit" class="scalable"><span><?php echo $lmhelper->__('Refresh') ?></span></button></h3></td>
          </tr>
 		 <tr><td class="scope-label"><?php echo $lmhelper->__('You can click Reset All / Reset links below to restart a crawler queue.') ?></td></tr>
     </table>
@@ -153,7 +153,7 @@ if ($status = $this->getCrawlerStatus()) : ?>
 		<th class="no-link a-right"><?php echo $lmhelper->__('Prioirty') . '<br>' . $lmhelper->__('Run Interval (secs)')
 				. '<br>' . $lmhelper->__('Public TTL (secs)'); ?>
 		</th>
-		<th class="no-link a-center"><?php echo $lmhelper->__('Generated') . '<br>' . $lmhelper->__('Finished') . '<br>' . $lmhelper->__('Last Query Time'); ?></th>
+		<th class="no-link a-center"><?php echo $lmhelper->__('Last Round Finish Time') . '<br>' . $lmhelper->__('Generate Time | Finish Time') . '<br>' . $lmhelper->__('Last Query Time'); ?></th>
 		<th class="no-link"><?php echo $lmhelper->__('Environment') . '<br>' . $lmhelper->__('Current Vary'); ?></th>
 		<th class="no-link a-right"><?php echo $lmhelper->__('Current Position') . ' | ' . $lmhelper->__('List Size') . '<br>' . $lmhelper->__('Total Queried')
 				. '<br>' . $lmhelper->__('Current Status'); ?></th>
@@ -167,7 +167,7 @@ if ($status = $this->getCrawlerStatus()) : ?>
 				. '"> </a><br/> <a href="' . $status['url_reset'] . '?list=' . $s['id'] . '" title="Click to reset this crawler queue">' . $lmhelper->__('Reset') . '</a></td>'
 				. '<td>' . $s['store_name']. ' ('. $s['default_curr'] . ')<br>'. $s['baseurl'] . '<br>' . $s['file'] . '</td>'
 				. '<td class="a-right">' . $s['priority'] . '<br>' . $s['interval'] . '<br>' . $s['ttl'] . '</td>'
-				. '<td class="a-center">' . $s['gentime'] . '<br>' . $s['endtime'] . '<br>' . $s['lastquerytime'] . '</td>'
+				. '<td class="a-center">' . $s['lastendtime'] . '<br>' . $s['gentime'] . ' | ' . $s['endtime'] . '<br>' . $s['lastquerytime'] . '</td>'
 				. '<td>' . $s['env'] . '<br>' . $s['curvary'] . '</td>'
 				. '<td class="a-right">Current Position: ' . $s['curpos'] . '  |  List Size: ' . $s['listsize'] . ' <br>Total Queried:  '. $s['queried'] . '<br>' . $s['tmpmsg'] . '</td>'
 				. "</tr>\n";

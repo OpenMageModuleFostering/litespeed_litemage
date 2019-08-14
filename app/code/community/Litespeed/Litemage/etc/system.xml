@@ -27,7 +27,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.1.2</label>
+            <label>LiteMage Cache 1.2.0</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -128,15 +128,16 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </diff_customergroup>
-                        <diff_cookie translate="label,comment">
-                            <label>Separate Cache Copy for Customized Cookie Values</label>
-                            <comment>This settings has been retired since 1.0.11 as using rewrite rules is more efficient. Add the below rewrite rule in .htaccess:  <![CDATA[<br>]]>RewriteRule .* - [E=cache-vary:cookie_name]</comment>
-                            <frontend_type>label</frontend_type>
+                        <flush_prodcat translate="label,comment">
+                            <label>Flush Product and Categories When Product Qty Changes</label>
+                            <comment>Selection depends on whether product page shows quantity and whether category pages hide or label out of stock products.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>litemage/config_source_flushCategory</source_model>
                             <sort_order>70</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
-                        </diff_cookie>
+                        </flush_prodcat>
                         <alt_esi_syntax translate="label,comment">
                             <label>Use Alternative ESI Syntax</label>
                             <comment>If the standard ESI include tags are being filtered by some extension(s) and causing ESI parser errors, you can enable Alternative ESI Syntax, which is known only by LiteMage and LiteSpeed Web Server. </comment>
@@ -204,6 +205,15 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </nocache_subroutes>
+                        <fullcache_routes translate="label,comment">
+                            <label>Full Route Action Cache</label>
+                            <comment>Cache entire responses based on routes actions instead of URLs. The same content is cached for all URLs with this route action. For example, if all of your 404 pages are the same, you may add "cms_index_noRoute". This setting uses case sensitive exact matching and is space, comma, return separated.</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>25</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </fullcache_routes>
                         <vars translate="label,comment">
                             <label>Do-Not-Cache GET Parameters</label>
                             <comment>Comma-separated list of GET variables that prevents caching URLs within Cacheable Routes.</comment>
@@ -240,11 +250,20 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </toplinks>
+                        <toplinkstag translate="label,comment">
+                            <label>Additional Purge Tags for "toplinks" Blocks</label>
+                            <comment>The "toplinks" tag is associated with the "cart" and "wishlist" tags. This setting associates additional purge tags with the "toplinks" tag. For example, if you have minicompare on toplinks blocks you can add "compare" here. Tags are predefined in the config.xml file under litemage/esiblock. This setting uses a comma-separated list.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </toplinkstag>
                         <messages translate="label,comment">
                             <label>Customized Block Names for "messages" Tag</label>
                             <comment>Comma-separated list of customized block names associated with the "messages" tag. Only define here if the block is not derived from Mage_Core_Block_Messages.</comment>
                             <frontend_type>text</frontend_type>
-                            <sort_order>70</sort_order>
+                            <sort_order>80</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -261,13 +280,23 @@
                         <enable_warmup translate="label,comment">
                             <label>Enable Cache Warm Up</label>
                             <comment>Allow LiteMage to automatically warm up the cache. Magento cron job must be enabled.</comment>
-                            <frontend_type>select</frontend_type>
+                            <frontend_type>multiselect</frontend_type>
                             <source_model>litemage/config_source_enableWarmUp</source_model>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
                         </enable_warmup>                        
+                        <server_ip translate="label,comment">
+                            <label>LiteMage Server IP</label>
+                            <comment>Tell the crawler where the LiteMage cache server is located so it can directly hit the server instead of having to go through DNS lookup. Use this if LiteMage is behind a CDN or proxy server or on LiteSpeed Load Balancer in front of the crawler node.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>15</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </server_ip>
                         <load_limit translate="label,comment">
                             <label>Only Run When Load Is Less Than</label>
                             <comment>Warm up will only run when current server load is less than this limit.</comment>
@@ -300,7 +329,7 @@
                         </max_time>
                         <interval translate="label,comment">
                             <label>Warm Up Interval (seconds)</label>
-                            <comment>Specify how often the full list is crawled. Crawler requests will always be served directly by the backend. If you set this interval to be less than the public TTL, your cache will always be kept warm.</comment>
+                            <comment>Specify how often the full site map list is crawled. Crawler requests will always be served directly by the backend. If you set this interval to be less than the public TTL, your cache will always be kept warm.</comment>
                             <frontend_type>text</frontend_type>
                             <validate>validate-digits validate-digits-range digits-range-600-</validate>
                             <sort_order>50</sort_order>
@@ -346,11 +375,116 @@ Each file listed should contain a list of custom-defined URLs (one per line). Th
                             <validate>validate-customList</validate>
                             <source_model>litemage/config_source_customerGroup</source_model>
                             <backend_model>litemage/config_backend_warmUp</backend_model>
-                            <sort_order>85</sort_order>
+                            <sort_order>90</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
                         </custlist>
+                        <autolist_interval translate="label,comment">
+                            <label>Auto Collect List Interval (seconds)</label>
+                            <comment>Specify how often the auto collect list is crawled. The minimum value this can be set to is half the value of the public TTL. Values that are lower than that will be ignored.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-digits-range digits-range-600-</validate>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </autolist_interval>
+                        <autolist_priority translate="label,comment">
+                            <label>Auto Collect List Priority</label>
+                            <comment>The priority used when crawling the Auto Collect list. This value should be larger than 0, the lower the number, the higher the priority.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-greater-than-zero</validate>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </autolist_priority>
+                        <enable_autocollect translate="label,comment">
+                            <label>Enable Auto Collect</label>
+                            <comment>Enable automatically collecting additional URLs that are not currently being crawled. Once the list is fully collected, you can disable this collecting process and just crawl the collected URLs. This will also be disabled if Auto collected (deep crawling) URL list is not selected in the Enable Cache Warm Up setting.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>115</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enable_autocollect>
+                        <auto_collect_add translate="label,comment">
+                            <label>Add to Auto Collect List</label>
+                            <comment>Add additional URLs that are not currently being crawled if visited more than this number of times within the amount of time defined in the Auto Collect Time Frame setting. Only requests that hit backend can be counted.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-greater-than-zero</validate>
+                            <depends>
+                                <enable_autocollect>1</enable_autocollect>
+                            </depends>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </auto_collect_add>
+                        <auto_collect_robot translate="label,comment">
+                            <label>Include Robots in Auto Collect Visitor Count</label>
+                            <comment>The value of this setting will tell LiteMage to include or exclude robots such as GoogleBots when determining which pages to add or remove from the Auto Collect List.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <depends>
+                                <enable_autocollect>1</enable_autocollect>
+                            </depends>
+                            <sort_order>125</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </auto_collect_robot>
+                        <auto_collect_depth translate="label,comment">
+                            <label>Auto Collect Depth</label>
+                            <comment>The maximum number of GET parameters a URL can contain and still be auto collected. Valid range is 0 to 10.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-digits-range digits-range-0-10</validate>
+                            <depends>
+                                <enable_autocollect>1</enable_autocollect>
+                            </depends>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </auto_collect_depth>
+                        <auto_collect_remove translate="label,comment">
+                            <label>Remove from Auto Collect List</label>
+                            <comment>Remove from Auto Collect List if a URL is visited less than this number of times (excluding LiteMage Crawlers) within the amount of time defined in the Auto Collect Time Frame. This will actively keep the Auto Collect List from growing too large. This should be set to a lower value than the Add to Auto Collect List Setting. If this is set to 0, only 404 pages will be removed from the Auto Collect List.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-digits-range digits-range-0-</validate>
+                            <depends>
+                                <enable_autocollect>1</enable_autocollect>
+                            </depends>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </auto_collect_remove>
+                        <auto_collect_hours translate="label,comment">
+                            <label>Auto Collect Time Frame (hours)</label>
+                            <comment>Auto collect counter will be reset after this time frame.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-greater-than-zero</validate>
+                            <depends>
+                                <enable_autocollect>1</enable_autocollect>
+                            </depends>
+                            <sort_order>150</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </auto_collect_hours>
+                        <delta_depth translate="label,comment">
+                            <label>Delta Crawl Depth</label>
+                            <comment>After a tag is purged, if delta crawl is enabled, a delta URL list will be created. Set a limit on the number of GET parameters that a URL can have and still be included in the delta list. This value must be less than auto collect depth. Valid range is 0 to 3.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-digits-range digits-range-0-3</validate>
+                            <sort_order>160</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </delta_depth>
                     </fields>
                 </warmup>
 
@@ -371,11 +505,11 @@ Each file listed should contain a list of custom-defined URLs (one per line). Th
                             <show_in_store>0</show_in_store>
                         </allow_ips>
                         <debug translate="label,comment">
-                            <label>Enable Debug</label>
+                            <label>Enable Debug Log</label>
                             <comment>Prints additional information to /var/log/system.log for debugging purposes. (Ensure developer log is enabled.) 
                              <![CDATA[<span class="notice">Turn off for production use.</span>]]></comment>
                             <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <source_model>litemage/config_source_enableDebugLog</source_model>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>

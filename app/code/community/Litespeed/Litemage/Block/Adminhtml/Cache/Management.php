@@ -54,7 +54,17 @@ class Litespeed_Litemage_Block_Adminhtml_Cache_Management extends Mage_Adminhtml
         $base = Mage::getBaseUrl();
 		if ((stripos($base, 'http') !== false) && ($pos = strpos($base, '://'))) {
 			$pos2 = strpos($base, '/', $pos+ 4);
-			$statBase = ($pos2 === false) ? $base : substr($base, 0, $pos2);
+			if ($pos === false) {
+				$statBase = $base;
+			}
+			else {
+				$statBase = substr($base, 0, $pos2);
+				if (substr($base, $pos2+1, 1) == '~') {
+					if ($pos3 = strpos($base, '/', $pos2+1)) {
+						$statBase = substr($base, 0, $pos3);
+					}
+				}
+			}
 		}
 		$statUri = $statBase . $statUri;
 

@@ -26,10 +26,11 @@
 class Litespeed_Litemage_Helper_Viewvary
 {
 
-    protected $_vary = array( 'toolbar' => '_adjustToolbar', 'env' => '_setEnv' ) ;
+    protected $_vary = array( 'toolbar' => '_adjustToolbar', 'env' => '_setEnv', 'review' => '_checkReviewVary' ) ;
 
     public function persistViewVary( $tags )
     {
+		$tags = array_unique($tags);
         foreach ( $tags as $tag ) {
             $func = $this->_vary[$tag] ;
             $this->$func(true) ;
@@ -51,6 +52,26 @@ class Litespeed_Litemage_Helper_Viewvary
             Mage::helper('litemage/esi')->setDefaultEnvCookie();
         }
     }
+
+	protected function _checkReviewVary($isSave)
+	{
+		if ($isSave) {
+			// only set if there's existing cookie
+			if (!Mage::helper('review')->getIsGuestAllowToWrite()) {
+				// only logged in allow to write review
+				if (0 == Mage::helper('litemage/data')->getConf(Litespeed_Litemage_Helper_Data::CFG_DIFFCUSTGRP)) {
+					// no seperate copy per user group, so need to distinguish here
+					$cookieName = '_lscache_vary_review' ;
+					if (Mage::getSingleton('customer/session')->isLoggedIn()) {
+						Mage::helper('litemage/esi')->addEnvVars($cookieName, 'write', '1') ;
+					}
+					else {
+						Mage::helper('litemage/esi')->addEnvVars($cookieName) ;
+					}
+				}
+			}
+		}
+	}
 
     protected function _adjustToolbar( $isSave )
     {

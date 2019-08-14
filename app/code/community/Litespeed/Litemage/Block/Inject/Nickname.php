@@ -33,6 +33,9 @@
     * Update template code to:
     * <input type="text" name="nickname" id="nickname_field" class="input-text required-entry" value="<?php echo $this->getChildHtml('nickname') ?>" required/>
     * For regular esi injected block, we'll output html comment tags around it, however for this case, we can only output pure value.
+	*
+	* This is just one example. As of 1.2.0, the nickname output inside Review Form on a cacheable page (like in product view page) is handled automatically.
+	* You no longer need to manually adjust layout file.
 
  */
 

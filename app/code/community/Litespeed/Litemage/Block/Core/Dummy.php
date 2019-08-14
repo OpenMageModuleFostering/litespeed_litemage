@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LiteMage
  *
@@ -18,21 +19,30 @@
  *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
  *
  * @package   LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @copyright  Copyright (c) 2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
  * @license     https://opensource.org/licenses/GPL-3.0
  */
 
-
-class Litespeed_Litemage_Model_Config_Source_EnableWarmUp
+class Litespeed_Litemage_Block_Core_Dummy extends Mage_Core_Block_Abstract
 {
-    public function toOptionArray($isMultiselect)
+	protected $_name;
+
+	public function __construct($name)
 	{
-        $helper = Mage::helper('litemage/data');
-        return array(
-            array( 'value' => 1, 'label' => $helper->__( 'Store site map' ) ),
-            array( 'value' => 2, 'label' => $helper->__( 'Custom defined URL list' ) ),
-			array( 'value' => 4, 'label' => $helper->__( 'Auto collected (deep crawling) URL list' ) ),
-            array( 'value' => 8, 'label' => $helper->__( 'Delta list after tag purge' ) ),
-        );
-    }
+		// most time is root, head
+		$this->_name = $name;
+	}
+
+	// dummy block not exist in ESILayout, they are not ESI block, safe to ignore
+	public function __call($method, $args)
+	{
+		Mage::helper('litemage/data')->debugMesg('Dummy block ' . $this->_name . " called $method - ignore");
+
+	}
+
+	public static function __callStatic($method, $args)
+	{
+		Mage::helper('litemage/data')->debugMesg('Dummy block ' . $this->_name . " called static $method - ignore");
+	}
+
 }

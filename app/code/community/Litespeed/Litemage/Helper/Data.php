@@ -32,27 +32,20 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	const STOREXML_HOMETTL = 'litemage/general/home_ttl' ;
 	const STOREXML_TRACKLASTVIEWED = 'litemage/general/track_viewed' ;
 	const STOREXML_DIFFCUSTGRP = 'litemage/general/diff_customergroup' ;
-	const STOREXML_WARMUP_EANBLED = 'litemage/warmup/enable_warmup' ;
-	const STOREXML_WARMUP_MULTICURR = 'litemage/warmup/multi_currency' ;
-	const STOREXML_WARMUP_INTERVAL = 'litemage/warmup/interval' ;
-	const STOREXML_WARMUP_PRIORITY = 'litemage/warmup/priority' ;
-	const STOREXML_WARMUP_CUSTLIST = 'litemage/warmup/custlist' ;
-	const STOREXML_WARMUP_CUSTLIST_PRIORITY = 'litemage/warmup/custlist_priority' ;
-	const STOREXML_WARMUP_CUSTLIST_INTERVAL = 'litemage/warmup/custlist_interval' ;
+	const STOREXML_WARMUP_ENABLED = 'litemage/warmup/enable_warmup' ;
 	const CFG_ENABLED = 'enabled' ;
 	const CFG_DEBUGON = 'debug' ;
 	const CFG_WARMUP = 'warmup' ;
-	const CFG_WARMUP_ALLOW = 'allow_warmup' ;
-	const CFG_WARMUP_EANBLED = 'enable_warmup' ;
+	const CFG_WARMUP_SERVER_IP = 'server_ip' ;
 	const CFG_WARMUP_LOAD_LIMIT = 'load_limit' ;
 	const CFG_WARMUP_MAXTIME = 'max_time' ;
 	const CFG_WARMUP_THREAD_LIMIT = 'thread_limit' ;
-	const CFG_WARMUP_MULTICURR = 'multi_currency' ;
+	const CFG_AUTOCOLLECT = 'collect' ;
 	const CFG_TRACKLASTVIEWED = 'track_viewed' ;
 	const CFG_DIFFCUSTGRP = 'diff_customergroup' ;
 	const CFG_PUBLICTTL = 'public_ttl' ;
 	const CFG_PRIVATETTL = 'private_ttl' ;
-	const CFG_HOMETTL = 'home_ttl';
+	const CFG_HOMETTL = 'home_ttl' ;
 	const CFG_ESIBLOCK = 'esiblock' ;
 	const CFG_NOCACHE = 'nocache' ;
 	const CFG_CACHE_ROUTE = 'cache_routes' ;
@@ -62,7 +55,10 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	const CFG_NOCACHE_URL = 'nocache_urls' ;
 	const CFG_ALLOWEDIPS = 'allow_ips' ;
 	const CFG_ADMINIPS = 'admin_ips' ;
+	const CFG_FLUSH_PRODCAT = 'flush_prodcat' ;
+	const CFG_NEED_ADD_DELTA = 'add_delta' ;
 	const LITEMAGE_GENERAL_CACHE_TAG = 'LITESPEED_LITEMAGE' ;
+	const LITEMAGE_DELTA_CACHE_ID = 'LITEMAGE_DELTA' ;
 
 	// config items
 	protected $_conf = array() ;
@@ -90,8 +86,9 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				$tag = '' ;
 				$httphelper = Mage::helper('core/http') ;
 				$remoteAddr = $httphelper->getRemoteAddr() ;
-				if ( $httphelper->getHttpUserAgent() == 'litemage_walker' ) {
-					$tag = 'litemage_walker:' ;
+				$ua = $httphelper->getHttpUserAgent() ;
+				if ( $ua == 'litemage_walker' || $ua == 'litemage_runner' ) {
+					$tag = $ua . ':' ;
 				}
 				else if ( $ips = $this->getConf(self::CFG_ALLOWEDIPS) ) {
 					if ( ! in_array($remoteAddr, $ips) ) {
@@ -157,7 +154,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				'pc' => array(
 					0 => array( 'Mage_Core_Block_Messages', 'Mage_Core_Block_Template' ),
 					1 => array( 'M', 'T' ) )
-			) ;
+					) ;
 		}
 		return $this->_translateParams ;
 	}
@@ -256,8 +253,8 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getWarmUpConf()
 	{
 		if ( ! isset($this->_conf[self::CFG_WARMUP]) ) {
-
 			$storeInfo = array() ;
+
 			if ( $this->getConf(self::CFG_ENABLED) ) {
 				$this->getConf('', self::CFG_WARMUP) ;
 				$storeIds = array_keys(Mage::app()->getStores()) ;
@@ -277,16 +274,97 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 		return $this->_conf[self::CFG_WARMUP] ;
 	}
 
+	public function needAddDeltaTags()
+	{
+		if ( ! isset($this->_conf[self::CFG_NEED_ADD_DELTA]) ) {
+			$found = false ;
+			// as long as we find one store has delta crawl enabled
+			if ( $this->getConf(self::CFG_ENABLED) ) {
+				$storeIds = array_keys(Mage::app()->getStores()) ;
+
+				foreach ( $storeIds as $storeId ) {
+					$enabled_sel = Mage::getStoreConfig(self::STOREXML_WARMUP_ENABLED, $storeId) ;
+					if ( strpos($enabled_sel, '8') !== false ) {
+						if ( Mage::app()->getStore($storeId)->getIsActive() )
+							$found = true ;
+						break ;
+					}
+				}
+			}
+			$this->_conf[self::CFG_NEED_ADD_DELTA] = $found ;
+		}
+
+		return $this->_conf[self::CFG_NEED_ADD_DELTA] ;
+	}
+
+	public function getCrawlerListDir()
+	{
+		$path = Mage::getBaseDir('var') . DS . 'litemage' ;
+
+		if ( ! is_dir($path) ) {
+			mkdir($path) ;
+			chmod($path, 0777) ;
+		}
+		return $path ;
+	}
+
+	public function getAutoCollectConf( $storeId )
+	{
+		if ( ! isset($this->_conf[self::CFG_AUTOCOLLECT][$storeId]) ) {
+
+			if ( ! isset($this->_conf[self::CFG_AUTOCOLLECT]) ) {
+				$this->_conf[self::CFG_AUTOCOLLECT] = array() ;
+			}
+			$info = array( 'collect' => 0, 'crawlDelta' => 0, 'crawlAuto' => 0, 'frame' => 0, 'remove' => 0, 'deep' => 0, 'deltaDeep' => 0, 'countRobot' => 0 ) ;
+
+			if ( $this->getConf(self::CFG_ENABLED) ) {
+				$enabled_sel = Mage::getStoreConfig(self::STOREXML_WARMUP_ENABLED, $storeId) ;
+				if ( $enabled_sel ) {
+
+					if ( strpos($enabled_sel, '8') !== false ) {
+						$info['crawlDelta'] = 1 ;
+						$info['deltaDeep'] = Mage::getStoreConfig('litemage/warmup/delta_depth', $storeId) ;
+					}
+					if ( strpos($enabled_sel, '4') !== false ) {
+						$info['crawlAuto'] = 1 ;
+						if ( Mage::getStoreConfig('litemage/warmup/enable_autocollect', $storeId) ) {
+							$info['collect'] = Mage::getStoreConfig('litemage/warmup/auto_collect_add', $storeId) ;
+							$info['countRobot'] = Mage::getStoreConfig('litemage/warmup/auto_collect_robot', $storeId) ;
+							$info['remove'] = Mage::getStoreConfig('litemage/warmup/auto_collect_remove', $storeId) ;
+							if ( $info['remove'] < 1 )
+								$info['remove'] = 1 ; // minimum is 1
+							elseif ( $info['remove'] > $info['collect'] )
+								$info['remove'] = $info['collect'] ;
+							$info['frame'] = Mage::getStoreConfig('litemage/warmup/auto_collect_hours', $storeId)
+									* 3600 ;
+							$info['deep'] = Mage::getStoreConfig('litemage/warmup/auto_collect_depth', $storeId) ;
+							if ( $info['deltaDeep'] > $info['deep'] )
+								$info['deltaDeep'] = $info['deep'] ;
+						}
+					}
+				}
+			}
+			$this->_conf[self::CFG_AUTOCOLLECT][$storeId] = $info ;
+		}
+
+		return $this->_conf[self::CFG_AUTOCOLLECT][$storeId] ;
+	}
+
 	protected function _getStoreWarmUpInfo( $storeId, $vary_dev )
 	{
-		$storeInfo = array();
-		$enabled = Mage::getStoreConfig(self::STOREXML_WARMUP_EANBLED, $storeId);
-		if ($enabled == 0)
-			return $storeInfo;
+		$storeInfo = array() ;
+		$enabled_sel = Mage::getStoreConfig(self::STOREXML_WARMUP_ENABLED, $storeId) ;
+		if ( ! $enabled_sel )
+			return $storeInfo ;
 
 		$store = Mage::app()->getStore($storeId) ;
-		if ( !$store->getIsActive() )
-			return $storeInfo;
+		if ( ! $store->getIsActive() )
+			return $storeInfo ;
+
+		$enabledStore = (strpos($enabled_sel, '1') !== false) ;
+		$enabledCust = (strpos($enabled_sel, '2') !== false) ;
+		$enabledAuto = (strpos($enabled_sel, '4') !== false) ;
+		$enabledDelta = (strpos($enabled_sel, '8') !== false) ;
 
 		$site = $store->getWebsite() ;
 		$is_default_store = ($site->getDefaultStore()->getId() == $storeId) ; // cannot use $app->getDefaultStoreView()->getId();
@@ -300,7 +378,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 		$availCurrCodes = $store->getAvailableCurrencyCodes() ;
 		$default_currency = $store->getDefaultCurrencyCode() ;
 		$vary_curr = '' ;
-		$curr = trim(Mage::getStoreConfig(self::STOREXML_WARMUP_MULTICURR, $storeId)) ;
+		$curr = trim(Mage::getStoreConfig('litemage/warmup/multi_currency', $storeId)) ;
 		if ( $curr ) {
 			// get currency vary
 			$currs = preg_split("/[\s,]+/", strtoupper($curr), null, PREG_SPLIT_NO_EMPTY) ;
@@ -336,22 +414,20 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 
 		$env = '' ;
 
-		$storeName = $store->getName();
+		$storeName = $store->getName() ;
 		if ( ! $is_default_store ) {
 			$env .= '/store/' . $store->getCode() . '/storeId/' . $storeId ;
 		}
 		$env .= $vary_curr . $vary_cgrp . $vary_dev ;
 		$baseurl = $store->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK) ;
 		$ttl = Mage::getStoreConfig(self::STOREXML_PUBLICTTL, $storeId) ;
+		$priority = Mage::getStoreConfig('litemage/warmup/priority', $storeId) + $orderAdjust ;
+		$interval = Mage::getStoreConfig('litemage/warmup/interval', $storeId) ;
+		if ( $interval == '' || $interval < 600 ) { // for upgrade users, not refreshed conf
+			$interval = $ttl ;
+		}
 
-		if ($enabled == 1) {
-			$priority = Mage::getStoreConfig(self::STOREXML_WARMUP_PRIORITY, $storeId) + $orderAdjust ;
-
-			$interval = Mage::getStoreConfig(self::STOREXML_WARMUP_INTERVAL, $storeId) ;
-			if ( $interval == '' || $interval < 600 ) { // for upgrade users, not refreshed conf
-				$interval = $ttl ;
-			}
-
+		if ( $enabledStore ) {
 			$listId = 'store' . $storeId ;
 			$storeInfo[$listId] = array(
 				'id' => $listId,
@@ -367,34 +443,77 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				'baseurl' => $baseurl ) ;
 		}
 
-		// check custom list
-		$custlist = Mage::getStoreConfig(self::STOREXML_WARMUP_CUSTLIST, $storeId) ;
-		$lines = explode("\n", $custlist) ;
-		foreach ( $lines as $index => $line ) {
-			$f = preg_split("/[\s]+/", $line, null, PREG_SPLIT_NO_EMPTY) ;
-			if (count($f) != 3) {
-				continue;
+		if ( $enabledAuto ) {
+			// check auto list
+			$autopriority = Mage::getStoreConfig('litemage/warmup/autolist_priority', $storeId) ;
+			$autopriority += $orderAdjust ;
+			$autointerval = Mage::getStoreConfig('litemage/warmup/autolist_interval', $storeId) ;
+			if ( $autointerval == '' || $interval < $autointerval / 2 ) { // for upgrade users, not refreshed conf
+				$autointerval = $ttl ;
 			}
-			$custFile = $f[0] ;
-			if ( ! is_readable($custFile) || ! isset($f[1]) || ! isset($f[2]) || $f[1] < 600 || $f[2] <= 0 ) {
-				continue ;
-			}
-			$custInterval = $f[1] ;
-			$custPriority = $f[2] ;
-			$listId = 'cust' . $storeId . '-' . $index ;
+			$listId = 'auto' . $storeId ;
 			$storeInfo[$listId] = array(
 				'id' => $listId,
 				'storeid' => $storeId,
 				'store_name' => $storeName,
 				'default_curr' => $default_currency,
+				'default_store' => $is_default_store,
+				'default_site' => $is_default_site,
 				'env' => $env,
-				'interval' => $custInterval,
+				'interval' => $autointerval,
 				'ttl' => $ttl,
-				'priority' => $custPriority,
-				'baseurl' => $baseurl,
-				'file' => $custFile ) ;
+				'priority' => $autopriority,
+				'baseurl' => $baseurl ) ;
 		}
-		return $storeInfo;
+
+		if ( $enabledDelta ) {
+			// delta list
+			$autoconf = $this->getAutoCollectConf($storeId) ;
+			$listId = 'delta' . $storeId ;
+			$storeInfo[$listId] = array(
+				'storeid' => $storeId,
+				'store_name' => $storeName,
+				'default_curr' => $default_currency,
+				'default_store' => $is_default_store,
+				'default_site' => $is_default_site,
+				'env' => $env,
+				'priority' => $priority,
+				'depth' => $autoconf['deltaDeep'],
+				'baseurl' => $baseurl ) ;
+		}
+
+		if ( $enabledCust ) {
+			// check custom list
+			$custlist = Mage::getStoreConfig('litemage/warmup/custlist', $storeId) ;
+			$lines = explode("\n", $custlist) ;
+			foreach ( $lines as $index => $line ) {
+				$f = preg_split("/[\s]+/", $line, null, PREG_SPLIT_NO_EMPTY) ;
+				if ( count($f) != 3 ) {
+					continue ;
+				}
+				$custFile = $f[0] ;
+				if ( ! is_readable($custFile) || ! isset($f[1]) || ! isset($f[2]) || $f[1] < 600
+						|| $f[2] <= 0 ) {
+					continue ;
+				}
+				$custInterval = $f[1] ;
+				$custPriority = $f[2] ;
+				$listId = 'cust' . $storeId . '-' . $index ;
+				$storeInfo[$listId] = array(
+					'id' => $listId,
+					'storeid' => $storeId,
+					'store_name' => $storeName,
+					'default_curr' => $default_currency,
+					'env' => $env,
+					'interval' => $custInterval,
+					'ttl' => $ttl,
+					'priority' => $custPriority + $orderAdjust,
+					'baseurl' => $baseurl,
+					'file' => $custFile ) ;
+			}
+		}
+
+		return $storeInfo ;
 	}
 
 	public function isEsiBlock( $block, $startDynamic )
@@ -403,6 +522,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 		$tag = null ;
 		$valueonly = 0 ;
 		$blockType = null ;
+		$classname = get_class($block) ;
 
 		$ref = $this->_conf[self::CFG_ESIBLOCK]['block'] ;
 		if ( isset($ref['bn'][$blockName]) ) {
@@ -443,7 +563,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 			'valueonly' => $valueonly,
 			'bn' => $blockName,
 			'bt' => $blockType
-		) ;
+				) ;
 		if ( $startDynamic ) {
 			$bconf['pc'] = get_class($block) ;
 			$bconf['is_dynamic'] = 1 ;
@@ -504,9 +624,11 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				$this->_conf[self::CFG_ESIBLOCK]['tag'] = $this->_getConfigByPath(self::CFGXML_ESIBLOCK) ;
 
 				$custblocks = array() ;
-				$custblocks['welcome'] = preg_split($pattern, $this->_conf['defaultlm']['donotcache']['welcome'], null, PREG_SPLIT_NO_EMPTY) ;
-				$custblocks['toplinks'] = preg_split($pattern, $this->_conf['defaultlm']['donotcache']['toplinks'], null, PREG_SPLIT_NO_EMPTY) ;
-				$custblocks['messages'] = preg_split($pattern, $this->_conf['defaultlm']['donotcache']['messages'], null, PREG_SPLIT_NO_EMPTY) ;
+				$cust = $this->_conf['defaultlm']['donotcache'] ;
+				$custblocks['welcome'] = empty($cust['welcome']) ? array() : preg_split($pattern, $cust['welcome'], null, PREG_SPLIT_NO_EMPTY) ;
+				$custblocks['toplinks'] = empty($cust['toplinks']) ? array() : preg_split($pattern, $cust['toplinks'], null, PREG_SPLIT_NO_EMPTY) ;
+				$custblocks['messages'] = empty($cust['messages']) ? array() : preg_split($pattern, $cust['messages'], null, PREG_SPLIT_NO_EMPTY) ;
+				$toplinkstag = empty($cust['toplinkstag']) ? array() : preg_split($pattern, $cust['toplinkstag'], null, PREG_SPLIT_NO_EMPTY) ;
 
 				$allblocks = array( 'bn' => array(), 'bt' => array() ) ;
 				foreach ( $this->_conf[self::CFG_ESIBLOCK]['tag'] as $tag => $d ) {
@@ -533,6 +655,9 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 					}
 					if ( isset($d['purge_tags']) ) {
 						$pts = preg_split($pattern, $d['purge_tags'], null, PREG_SPLIT_NO_EMPTY) ;
+						if ( $tag == 'toplinks' && ! empty($toplinkstag) ) {
+							$pts = array_merge($pts, $toplinkstag) ;
+						}
 						if ( ! isset($d['purge_events']) ) {
 							$this->_conf[self::CFG_ESIBLOCK]['tag'][$tag]['purge_events'] = array() ;
 						}
@@ -550,22 +675,28 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				$this->_conf[self::CFG_NOCACHE] = array() ;
 				$default = $this->_conf['defaultlm']['default'] ;
 				$cust = $this->_conf['defaultlm']['donotcache'] ;
+				if ( ! isset($cust['fullcache_routes']) ) {
+					$cust['fullcache_routes'] = '' ;
+				}
 
 				$this->_conf[self::CFG_NOCACHE][self::CFG_CACHE_ROUTE] = array_merge(preg_split($pattern, $default['cache_routes'], null, PREG_SPLIT_NO_EMPTY), preg_split($pattern, $cust['cache_routes'], null, PREG_SPLIT_NO_EMPTY)) ;
 				$this->_conf[self::CFG_NOCACHE][self::CFG_NOCACHE_ROUTE] = array_merge(preg_split($pattern, $default['nocache_subroutes'], null, PREG_SPLIT_NO_EMPTY), preg_split($pattern, $default['nocache_subroutes'], null, PREG_SPLIT_NO_EMPTY)) ;
-				$this->_conf[self::CFG_NOCACHE][self::CFG_FULLCACHE_ROUTE] = preg_split($pattern, $default['fullcache_routes'], null, PREG_SPLIT_NO_EMPTY) ;
+				$this->_conf[self::CFG_NOCACHE][self::CFG_FULLCACHE_ROUTE] = preg_split($pattern, $cust['fullcache_routes'], null, PREG_SPLIT_NO_EMPTY) ;
 				$this->_conf[self::CFG_NOCACHE][self::CFG_NOCACHE_VAR] = preg_split($pattern, $cust['vars'], null, PREG_SPLIT_NO_EMPTY) ;
 				$this->_conf[self::CFG_NOCACHE][self::CFG_NOCACHE_URL] = preg_split($pattern, $cust['urls'], null, PREG_SPLIT_NO_EMPTY) ;
 				break ;
 
 			case self::CFG_WARMUP:
 				$warmup = $this->_conf['defaultlm']['warmup'] ;
+				$server_ip = $warmup[self::CFG_WARMUP_SERVER_IP] ;
+				if ( $server_ip && ! Mage::helper('core/http')->validateIpAddr($server_ip) ) {
+					$server_ip = '' ;
+				}
 				$this->_conf[self::CFG_WARMUP] = array(
-					self::CFG_WARMUP_EANBLED => $warmup[self::CFG_WARMUP_EANBLED],
 					self::CFG_WARMUP_LOAD_LIMIT => $warmup[self::CFG_WARMUP_LOAD_LIMIT],
 					self::CFG_WARMUP_THREAD_LIMIT => $warmup[self::CFG_WARMUP_THREAD_LIMIT],
 					self::CFG_WARMUP_MAXTIME => $warmup[self::CFG_WARMUP_MAXTIME],
-					self::CFG_WARMUP_MULTICURR => $warmup[self::CFG_WARMUP_MULTICURR] ) ;
+					self::CFG_WARMUP_SERVER_IP => $server_ip ) ;
 				break ;
 
 			default:
@@ -575,6 +706,11 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				$test = $this->_conf['defaultlm']['test'] ;
 				$this->_conf[self::CFG_DEBUGON] = $test[self::CFG_DEBUGON] ;
 				$this->_isDebug = $test[self::CFG_DEBUGON] ; // required by cron, needs to be set even when module disabled.
+				$adminIps = trim($general[self::CFG_ADMINIPS]) ;
+				$this->_conf[self::CFG_ADMINIPS] = $adminIps ? preg_split($pattern, $adminIps, null, PREG_SPLIT_NO_EMPTY) : '' ;
+				if ( ($this->_isDebug == 2) && (empty($this->_conf[self::CFG_ADMINIPS]) || ! in_array(Mage::helper('core/http')->getRemoteAddr(), $this->_conf[self::CFG_ADMINIPS])) ) {
+					$this->_isDebug = 0 ;
+				}
 
 				if ( ! $general[self::CFG_ENABLED] )
 					break ;
@@ -586,8 +722,6 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				$this->_conf[self::CFG_PRIVATETTL] = Mage::getStoreConfig(self::STOREXML_PRIVATETTL, $storeId) ;
 				$this->_conf[self::CFG_HOMETTL] = Mage::getStoreConfig(self::STOREXML_HOMETTL, $storeId) ;
 
-				$adminIps = trim($general[self::CFG_ADMINIPS]) ;
-				$this->_conf[self::CFG_ADMINIPS] = $adminIps ? preg_split($pattern, $adminIps, null, PREG_SPLIT_NO_EMPTY) : '' ;
 				if ( $general['alt_esi_syntax'] ) {
 					$this->_esiTag = array( 'include' => 'esi_include', 'inline' => 'esi_inline', 'remove' => 'esi_remove' ) ;
 				}
@@ -596,6 +730,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				}
 				$allowedIps = trim($test[self::CFG_ALLOWEDIPS]) ;
 				$this->_conf[self::CFG_ALLOWEDIPS] = $allowedIps ? preg_split($pattern, $allowedIps, null, PREG_SPLIT_NO_EMPTY) : '' ;
+				$this->_conf[self::CFG_FLUSH_PRODCAT] = isset($general[self::CFG_FLUSH_PRODCAT]) ? $general[self::CFG_FLUSH_PRODCAT] : 0 ; // for upgrade, maynot save in config
 		}
 	}
 
@@ -605,6 +740,20 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 		if ( ! $node )
 			Mage::throwException('Litemage missing config in xml path ' . $xmlPath) ;
 		return $node->asCanonicalArray() ;
+	}
+
+	public function useInternalCache()
+	{
+		if ( ! isset($this->_conf['useInternalCache']) ) {
+			$this->_conf['useInternalCache'] = Mage::app()->useCache('layout') ;
+		}
+		return $this->_conf['useInternalCache'] ;
+	}
+
+	public function saveInternalCache( $data, $id, $tags = array() )
+	{
+		$tags[] = self::LITEMAGE_GENERAL_CACHE_TAG ;
+		Mage::app()->saveCache($data, $id, $tags, null) ;
 	}
 
 	public function debugMesg( $mesg )

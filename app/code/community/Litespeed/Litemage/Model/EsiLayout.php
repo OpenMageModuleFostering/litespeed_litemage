@@ -22,6 +22,9 @@
  * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
  * @license     https://opensource.org/licenses/GPL-3.0
  */
+
+// should only be used by EsiController
+
 class Litespeed_Litemage_Model_EsiLayout extends Mage_Core_Model_Layout
 {
 
@@ -41,15 +44,17 @@ class Litespeed_Litemage_Model_EsiLayout extends Mage_Core_Model_Layout
 
 	public function getBlock( $name )
 	{
-		if ( ! isset($this->_blocks[$name]) ) {
-			$dummyblocks = array( 'root', 'head' ) ;
-			if ( in_array($name, $dummyblocks) ) {
-				$dummy = new Varien_Object() ;
-				return $dummy ;
-			}
-			return null ;
+		if (isset($this->_blocks[$name] )) {
+			return $this->_blocks[$name] ;
 		}
-		return $this->_blocks[$name] ;
+		elseif (strpos($name, 'price') !== false) {
+			// catalog_product_price_template
+			return null;
+		}
+		else {
+			// root head
+			return new Litespeed_Litemage_Block_Core_Dummy($name);
+		}
 	}
 
 	public function loadEsiLayout( $esiData )

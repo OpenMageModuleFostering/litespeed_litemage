@@ -26,7 +26,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.1.2</version>
+            <version>1.2.0</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -379,7 +379,8 @@
                     <purge_tags>cart, wishlist</purge_tags>
                     <!-- This is a composite grouping. The purge events for the blocks in this grouping are 
                     a combination of existing purge event sets from other groupings. By using purge_tags 
-                    to reference these other groupings, you do not need to redefine these purge events.  -->
+                    to reference these other groupings, you do not need to redefine these purge events. 
+                    Different block name and additional purge tags can be defined in configuration screen. -->
                 </toplinks>
                 <compare>
                     <access>private</access>
@@ -453,37 +454,46 @@
                 <home_ttl>28800</home_ttl>
                 <track_viewed>0</track_viewed>
                 <diff_customergroup>0</diff_customergroup>
-                <diff_cookie/>
+                <flush_prodcat>0</flush_prodcat>
                 <alt_esi_syntax>0</alt_esi_syntax>
             </general>
             <warmup>
                 <enable_warmup>0</enable_warmup>
+                <server_ip/>
                 <load_limit>5</load_limit>
                 <thread_limit>6</thread_limit>
                 <max_time>360</max_time>
                 <interval>21600</interval>
                 <priority>100</priority>
                 <multi_currency/>
+                <autolist_interval>28800</autolist_interval>
+                <autolist_priority>300</autolist_priority>
+                <enable_autocollect>0</enable_autocollect>
+                <auto_collect_add>6</auto_collect_add>
+                <auto_collect_robot>1</auto_collect_robot>
+                <auto_collect_depth>2</auto_collect_depth>
+                <auto_collect_remove>0</auto_collect_remove>
+                <auto_collect_hours>48</auto_collect_hours>
+                <delta_depth>1</delta_depth>
                 <custlist/>
-                <custlist_priority>50</custlist_priority>
-                <custlist_interval>7200</custlist_interval>
             </warmup>
             <default>
                 <!-- Full or partial match on controller full action name for cacheable routes. Space, return, and comma separated -->
                 <cache_routes><![CDATA[catalog cms contacts_index_index]]></cache_routes>
                 <!-- Full or partial match on controller full action name for non-cacheable routes within cacheable routes. Space, return, and comma separated -->
                 <nocache_subroutes><![CDATA[catalog_product_compare catalogsearch]]></nocache_subroutes>
-                <!-- Entire response cached based on routes, same content for all urls, such as "cms_index_noRoute" for 404 pages. Space, return, and comma separated. -->
-                <fullcache_routes><![CDATA[cms_index_noRoute]]></fullcache_routes>
             </default>
             <donotcache>
                 <!-- configured through Admin Panel, do not update here. Customized settings will be picked up from database -->
                 <cache_routes/>
                 <nocache_subroutes/>
+                <!-- Entire response cached based on routes, same content for all urls, such as "cms_index_noRoute" for 404 pages. Space, return, and comma separated. -->
+                <fullcache_routes><![CDATA[cms_index_noRoute]]></fullcache_routes>
                 <vars>no_cache</vars>
                 <urls/>
                 <welcome/>
                 <toplinks/>
+                <toplinkstag/>
                 <messages/>
             </donotcache>
             <test>
@@ -496,12 +506,20 @@
         <jobs>
             <litemage_warmup_cache>
                 <schedule>
-                    <cron_expr>0,10,20,30,40,50 * * * *</cron_expr>
+                    <cron_expr>2,12,22,32,42,52 * * * *</cron_expr>
                 </schedule>
                 <run>
                     <model>litemage/observer_cron::warmCache</model>
                 </run>
             </litemage_warmup_cache>
+            <litemage_crawl_delta>
+                <schedule>
+                    <cron_expr>*/5 * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>litemage/observer_cron::crawlDelta</model>
+                </run>
+            </litemage_crawl_delta>
         </jobs>
     </crontab>
 </config>

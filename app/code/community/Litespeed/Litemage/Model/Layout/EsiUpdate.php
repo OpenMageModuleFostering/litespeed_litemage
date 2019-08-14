@@ -26,18 +26,12 @@
 class Litespeed_Litemage_Model_Layout_EsiUpdate extends Mage_Core_Model_Layout_Update
 {
     protected $_cachePrefix;
-	protected $_cacheTags;
 	protected $_layoutMaster;
     protected $_isDebug;
 
     public function setCachePrefix($unique)
     {
-
         $this->_cachePrefix = 'LAYOUT_ESI_' . $unique . '_';
-
-        $this->_cacheTags = array(Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG,
-			Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG);
-
         $this->_isDebug = Mage::helper('litemage/data')->isDebug() ;
     }
 

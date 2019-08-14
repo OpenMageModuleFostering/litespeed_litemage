@@ -48,9 +48,11 @@ class Litespeed_Litemage_Helper_Esi
     const FORMKEY_REPLACE = 'litemagefmkeylmg' ; //do not use special characters, maybe changed by urlencode
     const FORMKEY_NAME = '_form_key' ;
 
+    const NICKNAME_REPLACE = 'litemagenicknamelmg' ; //do not use special characters, maybe changed by urlencode
+
     // config items
     protected $_viewedTracker ;
-    protected $_cacheVars = array( 'tag' => array(), 'flag' => 0, 'ttl' => -1, 'env' => array(), 'cookie' => array(), 'baseUrl' => '', 'baseUrlESI' => '' ) ;
+    protected $_cacheVars = array( 'tag' => array(), 'flag' => 0, 'ttl' => -1, 'env' => array(), 'internal' => array(), 'cookie' => array(), 'baseUrl' => '', 'baseUrlESI' => '' ) ;
 	protected $_esiLayoutCache ;
     protected $_esiPurgeEvents = array() ;
 	protected $_defaultEnvVaryCookie = '_lscache_vary'; // system default
@@ -128,7 +130,6 @@ class Litespeed_Litemage_Helper_Esi
         return $url;
     }
 
-
     public function canInjectEsi()
     {
         $flag = $this->_cacheVars['flag'] ;
@@ -158,11 +159,20 @@ class Litespeed_Litemage_Helper_Esi
     {
         if ( ($this->_cacheVars['flag'] & self::CHBM_FORMKEY_REPLACED) != 0 ) {
             $session = Mage::getSingleton('core/session') ;
-            if ( ($realFormKey = $session->getData(self::FORMKEY_REAL)) != NULL ) {
+            if ( ($realFormKey = $session->getData(self::FORMKEY_REAL)) != null ) {
                 $session->unsetData(self::FORMKEY_REAL) ;
                 $session->setData(self::FORMKEY_NAME, $realFormKey) ;
             }
         }
+    }
+
+	// $block instanceof Mage_Review_Block_Form
+    public function initNickName($block)
+    {
+		$data = new Varien_Object();
+		$data->setNickname(self::NICKNAME_REPLACE);
+		$block->assign('data', $data);
+		$this->_cacheVars['internal']['nickname'] = 1; // replaced
     }
 
     public function addPrivatePurgeEvent( $eventName )
@@ -183,7 +193,7 @@ class Litespeed_Litemage_Helper_Esi
     protected function _getEsiPurgeTags()
     {
         if ( count($this->_esiPurgeEvents) == 0 )
-            return NULL ;
+            return null ;
 
         $events = $this->_config->getEsiConf('event');
         $tags = array() ;
@@ -201,7 +211,7 @@ class Litespeed_Litemage_Helper_Esi
             $this->_config->debugMesg('Purge events ' . implode(', ', $this->_esiPurgeEvents) . ' tags: ' . implode(', ', $tags));
         }
 
-        return (count($tags) ? $tags : NULL) ;
+        return (count($tags) ? $tags : null) ;
     }
 
     protected function _getPurgeHeaderValue($tags, $isPrivate)
@@ -212,21 +222,26 @@ class Litespeed_Litemage_Helper_Esi
             $t .= ( $tag == '*' ) ? '*' : 'tag=' . $tag . ',' ;
         }
         $purgeHeader .= trim($t, ',');
+
+		if (!$isPrivate ) {
+			$this->_addDeltaByTags($tags);
+		}
+
         return $purgeHeader;
     }
 
-    public function setPurgeHeader( $tags, $by, $response = NULL, $isPrivate = false )
+    public function setPurgeHeader( $tags, $by, $response = null, $isPrivate = false )
     {
         $purgeHeader = $this->_getPurgeHeaderValue($tags, $isPrivate);
 
-        if ( $response == NULL ) {
+        if ( $response == null ) {
             $response = Mage::app()->getResponse() ;
         }
+        $response->setHeader(self::LSHEADER_PURGE, $purgeHeader, true) ;
 
-        if ($this->_isDebug) {
+		if ($this->_isDebug) {
             $this->_config->debugMesg("SetPurgeHeader: " . $purgeHeader . '  (triggered by ' . $by . ')') ;
 		}
-        $response->setHeader(self::LSHEADER_PURGE, $purgeHeader, true) ;
     }
 
     public function setPurgeURLHeader( $url, $by )
@@ -251,7 +266,7 @@ class Litespeed_Litemage_Helper_Esi
 
     public function trackProduct( $productId )
     {
-        if ( $this->_viewedTracker == NULL )
+        if ( $this->_viewedTracker == null )
             $this->_viewedTracker = array( 'product' => $productId ) ;
         else
             $this->_viewedTracker['product'] = $productId ;
@@ -273,7 +288,6 @@ class Litespeed_Litemage_Helper_Esi
 		}
 		return $html;
 	}
-
 
     protected function _initEsiLayoutCache( $block )
     {
@@ -366,7 +380,7 @@ class Litespeed_Litemage_Helper_Esi
 		$blockIndex = array();
 		$blockName = $block->getNameInLayout();
 
-		if ($layout->getBlock($blockName) != $block) {
+		if ($layout->getBlock($blockName) !== $block) {
 			$alias = $block->getBlockAlias();
 			if ($alias != '' && $alias != $blockName) {
 					$blockName .= ',' . $alias;
@@ -397,7 +411,7 @@ class Litespeed_Litemage_Helper_Esi
 
     protected function _getChildrenNames( $block, $layout )
     {
-        if ($block == NULL) {
+        if ($block == null) {
             return array();
         }
 
@@ -419,9 +433,9 @@ class Litespeed_Litemage_Helper_Esi
 
 	protected function _refreshEsiBlockCache()
 	{
-		if ($this->_esiLayoutCache['adjusted'] && Mage::app()->useCache('layout')) {
-			$tags = array(Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG, Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG);
-            Mage::app()->saveCache(serialize($this->_esiLayoutCache['blocks']), $this->_esiLayoutCache['cacheId'], $tags) ;
+		if ($this->_esiLayoutCache['adjusted'] && $this->_config->useInternalCache()) {
+			$tags = array(Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG);
+            $this->_config->saveInternalCache(serialize($this->_esiLayoutCache['blocks']), $this->_esiLayoutCache['cacheId'], $tags) ;
 			$this->_esiLayoutCache['adjusted'] = false;
         }
 	}
@@ -431,17 +445,20 @@ class Litespeed_Litemage_Helper_Esi
 		$this->_refreshEsiBlockCache();
 
         $extraHeaders = array();
-        $envChanged = $this->setEnvCookie();
+		$envChanged = $this->setEnvCookie(); // envChanged, need to set even when not cacheable (like currency change), need to above other things.
 
         $cacheControlHeader = '' ;
         $flag = $this->_cacheVars['flag'] ;
         $cacheable = true;
+		$responseCode = $response->getHttpResponseCode();
+		$this->_cacheVars['internal']['response_code'] = $responseCode;
 
         if ( (($flag & self::CHBM_CACHEABLE) == 0)
-                || $envChanged
+				|| $envChanged
                 || Mage::registry('LITEMAGE_SHOWHOLES')
                 || Mage::registry('LITEMAGE_PURGE')
-                || !in_array($response->getHttpResponseCode(), array( 200, 301, 404 ))) {
+                || !in_array($responseCode, array( 200, 301, 404 ))
+			) {
             $cacheable = false;
         }
 
@@ -472,7 +489,7 @@ class Litespeed_Litemage_Helper_Esi
         if ((($flag & self::CHBM_ESI_REQ) == 0)    // for non-esi request
                 && ((($flag & self::CHBM_ESI_ON) != 0)  // esi on
                         || (($flag & self::CHBM_FORMKEY_REPLACED) != 0) // formkey replaced
-                        || ($this->_viewedTracker != NULL))) { // has view tracker
+                        || ($this->_viewedTracker != null))) { // has view tracker
             $this->_updateResponseBody($response) ;
         }
 
@@ -486,7 +503,7 @@ class Litespeed_Litemage_Helper_Esi
             $extraHeaders[self::LSHEADER_CACHE_CONTROL] = $cacheControlHeader;
         }
 
-        // due to ajax, move purge header when event happens, so already purged
+        // due to ajax, move purge header when event happens, so already purged, here's for LITEMAGE_CTRL=PURGE
         if (Mage::registry('LITEMAGE_PURGE')) {
             $extraHeaders[self::LSHEADER_PURGE] = $this->_getPurgeCacheTags();
         }
@@ -523,7 +540,17 @@ class Litespeed_Litemage_Helper_Esi
             $updated = true ;
         }
 
-        if ( $this->_viewedTracker != NULL ) {
+		if ( isset($this->_cacheVars['internal']['nickname']) && strpos($responseBody, self::NICKNAME_REPLACE)) {
+			// use single quote for pagespeed module
+            $replace = '<' . $esiIncludeTag . " src='" . $this->getEsiBaseUrl() . "litemage/esi/getNickName' combine='sub' cache-control='no-vary,private' cache-tag='E.welcome'/>" ;
+            $responseBody = str_replace(self::NICKNAME_REPLACE, $replace, $responseBody) ;
+			if ($this->_isDebug) {
+				$this->_config->debugMesg('Nickname replaced as ' . $replace);
+			}
+            $updated = true ;
+		}
+
+        if ( $this->_viewedTracker != null ) {
             $logOptions = $this->_viewedTracker;
             $logOptions['s'] = $sharedParams['s'];
             // no need to use comment, will be removed by minify extensions
@@ -558,7 +585,7 @@ class Litespeed_Litemage_Helper_Esi
 			}
 			else {
 	            $response->setBody($combined . $tracker . $responseBody) ;
-				if ($this->_isDebug) {
+				if ($this->_isDebug && !Mage::app()->getRequest()->isAjax()) {
 					$this->_config->debugMesg('_updateResponseBody failed to insert combined after <body>');
 				}
 			}
@@ -572,33 +599,334 @@ class Litespeed_Litemage_Helper_Esi
         if ($notEsiReq) {
             if ( count($tags) == 0 ) {
                 // set tag for product id, cid, and pageid
-                if ( ($curProduct = Mage::registry('current_product')) != NULL ) {
+                if ( ($curProduct = Mage::registry('current_product')) != null ) {
                     $tags[] = self::TAG_PREFIX_PRODUCT . $curProduct->getId() ;
                 }
-                elseif ( ($curCategory = Mage::registry('current_category')) != NULL ) {
+                elseif ( ($curCategory = Mage::registry('current_category')) != null ) {
                     $tags[] = self::TAG_PREFIX_CATEGORY . $curCategory->getId() ;
                 }
             }
 
-            $currStore = Mage::app()->getStore() ;
-            if ($currStore->getCurrentCurrencyCode() != $currStore->getBaseCurrencyCode()) {
+            $curStore = Mage::app()->getStore() ;
+            if ($curStore->getCurrentCurrencyCode() != $curStore->getBaseCurrencyCode()) {
                 $tags[] = 'CURR'; // will be purged by currency rate update event
             }
+
+			$debugMesg = $this->_autoCollectUrls($curStore->getId(), $tags);
+			if ($this->_isDebug && $debugMesg) {
+				$this->_config->debugMesg('_autoCollectUrls: ' . $debugMesg);
+			}
         }
 
         $tag = count($tags) ? implode(',', $tags) : '' ;
         return $tag ;
     }
 
+	public function setInternal($data)
+	{
+		foreach ($data as $key => $value) {
+			$this->_cacheVars['internal'][$key] = $value;
+		}
+		// avail key route_info, cron(1), response_code, url, nickname
+	}
+
+	protected function _autoCollectUrls($storeId, $tags)
+	{
+		$dbgMsg = '';
+		if (!$this->_config->useInternalCache())
+			return $dbgMsg;
+
+		$conf = $this->_config->getAutoCollectConf($storeId);
+		// array('collect' => 0, 'crawlDelta' => 0, 'crawlAuto' => 0, 'frame' => 0, 'remove' => 0, 'deep' => 0, 'deltaDeep' => 0, 'countRobot'=>1) ;
+
+		if ($conf['collect'] == 0 && $conf['crawlDelta'] == 0)
+			return $dbgMsg;
+
+		$url = $this->_cacheVars['internal']['url'];
+		$level = 0;
+		if (!empty($_SERVER['QUERY_STRING'])) {
+			$level = substr_count($_SERVER['QUERY_STRING'], '&') + 1;
+		}
+
+		$dbgMsg = $url;
+		$cronLabel = '';
+
+		if (isset($this->_cacheVars['internal']['cron'])) {
+			$cronLabel = $this->_cacheVars['internal']['cron'];//substr($this->_cacheVars['internal']['cron'], 0, 1); // s|c|a|d
+		}
+
+		if ( $this->_cacheVars['internal']['response_code'] != 200 ) {
+			if ($cronLabel)
+				$dbgMsg .= $this->_removeBadUrl($cronLabel, $url, $storeId, $level, $conf['crawlAuto']);
+			return $dbgMsg;
+		}
+
+		if ( $level > max($conf['deep'], $conf['deltaDeep'])) {
+			$dbgMsg .= ' depth ' . $level . ' over limit ';
+			return $dbgMsg;
+		}
+
+		$isRobot = $this->isRobot();
+		// only collect those are referred (allow internal & external) if has query string to avoid manually typed
+		if ($level && !$cronLabel && !$isRobot && !isset($_SERVER['HTTP_REFERER'])) {
+			$dbgMsg .= ' is not robot, has query string, no referer, ignored';
+			return $dbgMsg;
+		}
+
+		$tag = '';
+		foreach($tags as $t) {
+			if ((strpos($t, self::TAG_PREFIX_PRODUCT) !== false)
+					|| (strpos($t, self::TAG_PREFIX_CATEGORY) !== false)
+					|| (strpos($t, self::TAG_PREFIX_CMS) !== false)) {
+				$tag = $t;
+				break;
+			}
+		}
+
+		if (!$tag) {
+			$tag = $this->_cacheVars['internal']['route_info'];
+		}
+
+		$attr = 0; // BitMask 1: user, 2: robot, 4: cron_store, 8: cron_cust, 16: cron_auto, 32: is_ajax,
+		if ($isRobot) {
+			$attr |= 2;
+		}
+		elseif ($cronLabel ) {
+			switch ($cronLabel{0}) {
+				case 's': $attr |= 4; break;
+				case 'c': $attr |= 8; break;
+				case 'a': $attr |= 16; break;
+			}
+		}
+		else {
+			$attr |= 1;
+		}
+		if ($this->_cacheVars['internal']['is_ajax']) {
+			$attr |= 32;
+		}
+
+		// 2. load tags cache
+		$cacheId = 'LITEMAGE_AUTOURL_' . $tag;
+		$updated = false;
+		$now = time() - date('Z') ;
+
+		$tagUrls = null;
+		if ( $result = Mage::app()->loadCache($cacheId) ) {
+			$tagUrls = unserialize($result) ;
+		}
+
+		if (!$tagUrls) { // no cache or cache bad
+			$tagUrls = array();
+			$updated = true;
+		}
+
+		if (!isset($tagUrls[$storeId])) {
+			$tagUrls[$storeId] = array('utctime' => array($now, $now)); // utctime 0:inittime; 1:updatetime
+			$updated = true;
+		}
+		else {
+			// maintain level
+			foreach (array_keys($tagUrls[$storeId]) as $k ) {
+				if (is_int($k) && $k > $conf['deep'] && $k > $conf['deltaDeep']) {
+					$dbgMsg .= ' found old saved level=' . $k . ' higher than defined, clean up ';
+					unset($tagUrls[$storeId][$k]);
+					$updated = true;
+				}
+			}
+		}
+		$tagInitTime = $tagUrls[$storeId]['utctime'][0];
+
+		if (!isset($tagUrls[$storeId][$level])) {
+			$tagUrls[$storeId][$level] = array();
+			$updated = true;
+		}
+
+		if (!isset($tagUrls[$storeId][$level][$url])) {
+			$tagUrls[$storeId][$level][$url] = array(0, $attr); // 0:visitor count, 1: attr
+			$updated = true;
+		}
+
+		$tagUrl = &$tagUrls[$storeId][$level][$url];
+		$dbgMsg .= ' attr=' . $attr . ' level=' . $level;
+
+		if ($conf['collect']) {
+			if ((($attr & 1) == 1) || ($conf['countRobot'] && (($attr & 2) == 2))) {
+				$tagUrl[0] ++;
+				$updated = true;
+			}
+			if (($attr & $tagUrl[1]) != $attr ) {
+				$tagUrl[1] |= $attr;
+				$updated = true;
+			}
+
+			if (($now - $tagInitTime) > $conf['frame']) {
+				// window is over
+				$dbgMsg .= $this->_adjustAutoWarmupList($storeId, $tag, $tagInitTime);
+			}
+			elseif (($tagUrl[0] >= $conf['collect']) && (($tagUrl[1] & 28) == 0)) {
+				// not over the time limit, not seeing from cron, possible candidate to add, whether already in autolist will be determinted by cron
+				$isAjax = (($tagUrl[1] & 32) > 0);
+				$dbgMsg .= $this->_adjustAutoWarmupList($storeId, $tag, $tagInitTime, $url, ($isAjax? 2:1));
+			}
+
+			// put add/removal in cron, here only update attr
+		}
+
+		if ($updated) {
+			$tagUrls[$storeId]['utctime'][1] = $now;
+			$this->_config->saveInternalCache(serialize($tagUrls), $cacheId) ;
+			$dbgMsg .= ' tag cache updated ';
+		}
+
+		return $dbgMsg;
+	}
+
+	protected function _removeBadUrl($cronLabel, $url, $storeId, $level, $crawlAuto)
+	{
+		$dbgMesg = ' in _removeBadUrl ';
+		$type = $cronLabel{0};
+		if ($type != 'a' && $type != 'd') {
+			$dbgMesg .= ' not from auto or delta, ignore. ';
+			return $dbgMesg;
+		}
+		$pos = strpos($cronLabel, ':');
+		if (!$pos) {
+			$dbgMesg .= ' no cron tag: found, ignore. ';
+			return $dbgMesg;
+		}
+		// tag needs to retrieve from cronlabel, not from current req
+		$tag = substr($cronLabel, $pos + 1);
+		if (!$tag) {
+			$dbgMesg .= ' no cron tag found, ignore. ';
+			return $dbgMesg;
+		}
+
+		$cacheId = 'LITEMAGE_AUTOURL_' . $tag;
+		$attr = 0;
+		if ( $result = Mage::app()->loadCache($cacheId) ) {
+			$tagUrls = unserialize($result) ;
+			if (isset($tagUrls[$storeId][$level][$url])) {
+				$attr = $tagUrls[$storeId][$level][$url][1];
+				unset($tagUrls[$storeId][$level][$url]);
+				$this->_config->saveInternalCache(serialize($tagUrls), $cacheId) ;
+				$dbgMesg .= ' removed from tag cache ' . $tag ;
+			}
+		}
+		if ($crawlAuto && ($type == 'a' || ($type == 'd' && ($attr & 16)))) { // in autolist, remove
+			$dbgMesg .= $this->_adjustAutoWarmupList($storeId, $tag, $url, -1);
+		}
+		return $dbgMesg;
+	}
+
+	// action: -1 (remove) 1 (add regular) 2 (add ajax)
+	protected function _adjustAutoWarmupList($storeId, $tag, $tagInitTime, $url='', $action='')
+	{
+		$cacheId = 'LITEMAGE_AUTOURL_ADJ_S' . $storeId;
+		$pending = null;
+		$now = time() - date('Z');
+		$dbgMesg = ' _adjustAutoWarmupList for ' . $tag;
+		if ( $result = Mage::app()->loadCache($cacheId) ) {
+			$pending = unserialize($result) ;
+		}
+		if (!$pending) {
+			// [utctime] = [inittime, updatetime]
+			// [tag][0] = 0|1 -- full check
+			//      [1][url] = 1/-1  -- url check  AddReg(1) AddAjax(2) Remove(-1)
+			$pending = array('utctime' => array($now, $now));
+			$dbgMesg .= ' no existing list, start new. ';
+		}
+
+		if (!isset($pending[$tag])) {
+			$pending[$tag] = array(0 => 0, 't' => $tagInitTime);
+		}
+		elseif ($pending[$tag][0]) {
+			// already full check
+			$dbgMesg .= ' already in pending full check, ignore. ';
+			return $dbgMesg;
+		}
+
+		if ($url == '') {
+			$pending[$tag][0] = 1;
+			$dbgMesg .= ' window is over, doing full check. ';
+
+			if (isset($pending[$tag][1])) {
+				unset($pending[$tag][1]);
+				$dbgMesg .= ' reset previous single url check. ';
+			}
+		}
+		else {
+			if (!isset($pending[$tag][1])) {
+				$pending[$tag][1] = array($url => $action);
+			}
+			elseif (isset($pending[$tag][1][$url]) && $pending[$tag][1][$url] == $action) {
+				$dbgMesg .= ' already in pending url check, ignore. ';
+				return $dbgMesg;
+			}
+			else {
+				$pending[$tag][1][$url] = $action;
+			}
+			$dbgMesg .= ' add single url check ' . $action;
+		}
+		$pending['utctime'][1] = $now; // updated time
+		$this->_config->saveInternalCache(serialize($pending), $cacheId) ;
+		return $dbgMesg;
+	}
+
+	protected function _addDeltaByTags($tags)
+	{
+		if (!$this->_config->useInternalCache() || !$this->_config->needAddDeltaTags())
+			return;
+
+		$cacheId = Litespeed_Litemage_Helper_Data::LITEMAGE_DELTA_CACHE_ID ;
+
+		$updated = 1; // 0: no update; 1: reinit; 2: append
+
+		if (in_array('*', $tags)) {
+			$tags = array();
+		}
+		elseif ($result = Mage::app()->loadCache($cacheId)) {
+			$data = unserialize($result) ;
+			if (is_array($data) && isset($data['time']) && isset($data['tags'])) {
+				$updated = 0;
+				$extra = array();
+				foreach ($tags as $tag) {
+				   if (!in_array($tag, $data['tags'])) {
+					   $data['tags'][] = $tag;
+					   $extra[] = $tag;
+					   $updated = 2;
+				   }
+			   }
+			}
+		}
+
+		if ($updated) {
+			if ($updated == 1) {
+				$data = array('time' => microtime(), 'tags' => $tags);
+			}
+			$this->_config->saveInternalCache(serialize($data), $cacheId) ;
+		}
+
+		if ($this->_isDebug) {
+			if ($updated == 0)
+				$msg = 'Delta tags not added, already in pending list';
+			elseif ($updated == 1)
+				$msg = 'Reinit Delta queue [time=' . $data['time'] . '] tags=' . implode(',', $tags);
+			else
+				$msg = 'Delta queue [time=' . $data['time'] . '] appended tag ' . implode(',', $extra);
+
+			$this->_config->debugMesg($msg) ;
+		}
+	}
+
     protected function _getPurgeCacheTags()
     {
         $tags = $this->_cacheVars['tag'] ;
         if (empty($tags)) {
             // set tag for product id, cid, and pageid
-            if ( ($curProduct = Mage::registry('current_product')) != NULL ) {
+            if ( ($curProduct = Mage::registry('current_product')) != null ) {
                 $tags[] = self::TAG_PREFIX_PRODUCT . $curProduct->getId() ;
             }
-            elseif ( ($curCategory = Mage::registry('current_category')) != NULL ) {
+            elseif ( ($curCategory = Mage::registry('current_category')) != null ) {
                 $tags[] = self::TAG_PREFIX_CATEGORY . $curCategory->getId() ;
             }
             else {
@@ -610,6 +938,9 @@ class Litespeed_Litemage_Helper_Esi
                 $tags[] = $uri;
             }
         }
+
+		$this->_addDeltaByTags($tags);
+
         $tag = count($tags) ? implode(',', $tags) : '' ;
         return $tag ;
     }
@@ -621,7 +952,7 @@ class Litespeed_Litemage_Helper_Esi
         foreach ($this->_cacheVars['env'] as $name => $data) {
             $newVal = '';
             $oldVal = '';
-            if ($data != NULL) {
+            if ($data != null) {
                 ksort($data); // data is array, key sorted
                 foreach ($data as $k => $v) {
                     $newVal .= $k . '~' . $v . '~';
@@ -639,7 +970,6 @@ class Litespeed_Litemage_Helper_Esi
             }
         }
         return $changed;
-
     }
 
     protected function _getCacheVaryOn()
@@ -657,43 +987,62 @@ class Litespeed_Litemage_Helper_Esi
             case 1: return $vary_on[0];
             default: return implode(',', $vary_on);
         }
-
     }
 
     public function setDefaultEnvCookie()
     {
         // when calling set, always reset, as value may change during processing
+        $default = $this->_getDefaultEnvCookieValue();
+        $this->_cacheVars['env'][$this->_defaultEnvVaryCookie] = count($default) > 0 ? $default : null ;
+    }
+
+    protected function _getDefaultEnvCookieValue()
+    {
         $default = array() ;
-        $app = Mage::app() ;
-        $currStore = $app->getStore() ;
-        $currStoreId = $currStore->getId() ;
-        $currStoreCurrency = $currStore->getCurrentCurrencyCode() ;
+        $currStore = Mage::app()->getStore();
+
+		// check null to avoid error from soap api call
+		if (!$currStore) {
+			return $default;
+		}
+
+		$website = $currStore->getWebsite();
+		if (!$website) {
+			return $default;
+		}
+
+		$defaultStore = $website->getDefaultStore();
+		if (!$defaultStore) {
+			return $default;
+		}
+
+		$currStoreId = $currStore->getId() ;
+		$currStoreCurrency = $currStore->getCurrentCurrencyCode() ;
 		$currStoreDefaultCurrency = $currStore->getDefaultCurrencyCode() ;
 
 		if ($currStoreCurrency != $currStoreDefaultCurrency) {
-            $default['curr'] = $currStoreCurrency ;
-        }
+			$default['curr'] = $currStoreCurrency ;
+		}
 
-        if ( $currStore->getWebsite()->getDefaultStore()->getId() != $currStoreId ) {
-            $default['st'] = intval($currStoreId) ;
-        }
-        if ($diffGrp = $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_DIFFCUSTGRP)) {
-            // diff cache copy peer customer group
-            $currCustomerGroup = Mage::getSingleton('customer/session')->getCustomerGroupId() ;
-            if ( Mage_Customer_Model_Group::NOT_LOGGED_IN_ID != $currCustomerGroup ) {
-                if ($diffGrp == 1) // diff copy per group
-                    $default['cgrp'] = $currCustomerGroup ;
-                else    // diff copy for logged in user
-                    $default['cgrp'] = 'in' ;
-            }
-        }
-        if ($this->_config->isRestrainedIP()) {
-            $default['dev'] = 1;  //developer mode for restrained IP
-        }
 
-        $this->_cacheVars['env'][$this->_defaultEnvVaryCookie] = count($default) > 0 ? $default : NULL ;
+		if ( $defaultStore->getId() != $currStoreId ) {
+			$default['st'] = intval($currStoreId) ;
+		}
+		if ($diffGrp = $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_DIFFCUSTGRP)) {
+			// diff cache copy peer customer group
+			$currCustomerGroup = Mage::getSingleton('customer/session')->getCustomerGroupId() ;
+			if ( Mage_Customer_Model_Group::NOT_LOGGED_IN_ID != $currCustomerGroup ) {
+				if ($diffGrp == 1) // diff copy per group
+					$default['cgrp'] = $currCustomerGroup ;
+				else    // diff copy for logged in user
+					$default['cgrp'] = 'in' ;
+			}
+		}
+		if ($this->_config->isRestrainedIP()) {
+			$default['dev'] = 1;  //developer mode for restrained IP
+		}
+		return $default;
     }
-
 
     public function getDefaultEnvCookie()
     {
@@ -738,13 +1087,19 @@ class Litespeed_Litemage_Helper_Esi
     public function getCookieEnvVars( $cookieName )
     {
         if ( ! isset($this->_cacheVars['cookie'][$cookieName]) ) {
-            $this->_cacheVars['cookie'][$cookieName] = NULL ;
+            $this->_cacheVars['cookie'][$cookieName] = null ;
             $cookieVal = Mage::getSingleton('core/cookie')->get($cookieName) ;
-            if ( $cookieVal != NULL ) {
+            if ( $cookieVal != null ) {
                 $cv = explode('~', trim($cookieVal, '~')); // restore cookie value
-                for ($i = 0 ; $i < count($cv) ; $i += 2) {
-                    $this->_cacheVars['cookie'][$cookieName][$cv[$i]] = $cv[$i+1];
-                }
+				$num = count($cv);
+				if (($num % 2) == 0) {
+					for ($i = 0 ; $i < $num ; $i += 2) {
+						$this->_cacheVars['cookie'][$cookieName][$cv[$i]] = $cv[$i+1];
+					}
+				}
+				else if ($this->_isDebug) {
+                    $this->_config->debugMesg('Env Cookie value parse error ' . $cookieName . ' = ' . $cookieVal) ;
+				}
 
                 $this->_cacheVars['cookie'][$cookieName]['_ORG_'] = $cookieVal ;
             }
@@ -754,12 +1109,23 @@ class Litespeed_Litemage_Helper_Esi
 
     public function addEnvVars($cookieName, $key='', $val='' )
     {
-        if ( ! isset($this->_cacheVars['env'][$cookieName]) || ($this->_cacheVars['env'][$cookieName] == NULL) ) {
+        if ( ! isset($this->_cacheVars['env'][$cookieName]) || ($this->_cacheVars['env'][$cookieName] == null) ) {
             $this->_cacheVars['env'][$cookieName] = array() ;
         }
         if ($key != '') {
             $this->_cacheVars['env'][$cookieName][$key] = $val ;
         }
     }
+
+	public function isRobot($userAgent = '')
+	{
+		// for auto collect, ignore robot visits, so don't have to be very accurate, cover common case is fine
+		if ($userAgent == '') {
+			$userAgent = Mage::helper('core/http')->getHttpUserAgent();
+		}
+		$ua = strtolower($userAgent);
+		$isRobot = preg_match('/bot|slurp|spider|crawl|archiver/', $ua);
+		return $isRobot;
+	}
 
 }
