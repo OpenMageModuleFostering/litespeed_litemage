@@ -26,7 +26,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.3.5</version>
+            <version>1.3.6</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -461,13 +461,14 @@
             <general>
                 <enabled>0</enabled>
                 <admin_ips>127.0.0.1</admin_ips>
-                <public_ttl>28800</public_ttl>
+                <public_ttl>86400</public_ttl>
                 <private_ttl>1800</private_ttl>
-                <home_ttl>28800</home_ttl>
+                <home_ttl>43200</home_ttl>
                 <track_viewed>0</track_viewed>
                 <diff_customergroup>0</diff_customergroup>
                 <diff_customergroup_set/>
                 <flush_prodcat>0</flush_prodcat>
+                <mobile_theme/>
                 <alt_esi_syntax>0</alt_esi_syntax>
                 <cache_tag_prefix>M</cache_tag_prefix>
             </general>
@@ -477,11 +478,12 @@
                 <load_limit>5</load_limit>
                 <thread_limit>6</thread_limit>
                 <max_time>360</max_time>
-                <interval>21600</interval>
+                <interval>57600</interval>
                 <priority>100</priority>
                 <multi_currency/>
                 <multi_custgroup/>
-                <autolist_interval>28800</autolist_interval>
+                <mobile_view/>
+                <autolist_interval>57600</autolist_interval>
                 <autolist_priority>300</autolist_priority>
                 <enable_autocollect>0</enable_autocollect>
                 <auto_collect_add>6</auto_collect_add>
@@ -519,7 +521,9 @@
             <test>
                 <allow_ips/>
                 <debug>0</debug>
+                <debug_level>5</debug_level>
                 <delta_log>0</delta_log>
+                <safe_mode>0</safe_mode>
             </test>
         </litemage>
     </default>

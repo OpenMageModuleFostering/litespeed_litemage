@@ -32,7 +32,7 @@ class Litespeed_Litemage_Model_Layout_EsiUpdate extends Mage_Core_Model_Layout_U
     public function setCachePrefix($unique)
     {
         $this->_cachePrefix = 'LAYOUT_ESI_' . $unique . '_';
-        $this->_isDebug = Mage::helper('litemage/data')->isDebug() ;
+        $this->_isDebug = Mage::helper('litemage/data')->isDebug(Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_LAYOUTUPDATE) ;
     }
 
 	public function init($handles)
@@ -54,7 +54,8 @@ class Litespeed_Litemage_Model_Layout_EsiUpdate extends Mage_Core_Model_Layout_U
             $tags = $this->getHandles();
             $this->_cacheId = $this->_cachePrefix . md5(join('__', $tags));
 			if ($this->_isDebug) {
-				Mage::helper('litemage/data')->debugMesg('LU_Load  H=' . join(',',$tags) . ' ID=' . substr($this->_cacheId, 7));
+				Mage::helper('litemage/data')->debugMesg('LU_Load  H=' . join(',',$tags) . ' ID=' . substr($this->_cacheId, 7),
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_LAYOUTUPDATE);
 			}
 
         }

@@ -28,14 +28,13 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 	const WARMUP_MAP_FILE = 'litemage_warmup_urlmap' ;
 	const WARMUP_META_CACHE_ID = 'litemage_warmup_meta' ;
 	const DELTA_META_CACHE_ID = 'litemage_delta_meta' ;
-	const USER_AGENT = 'litemage_walker' ;
-	const FAST_USER_AGENT = 'litemage_runner' ;
 	const ENV_COOKIE_NAME = '_lscache_vary' ;
+    const RUNNING_MESG = 'Currently running with pid ';
 
 	protected $_meta ; // time, curfileline
 	protected $_conf ;
 	protected $_helper ;
-	protected $_isDebug ;
+	protected $_logEnabled ;
 	protected $_isDelta;
 	protected $_debugTag ;
 	protected $_maxRunTime ;
@@ -49,14 +48,11 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 	protected function _construct()
 	{
 		$this->_helper = Mage::helper('litemage/data') ;
-		$this->_isDebug = $this->_helper->isDebug() ;
 		$this->_listDir = $this->_helper->getCrawlerListDir() ;
 
 		$this->_conf = $this->_helper->getWarmUpConf() ;
-		if ($this->_conf[Litespeed_Litemage_Helper_Data::CFG_WARMUP_DELTA_LOG]) {
-			$this->_isDebug |= 2;
-		}
-		if ( $this->_isDebug ) {
+		$this->_logEnabled = $this->_conf[Litespeed_Litemage_Helper_Data::CFG_WARMUP_CRAWLER_LOG];
+		if ( $this->_logEnabled ) {
 			$this->_debugTag = 'LiteMage [cron:' ;
 			if ( isset($_SERVER['USER']) )
 				$this->_debugTag .= $_SERVER['USER'] ;
@@ -155,7 +151,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 				$disp['lastendtime'] = ($store_stat['lastendtime'] > 0) ? date($timefmt, $store_stat['lastendtime']) : ' ' ;
 				$disp['listsize'] = ($store_stat['listsize'] > 0) ? $store_stat['listsize'] : 'N/A' ;
 				$disp['curpos'] = $store_stat['curpos'] ;
-				$disp['env'] = str_replace(',', ', ', $store_stat['env']) ;
+				$disp['env'] = str_replace(',', ', ', $store_stat['env']) . ($store_stat['crawl_mobile'] ? ' (with mobile view)' : '');
 				$disp['curvary'] = preg_replace("/_lscache_vary=.+;/", '', $store_stat['curvary']) ;
 			}
 			$disp['lastquerytime'] = ($store_stat['lastquerytime'] > 0) ? date($timefmt, $store_stat['lastquerytime']) : 'N/A' ;
@@ -189,7 +185,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		if ( $errmsg = $this->_init() ) {
 			$this->_meta['endreason'] = 'Skipped this round - ' . $errmsg ;
 			$this->_saveMeta() ;
-			$this->_debugLog('Cron ' . ($isDelta ? 'warmDelta' : 'warmCache' ) . ' skip this round - ' . $errmsg) ;
+			$this->_log('Cron ' . ($isDelta ? 'warmDelta' : 'warmCache' ) . ' skip this round - ' . $errmsg) ;
 			return;
 		}
 
@@ -198,25 +194,33 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			CURLOPT_SSL_VERIFYHOST => 0,
 			CURLOPT_TIMEOUT => 180
 		) ;
+        
+        $mypid = getmypid();
+        $this->_meta['endreason'] = self::RUNNING_MESG . $mypid ; // hard coded string, will be compared later
 
 		$server_ip = $this->_conf[Litespeed_Litemage_Helper_Data::CFG_WARMUP_SERVER_IP] ;
 
 		$client = new Varien_Http_Adapter_Curl() ;
 		$curCookie = '' ;
+        $addMobileView = false;
 		$endReason = '' ;
 		$pattern = "/:\/\/([^\/^:]+)(\/|:)?/";
 
-		while ( $urls = $this->_getNextUrls($curCookie) ) {
+		while ( $urls = $this->_getNextUrls($curCookie, $addMobileView) ) {
 			$curlOptions = $options ;
 			if ( $curCookie ) {
 				$curlOptions[CURLOPT_COOKIE] = $curCookie ;
 			}
 			$id = $this->_curList['id'] ;
-			$ua = isset($this->_meta[$id]['ua']) ? $this->_meta[$id]['ua'] : self::FAST_USER_AGENT ;
+			$ua = isset($this->_meta[$id]['ua']) ? $this->_meta[$id]['ua'] : Litespeed_Litemage_Helper_Data::LITEMAGE_FAST_USER_AGENT ;
 			$curlOptions[CURLOPT_USERAGENT] = $ua ;
 
-			if ( $this->_isDebug ) {
-				$this->_debugLog($ua . ' crawling ' . $server_ip . ' ' . $id . ' urls (cur_pos:' . $this->_meta[$id]['curpos'] . ') with cookie ' . $curCookie . ' ' . print_r($urls, true)) ;
+			if ( $this->_logEnabled ) {
+				$this->_log($ua . ' crawling ' . $server_ip . ' ' . $id 
+                        . ' urls (cur_pos:' . $this->_meta[$id]['curpos'] 
+                        . ') with cookie ' . $curCookie 
+                        . ($addMobileView ? ' add_mobile ' : ' ') 
+                        . print_r($urls, true)) ;
 			}
 
 			$regular = array();
@@ -231,8 +235,8 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 						$curlOptions[CURLOPT_HTTPHEADER][] = "Host: $domain";
 					}
 					else {
-						if ( $this->_isDebug ) {
-							$this->_debugLog('invalid url ' . $url);
+						if ( $this->_logEnabled ) {
+							$this->_log('invalid url ' . $url);
 						}
 						continue;
 					}
@@ -249,17 +253,26 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			try {
 				if (count($regular)) {
 					$client->multiRequest($regular, $curlOptions) ;
+                    if ($addMobileView) {
+                        $mobileOptions = $curlOptions;
+                        $mobileOptions[CURLOPT_USERAGENT] .= ' (iPhone)' ;
+                        $client->multiRequest($regular, $mobileOptions) ;
+                    }
 				}
 				if (count($ajax)) {
 					$curlOptions[CURLOPT_HTTPHEADER][] = 'X-Requested-With: XMLHttpRequest';
 					$client->multiRequest($ajax, $curlOptions) ;
+                    if ($addMobileView) {
+                        $curlOptions[CURLOPT_USERAGENT] .= ' (iPhone)' ;
+                        $client->multiRequest($ajax, $curlOptions) ;
+                    }
 				}
 			} catch ( Exception $e ) {
 				$endReason = 'Error when crawling url ' . implode(' ', $urls) . ' : ' . $e->getMessage() ;
 				break ;
 			}
 
-			$this->_finishCurPosition() ;
+			$this->_finishCurPosition($addMobileView) ;
 
 			if ( $this->_meta['lastupdate'] > $this->_maxRunTime ) {
 				$endReason = Mage::helper('litemage/data')->__('Stopped due to exceeding defined Maximum Run Time.') ;
@@ -273,13 +286,14 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 					break ;
 				}
 			}
+            $this->_saveMeta() ;
 			usleep(500) ;
 		}
 		$this->_meta['endreason'] = $endReason ;
 
 		$this->_saveMeta() ;
-		if ( $this->_isDebug ) {
-			$this->_debugLog($endReason . ' cron meta end = ' . print_r($this->_meta, true)) ;
+		if ( $this->_logEnabled ) {
+			$this->_log($endReason . ' cron meta end = ' . print_r($this->_meta, true)) ;
 		}
 	}
 
@@ -310,15 +324,15 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 				. $this->_meta[$listId]['listsize'] . "\t"
 				. $this->_meta[$listId]['env'] . "\n" ;
 
-		if ( $this->_isDebug ) {
-			$this->_debugLog('Generate url map for ' . $listId . ' url count=' . $this->_meta[$listId]['listsize']) ;
+		if ( $this->_logEnabled ) {
+			$this->_log('Generate url map for ' . $listId . ' url count=' . $this->_meta[$listId]['listsize']) ;
 		}
 
 		$buf = $header . implode("\n", $urls) ;
 
 		$filename = $this->_listDir . DS . self::WARMUP_MAP_FILE . '_' . strtolower($listId) ;
 		if ( ! file_put_contents($filename, $buf) ) {
-			$this->_debugLog('Failed to save url map file ' . $filename) ;
+			$this->_log('Failed to save url map file ' . $filename) ;
 		}
 		else {
 			chmod($filename, 0644) ;
@@ -358,8 +372,8 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 					== $header[2]) && count($allurls) == $m['listsize'] ) {
 				$this->_curList['urls'] = $allurls ;
 			}
-			else if ( $this->_isDebug ) {
-				$this->_debugLog('load saved url list, header does not match, will regenerate') ;
+			else if ( $this->_logEnabled ) {
+				$this->_log('load saved url list, header does not match, will regenerate') ;
 			}
 		}
 
@@ -381,8 +395,8 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			// reset current pointer
 			$m['curvary'] = $vary[0] ;
 			$m['curpos'] = 0 ;
-			if ( $this->_isDebug ) {
-				$this->_debugLog('Reset current position pointer to 0. curvary is ' . $m['curvary']) ;
+			if ( $this->_logEnabled ) {
+				$this->_log('Reset current position pointer to 0. curvary is ' . $m['curvary']) ;
 			}
 		}
 
@@ -463,8 +477,8 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			// reset current pointer
 			$m['curvary'] = $vary[0] ;
 			$m['curpos'] = 0 ;
-			if ( $this->_isDebug ) {
-				$this->_debugLog('Reset current position pointer to 0. curvary is ' . $m['curvary']) ;
+			if ( $this->_logEnabled ) {
+				$this->_log('Reset current position pointer to 0. curvary is ' . $m['curvary']) ;
 			}
 		}
 
@@ -475,98 +489,103 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		$this->_curList = array(
 			'id' => 'delta', 'fixed' => $fixed, 'vary' => $vary, 'working' => 0, 'urls' => $urls ) ;
 
-		if ( $this->_isDebug ) {
-			$this->_debugLog('current delta list for tag ' . $m['curtag'] . ' ' . print_r($this->_curList, true)) ;
+		if ( $this->_logEnabled ) {
+			$this->_log('current delta list for tag ' . $m['curtag'] . ' ' . print_r($this->_curList, true)) ;
 		}
 		return true ;
 	}
 
-	protected function _parseEnvCookies( $env, &$vary )
-	{
-		$fixed = '' ;
-		if ( $env ) {
-			$lsvary = array() ;
-			$multiCurr = array( '-' ) ; // default currency
-			$multiCgrp = array( '-' ) ; // default user group
+	protected function _parseEnvCookies($env, &$vary)
+    {
+        if (!$env) {
+            $vary[] = ''; // no vary
+            return '';
+        }
+        $fixed = '';
 
-			$env = trim($env, '/') ;
-			$envs = explode('/', $env) ;
-			$envVars = array() ;
-			$cnt = count($envs) ;
-			for ( $i = 0 ; ($i + 1) < $cnt ; $i+=2 ) {
-				$envVars[$envs[$i]] = $envs[$i + 1] ;
-			}
-			if ( isset($envVars['vary_dev']) ) {
-				$lsvary['dev'] = 1 ;
-			}
+        $lsvary    = array();
+        $multiCurr = array('-'); // default currency
+        $multiCgrp = array('-'); // default user group
+        $views     = array('-'); // default desktop view
 
-			if ( isset($envVars['store']) ) {
-				$fixed .= Mage_Core_Model_Store::COOKIE_NAME . '=' . $envVars['store'] . ';' ;
-				$lsvary['st'] = $envVars['storeId'] ;
-			}
+        $env     = trim($env, '/');
+        $envs    = explode('/', $env);
+        $envVars = array();
+        $cnt     = count($envs);
+        for ($i = 0; ($i + 1) < $cnt; $i+=2) {
+            $envVars[$envs[$i]] = $envs[$i + 1];
+        }
+        if (isset($envVars['vary_dev'])) {
+            $lsvary['dev'] = 1;
+        }
 
-			if ( isset($envVars['vary_cgrp']) ) {
-				$multiCgrp = explode(',', $envVars['vary_cgrp']) ;
-			}
+        if (isset($envVars['store'])) {
+            $fixed .= Mage_Core_Model_Store::COOKIE_NAME . '=' . $envVars['store'] . ';';
+            $lsvary['st'] = $envVars['storeId'];
+        }
 
-			if ( isset($envVars['vary_curr']) ) {
-				$multiCurr = explode(',', $envVars['vary_curr']) ;
-			}
+        if (isset($envVars['vary_cgrp'])) {
+            $multiCgrp = explode(',', $envVars['vary_cgrp']);
+        }
 
-			foreach ( $multiCurr as $currency ) {
-				$cookie_vary = '' ;
-				$lsvary1 = $lsvary ;
+        if (isset($envVars['vary_mobile'])) {
+            $views = explode(',', $envVars['vary_mobile']);
+        }
 
-				if ( $currency != '-' ) {
-					$lsvary1['curr'] = $currency ;
-					$cookie_vary .= Mage_Core_Model_Store::COOKIE_CURRENCY . '=' . $currency . ';' ;
-				}
+        if (isset($envVars['vary_curr'])) {
+            $multiCurr = explode(',', $envVars['vary_curr']);
+        }
 
-				foreach ( $multiCgrp as $cgrp ) {
-					
-					$cookie_vary2 = $cookie_vary;
-					$lsvary2 = $lsvary1;
-					
-					if ( $cgrp != '-' ) {
-						// need to set user id, group_userid
-						if ($pos = strpos($cgrp, '_')) {
-							$group = substr($cgrp, 0, $pos);
-							$customerId = substr($cgrp, $pos+1);
-							if ($group == 'review') {
-								$cookie_vary2 .= '_lscache_vary_review=write%7E1%7E;' ;
-							}
-							else {
-								$lsvary2['cgrp'] = $group ;
-							}
-							$cookie_vary2 .= 'lmcron_customer=' . $customerId . ';' ;
-						}
-					}
+        foreach ($multiCurr as $currency) {
+            $cookie_vary = '';
+            $lsvary1     = $lsvary;
 
-					if ( ! empty($lsvary2) ) {
-						ksort($lsvary2) ;
-						$lsvary2_val = '' ;
-						foreach ( $lsvary2 as $k => $v ) {
-							$lsvary2_val .= $k . '%7E' . urlencode($v) . '%7E' ; // %7E is "~"
-						}
-						$cookie_vary2 .= self::ENV_COOKIE_NAME . '=' . $lsvary2_val . ';' ;
-					}
-					$vary[] = $cookie_vary2 ; // can be empty string for default no vary
-				}
-			}
-		}
-		else {
-			$vary[] = '' ; // no vary
-		}
-		return $fixed ;
-	}
+            if ($currency != '-') {
+                $lsvary1['curr'] = $currency;
+                $cookie_vary .= Mage_Core_Model_Store::COOKIE_CURRENCY . '=' . $currency . ';';
+            }
 
-	protected function _getNextUrls( &$curCookie )
+            foreach ($multiCgrp as $cgrp) {
+
+                $cookie_vary2 = $cookie_vary;
+                $lsvary2      = $lsvary1;
+
+                if ($cgrp != '-') {
+                    // need to set user id, group_userid
+                    if ($pos = strpos($cgrp, '_')) {
+                        $group      = substr($cgrp, 0, $pos);
+                        $customerId = substr($cgrp, $pos + 1);
+                        if ($group == 'review') {
+                            $cookie_vary2 .= '_lscache_vary_review=write%7E1%7E;';
+                        }
+                        else {
+                            $lsvary2['cgrp'] = $group;
+                        }
+                        $cookie_vary2 .= 'lmcron_customer=' . $customerId . ';';
+                    }
+                }
+
+                if (!empty($lsvary2)) {
+                    ksort($lsvary2);
+                    $lsvary2_val = '';
+                    foreach ($lsvary2 as $k => $v) {
+                        $lsvary2_val .= $k . '%7E' . urlencode($v) . '%7E'; // %7E is "~"
+                    }
+                    $cookie_vary2 .= self::ENV_COOKIE_NAME . '=' . $lsvary2_val . ';';
+                }
+                $vary[] = $cookie_vary2; // can be empty string for default no vary
+            }
+        }
+        return $fixed;
+    }
+
+    protected function _getNextUrls( &$curCookie, &$addMobileView )
 	{
 		$this->_curList['working'] = 0 ;
 		$id = $this->_curList['id'] ;
 		if ( $this->_meta[$id]['endtime'] > 0 ) {
 			if ( $this->_prepareCurList() ) {
-				return $this->_getNextUrls($curCookie) ;
+				return $this->_getNextUrls($curCookie, $addMobileView) ;
 			}
 			else {
 				return null ;
@@ -575,6 +594,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		$isAutoList = ($id{0} == 'a');
 		$curpos = $this->_meta[$id]['curpos'] ;
 		$curCookie = $this->_curList['fixed'] . $this->_meta[$id]['curvary'] ;
+        $addMobileView = $this->_meta[$id]['crawl_mobile'] ;
 
 		if ($isAutoList) {
 			// {tag}:url
@@ -606,7 +626,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			}
 			if ($curtag) {
 			 //'litemage_cron=' . $id . ':' . $m['curtag'] . ';' ;
-				$replace = '$1' . ':' . $curtag . ';';
+				$replace = '$1:' . $curtag . ';';
 				$curCookie = preg_replace('/(litemage_cron=[^;]+);/', $replace, $curCookie);
 			}
 		}
@@ -633,7 +653,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		}
 	}
 
-	protected function _finishCurPosition()
+	protected function _finishCurPosition($addMobileView)
 	{
 		$now = time() ;
 		$id = $this->_curList['id'] ;
@@ -651,7 +671,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 				$this->_meta[$id]['curpos'] = $this->_meta[$id]['listsize'] ;
 			}
 		}
-		$this->_meta[$id]['queried'] += $this->_curList['working'] ;
+		$this->_meta[$id]['queried'] += $addMobileView ? ($this->_curList['working'] * 2) : $this->_curList['working'];
 		$this->_meta[$id]['lastquerytime'] = $now ;
 		$this->_meta['lastupdate'] = $now ;
 		$this->_curList['working'] = 0 ;
@@ -672,7 +692,8 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			'gentime' => 0,
 			'listsize' => 0,
 			'env' => $storeInfo['env'],
-			'ua' => self::FAST_USER_AGENT,
+            'crawl_mobile' => $storeInfo['crawl_mobile'],
+			'ua' => Litespeed_Litemage_Helper_Data::LITEMAGE_FAST_USER_AGENT,
 			'curpos' => 0,
 			'curvary' => '',
 			'queried' => 0,
@@ -702,7 +723,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 				'priority' => 0,
 				'gentime' => $now,
 				'listsize' => 0,
-				'ua' => self::FAST_USER_AGENT,
+				'ua' => Litespeed_Litemage_Helper_Data::LITEMAGE_FAST_USER_AGENT,
 				'curtag' => $curtag,
 				'pending' => 0,
 				'curlist' => '',
@@ -782,9 +803,11 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			if ( isset($saved[$listId]) ) {
 				// validate saved
 				$m = $saved[$listId] ;
-				if ( isset($m['storeid']) && ($m['storeid'] == $info['storeid']) && isset($m['env'])
-						&& ($m['env'] == $info['env']) && isset($m['interval']) && ($m['interval']
-						== $info['interval']) && isset($m['priority']) && ($m['priority'] == $info['priority'])
+				if ( isset($m['storeid']) && ($m['storeid'] == $info['storeid']) 
+                        && isset($m['env'])	&& ($m['env'] == $info['env']) 
+                        && isset($m['crawl_mobile']) && ($m['crawl_mobile'] == $info['crawl_mobile']) 
+                        && isset($m['interval']) && ($m['interval'] == $info['interval']) 
+                        && isset($m['priority']) && ($m['priority'] == $info['priority'])
 						&& isset($m['baseurl']) && ($m['baseurl'] == $info['baseurl']) ) {
 
 					if ( $m['gentime'] == 0 ) {
@@ -804,7 +827,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 					elseif ( ($m['endtime'] + $m['interval'] < $curtime ) ) {
 						// expired
 						$expired[$listId] = $m['priority'] ;
-						$m['ua'] = self::USER_AGENT ;
+						$m['ua'] = Litespeed_Litemage_Helper_Data::LITEMAGE_USER_AGENT ;
 						$tmpmsg = 'Run interval passed, will restart.' ;
 					}
 					else {
@@ -825,7 +848,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 					}
 					else {
 						$expired[$listId] = $m['priority'] ;
-						$m['ua'] = self::USER_AGENT ;
+						$m['ua'] = Litespeed_Litemage_Helper_Data::LITEMAGE_USER_AGENT ;
 					}
 				}
 			}
@@ -928,8 +951,8 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 				}
 			}
 
-			if ( $this->_isDebug ) {
-				$this->_debugLog('No urls saved for current delta tag ' . $tag . ' - bypass') ;
+			if ( $this->_logEnabled ) {
+				$this->_log('No urls saved for current delta tag ' . $tag . ' - bypass') ;
 			}
 		}
 
@@ -955,6 +978,12 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		if ( empty($this->_priority) ) {
 			return 'no URL list scheduled for warm up' ;
 		}
+        
+        // to avoid another process running
+        if ( isset($this->_meta['endreason'])  
+                && (strpos($this->_meta['endreason'], self::RUNNING_MESG) !== false)) {
+            return 'another process is ' . $this->_meta['endreason'] . '. You can click resetAll button if that process no longer exists.';
+        }
 
 		$maxTime = (int) ini_get('max_execution_time') ;
 		if ( $maxTime == 0 )
@@ -1026,8 +1055,8 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		}
 
 
-		if ( $this->_isDebug ) {
-			$this->_debugLog('set current threads = ' . $curthreads . ' previous=' . $this->_curThreads
+		if ( $this->_logEnabled ) {
+			$this->_log('set current threads = ' . $curthreads . ' previous=' . $this->_curThreads
 					. ' max_allowed=' . $max . ' load_limit=' . $limit . ' current_load=' . $curload) ;
 		}
 
@@ -1134,8 +1163,8 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		$lines = file($custlist, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ;
 		$urls = array() ;
 		if ( $lines === false ) {
-			if ( $this->_isDebug ) {
-				$this->_debugLog('Fail to read custom URL list file ' . $custlist) ;
+			if ( $this->_logEnabled ) {
+				$this->_log('Fail to read custom URL list file ' . $custlist) ;
 			}
 		}
 		else if ( ! empty($lines) ) {
@@ -1306,7 +1335,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			}
 		}
 		if ( ! file_put_contents($file, serialize($list)) ) {
-			$this->_debugLog('Failed to save AUTO list ' . $file) ;
+			$this->_log('Failed to save AUTO list ' . $file) ;
 		}
 		else {
 			chmod($file, 0644) ;
@@ -1315,17 +1344,12 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		return $list;
 	}
 
-	protected function _debugLog( $message, $level = 0 )
+	protected function _log( $message, $level = 0 )
 	{
-		if ( $this->_isDebug ) {
+		if ( $this->_logEnabled ) {
 			$message = $this->_debugTag . ' ' . str_replace("\n", ("\n" . $this->_debugTag . '  '), $message) ;
-			if (($this->_isDebug & 1) == 1) {
-				Mage::log($message) ;
-			}
-			if ($this->_isDelta && (($this->_isDebug & 2) == 2)) {
-				//($message, $level = null, $file = '', $forceLog = false)
-				Mage::log($message, null, 'lmdelta.log', true) ;
-			}
+            //($message, $level = null, $file = '', $forceLog = false)
+            Mage::log($message, null, 'litemage_crawler.log', true) ;
 		}
 	}
 

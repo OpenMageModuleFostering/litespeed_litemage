@@ -40,14 +40,17 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 
 	protected function _construct()
 	{
-		$this->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_PRE_DISPATCH, true) ;
-		$this->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_POST_DISPATCH, true) ;
-		$this->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_START_SESSION, true) ; // postdispatch will not set last viewed url
-		$this->getFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_DISPATCH_BLOCK_EVENT, true) ;
+        $action = $this->getRequest()->getActionName();
+		$this->setFlag($action, Mage_Core_Controller_Varien_Action::FLAG_NO_PRE_DISPATCH, true) ;
+		$this->setFlag($action, Mage_Core_Controller_Varien_Action::FLAG_NO_POST_DISPATCH, true) ;
+		$this->setFlag($action, Mage_Core_Controller_Varien_Action::FLAG_NO_START_SESSION, true) ; // postdispatch will not set last viewed url
+		$this->setFlag($action, Mage_Core_Controller_Varien_Action::FLAG_NO_DISPATCH_BLOCK_EVENT, true) ;
 
 		$this->_config = Mage::helper('litemage/data') ;
-		if ( ! $this->_config->moduleEnabledForUser() ) {
-			Mage::throwException('LiteMage module not enabled for user') ;
+		if (! $this->_config->moduleEnabledForUser() ) {
+            $should_not_happen = 'LiteMage module not enabled for user - enabled=' . $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_ENABLED);
+            $this->_config->debugMesg($should_not_happen, Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION);
+			Mage::throwException($should_not_happen) ;
 		}
 
 		$this->_isDebug = $this->_config->isDebug() ;
@@ -138,8 +141,9 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		$esiUrl = $this->_setOriginalReq() ;
 		$esiData = new Litespeed_Litemage_Model_EsiData($esiUrl, $this->_config) ;
 
-		if ( $this->_isDebug ) {
-			$this->_config->debugMesg('****** EsiController process ' . $esiData->getAction()) ;
+		if ( $this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_CHECKROUTE) {
+			$this->_config->debugMesg('EsiController process ' . $esiData->getAction(),
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_CHECKROUTE) ;
 		}
 		$this->_initEnv($esiData) ;
 		$this->_scheduleProcess($esiData) ;
@@ -155,6 +159,8 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		$this->_initEnv($esiData) ;
 
 		$esiIncludes = $_REQUEST['esi_include'] ;
+        $debug = ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) ?
+                Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION : 0;
 
 		if ( ($key = array_search('*', $esiIncludes)) !== false ) {
 			unset($esiIncludes[$key]) ;
@@ -162,7 +168,7 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			$extraUrls = array_keys($this->_esiCache);
 			$esiInclude0 = $esiIncludes;
 			$esiIncludes = array_unique(array_merge($esiInclude0, $extraUrls)) ;
-			if ( $this->_isDebug ) {
+			if ( $debug ) {
 				$esiInclude1 = array();
 				foreach($esiIncludes as $uri) {
 					if (in_array($uri, $esiInclude0))
@@ -170,12 +176,14 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 					else
 						$esiInclude1[] = '* ' . $uri;
 				}
-				$this->_config->debugMesg('combined includes * = ' . print_r($esiInclude1, true)) ;
+				$this->_config->debugMesg('Combined includes * = ' 
+                        . print_r($esiInclude1, true), $debug);
 			}
 		}
 		else {
-			if ( $this->_isDebug ) {
-				$this->_config->debugMesg('combined includes = ' . print_r($esiIncludes, true)) ;
+			if ( $debug ) {
+				$this->_config->debugMesg('Combined includes = ' 
+                        . print_r($esiIncludes, true), $debug) ;
 			}
 		}
 
@@ -196,8 +204,9 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		$block = $this->_layout->getEsiBlock($blockIndex) ;
 		$out = '';
 		if ( ! $block ) {
-			if ( $this->_isDebug ) {
-				$this->_config->debugMesg('cannot get esi block ' . $blockIndex) ;
+			if ( $this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE ) {
+				$this->_config->debugMesg('CANNOT get esi block ' . $blockIndex,
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE) ;
 			}
 			return $out ;
 		}
@@ -213,8 +222,9 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 				$rcount = 0;
 				$out1 = preg_replace('/(\/checkout\/cart\/delete\/id\/\d+\/form_key\/\w+\/)uenc\/[^\/]*\//', '$1', $out, -1, $rcount);
 				if ($rcount > 0) {
-					if ( $this->_isDebug ) {
-						$this->_config->debugMesg('removed ' . $rcount . ' uenc from cart delete url') ;
+					if ( $this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) {
+						$this->_config->debugMesg('Removed ' . $rcount . ' uenc from cart delete url', 
+                                Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) ;
 					}
 					$out = $out1;
 				}
@@ -224,7 +234,9 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			}
 		} catch ( Exception $e ) {
 			if ( $this->_isDebug ) {
-				$this->_config->debugMesg('_renderEsiBlock, exception for block ' . $blockIndex . ' : ' . $e->getMessage()) ;
+				$this->_config->debugMesg('_renderEsiBlock, exception for block ' 
+                        . $blockIndex . ' : ' . $e->getMessage(), 
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION) ;
 			}
 		}
 
@@ -255,12 +267,16 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			$_SERVER['REQUEST_URI'] = $refererUrl ;
 			$req->setRequestUri($refererUrl) ;
 			$req->setPathInfo() ;
-			if ( $this->_isDebug ) {
-				$this->_config->debugMesg('****** EsiController process ' . $origEsiUrl . ' referral ' . $refererUrl) ;
+			if ( $this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_CHECKROUTE ) {
+				$this->_config->debugMesg('EsiController process ' 
+                        . $origEsiUrl . ' referral ' . $refererUrl,
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_CHECKROUTE) ;
 			}
 		}
 		else {
-			Mage::throwException('Illegal entrance for LiteMage module') ;
+            $errMsg = 'Illegal entrance for LiteMage module';
+            $this->_config->debugMesg($errMsg, Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION);
+			Mage::throwException($errMsg) ;
 		}
 		return $origEsiUrl ;
 	}
@@ -325,6 +341,8 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		$body = '' ;
 		$esiInlineTag = $this->_env['inline_tag'] ;
 		$shared = $this->_env['shared'] ;
+        $debug = ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) ?
+                Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION : 0;
 
 		foreach ( $this->_processed as $url => $esiData ) {
 			if ( is_string($esiData) ) {
@@ -335,7 +353,7 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 				$inlineHtml = $esiData->getInlineHtml($esiInlineTag, $shared) ;
 				$refreshed = $this->_refreshCacheEntry($url, $esiData, $inlineHtml) ;
 			}
-			if ( $this->_isDebug ) {
+			if ( $debug ) {
 				switch ($refreshed) {
 					case -1: $status = ':no_cache' ; break;
 					case -2: $status = ':param_mismatch' ; break;
@@ -354,7 +372,8 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 						$status .= substr($cacheId, 11, 10) . ' ' ;
 					}
 				}
-				$this->_config->debugMesg('out' . $status . substr($inlineHtml, 0, strpos($inlineHtml, "\n"))) ;
+				$this->_config->debugMesg('out' . $status 
+                        . substr($inlineHtml, 0, strpos($inlineHtml, "\n")), $debug) ;
 			}
 			$body .= $inlineHtml ;
 		}
@@ -362,8 +381,8 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 
 		if ( $this->_env['cache_updated'] && $this->_config->useInternalCache() ) {
 			$this->_config->saveInternalCache(serialize($this->_esiCache), $this->_env['cache_id']) ;
-			if ( $this->_isDebug ) {
-				$this->_config->debugMesg('saved esi_data cache');
+			if ( $debug ) {
+				$this->_config->debugMesg('saved esi_data cache', $debug);
 			}
 		}
 	}
@@ -402,7 +421,8 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			}
 			else {
 				if ( $this->_isDebug ) {
-					$this->_config->debugMesg('cannot get esi block ' . $bi) ;
+					$this->_config->debugMesg('cannot get esi block ' . $bi, 
+                            Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE) ;
 				}
 			}
 		}
@@ -479,7 +499,9 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		} catch ( Exception $e ) {
 			$responseCode = 500 ;
 			if ( $this->_isDebug ) {
-				$this->_config->debugMesg('_logData, exception for product ' . $product->getId() . ' : ' . $e->getMessage()) ;
+				$this->_config->debugMesg('_logData, exception for product ' 
+                        . $product->getId() . ' : ' . $e->getMessage(), 
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION) ;
 			}
 		}
 		$esiData->setRawOutput('', $responseCode) ;
@@ -533,6 +555,9 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 				}
 			}
 		}
+        if ($this->_env['shared'] && !array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
+            $this->_env['shared'] = false;
+        }        
 		$session->setData('_litemage_user', 3);
 		
 		$action = $esiData->getAction() ;
@@ -563,7 +588,11 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 				$design->setTheme('layout', $dt[2]);
 		}
 
-		$curLocale = $app->getLocale() ;
+        if ($this->_env['shared'] && $this->_helper->hasMobileThemeMismatch()) {
+            $this->_env['shared'] = false;
+        }
+
+        $curLocale = $app->getLocale() ;
 		$locale = Mage::getStoreConfig(Mage_Core_Model_Locale::XML_PATH_DEFAULT_LOCALE) ;
 		if ( $curLocale->getLocaleCode() != $locale ) {
 			$curLocale->setLocale($locale) ;
@@ -599,8 +628,10 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		if ( Mage::app()->useCache('layout') ) {
 			if ( $data = Mage::app()->loadCache($this->_env['cache_id']) ) {
 				$this->_esiCache = unserialize($data) ;
-				if ($this->_isDebug) {
-					$this->_config->debugMesg('loaded esi_data cache ' . substr($this->_env['cache_id'], 18, 8));				
+				if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) {
+					$this->_config->debugMesg('loaded esi_data cache ' 
+                            . substr($this->_env['cache_id'], 18, 8),
+                            Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION);				
 				}
 			}
 		}

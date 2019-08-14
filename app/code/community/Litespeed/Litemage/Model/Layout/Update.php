@@ -41,11 +41,11 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 
 	public function __construct()
 	{
-		if ( Mage::getSingleton('core/design_package')->getArea() == 'frontend' && Mage::helper('litemage/data')->moduleEnabled() ) {
-			$this->_modified = true ;
-			$this->_layoutMaster = Mage::getSingleton('litemage/layout_master') ;
-			$this->_resetInternals() ;
-			$this->_isDebug = Mage::helper('litemage/data')->isDebug() ;
+		if ( Mage::getSingleton('core/design_package')->getArea() == 'frontend' ) {
+   			$this->_isDebug = Mage::helper('litemage/data')->isDebug() ;
+            $this->_modified = true ;
+            $this->_layoutMaster = Mage::getSingleton('litemage/layout_master') ;
+            $this->_resetInternals() ;
 		}
 		parent::__construct() ;
 	}
@@ -58,6 +58,19 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 		return parent::resetHandles() ;
 	}
 
+	public function setNoModify()
+	{
+		if ( $this->_modified ) {
+			$this->_resetInternals() ;
+			$this->_modified = false;
+            if ( $this->_isDebug) {
+                Mage::helper('litemage/data')->debugMesg('LayoutUpdate override disabled', 
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_LAYOUTUPDATE);
+            }
+            
+		}
+	}
+	
 	protected function _resetInternals()
 	{
 		$this->_cacheId = null ;
@@ -71,7 +84,8 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 	{
 		if ( !$this->_modified ) {
 			if ( $this->_isDebug ) {
-				Mage::helper('litemage/data')->debugMesg('LayoutUpdate SHOULD NOT GET HERE getUsedHandles');
+				Mage::helper('litemage/data')->debugMesg('LayoutUpdate SHOULD NOT GET HERE getUsedHandles', 
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION);
 			}
 		}
 		
@@ -164,8 +178,9 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
     {
 		if ( $this->_modified ) {
 			$this->_resetInternals() ;
-			if ( $this->_isDebug ) {
-				Mage::helper('litemage/data')->debugMesg('LayoutUpdate CONTAINS setCacheId ' . $cacheId) ;
+			if ( $this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE) {
+				Mage::helper('litemage/data')->debugMesg('LayoutUpdate CONTAINS setCacheId ' . $cacheId,
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE) ;
 			}
 		}
 		return parent::setCacheId($cacheId) ;
@@ -202,10 +217,11 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 				return false ;
 			}
 		}
-		if ( $this->_isDebug ) {
+		if ( $this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_LAYOUTUPDATE) {
 			Mage::helper('litemage/data')->debugMesg('Layout cache loaded '
 					. implode(':', array_keys($this->_handleUpdates))
-					. ' ' . substr($this->_cacheId, 8, 12)) ;
+					. ' ' . substr($this->_cacheId, 8, 12),
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_LAYOUTUPDATE) ;
 		}
 		parent::addUpdate(implode('', $this->_handleUpdates)) ;
 
@@ -244,10 +260,11 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 		else {
 			$res = Mage::app()->saveCache(serialize($this->_handleUpdates), $this->getCacheId(), $tags, null) ;
 		}
-		if ( $this->_isDebug ) {
+		if ( $this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_LAYOUTUPDATE) {
 			Mage::helper('litemage/data')->debugMesg('Layout cache saved '
 					. implode(':', array_keys($this->_handleUpdates))
-					. ' ' . substr($this->_cacheId, 8, 12)) ;
+					. ' ' . substr($this->_cacheId, 8, 12),
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_LAYOUTUPDATE) ;
 		}
 
 		foreach ( $this->_handleUpdates as $h => $update ) {
@@ -263,7 +280,9 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 	{
 		if ( !$this->_modified ) {
 			if ( $this->_isDebug ) {
-				Mage::helper('litemage/data')->debugMesg('LayoutUpdate SHOULD NOT COME HERE ' . implode(',', $blockNameList));
+				Mage::helper('litemage/data')->debugMesg('LayoutUpdate SHOULD NOT COME HERE ' 
+                        . implode(',', $blockNameList),
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION);
 			}
 		}
 		if ( $this->_handleXml == null ) {

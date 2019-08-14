@@ -37,7 +37,10 @@ class Litespeed_Litemage_Model_Layout_Master
 	{
 		$design = Mage::getSingleton('core/design_package') ;
 		if ( $design->getArea() != 'frontend' ) {
-			throw Mage::exception('Litespeed_Litemage_Model_Layout_Master should only be used for frontend') ;
+            $errmsg = 'Litespeed_Litemage_Model_Layout_Master should only be used for frontend';
+            Mage::helper('litemage/data')->debugMesg($errmsg,
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION);
+			throw Mage::exception($errmsg) ;
 		}
 
 		$this->_cacheTags = array( Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG ) ;

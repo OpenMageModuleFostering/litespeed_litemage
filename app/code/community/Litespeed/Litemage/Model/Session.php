@@ -46,8 +46,10 @@ class Litespeed_Litemage_Model_Session extends Mage_Core_Model_Session_Abstract
             $messages = array_merge($stored, $messages);
         }
         $this->setData($blockName, $messages);
-        if ($this->_isDebug)
-            Mage::helper('litemage/data')->debugMesg("saveMessages for $blockName " . print_r($messages, true));
+        if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) {
+            Mage::helper('litemage/data')->debugMesg("saveMessages for $blockName " 
+                    . print_r($messages, true), Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION);
+        }
     }
 
     /**

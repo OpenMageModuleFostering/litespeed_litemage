@@ -27,7 +27,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.3.5</label>
+            <label>LiteMage Cache 1.3.6</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -80,7 +80,7 @@
                         </admin_ips>
                         <public_ttl translate="label,comment">
                             <label>Default Public Cache TTL (seconds)</label>
-                            <comment>Default timeout for public cache pages. Recommended value is 28800.</comment>
+                            <comment>Default timeout for public cache pages. Recommended value is 86400.</comment>
                             <frontend_type>text</frontend_type>
                             <validate>validate-digits validate-digits-range digits-range-600-</validate>
                             <sort_order>20</sort_order>
@@ -150,12 +150,23 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </flush_prodcat>
+                        <mobile_theme translate="label,comment">
+                            <label>Mobile Theme</label>
+                            <comment><![CDATA[Adds extra protection against cache contamination in unresponsive themes that use a different template theme for mobile view. 
+                            Make sure the mobile detection rules in .htaccess match those used in the theme (<a href="https://www.litespeedtech.com/support/wiki/doku.php/litespeed_wiki:cache:litemage:configuration:general_settings#mobile_theme">more info</a>)
+                                ]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </mobile_theme>
                         <alt_esi_syntax translate="label,comment">
                             <label>Use Alternative ESI Syntax</label>
                             <comment>If the standard ESI include tags are being filtered by some extension(s) and causing ESI parser errors, you can enable Alternative ESI Syntax, which is known only by LiteMage and LiteSpeed Web Server. </comment>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>80</sort_order>
+                            <sort_order>90</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -377,6 +388,16 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </multi_custgroup>
+                        <mobile_view translate="label,comment">
+                            <label>Crawl for Mobile Views</label>
+                            <comment>Warm up pages for a different mobile theme. Only use this setting if a different template theme is used for mobile view. "Mobile Theme" must also be set under LiteMage configuration - General Settings.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>76</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </mobile_view>
                         <custlist_note translate="label,comment">
                             <label>Custom Defined URL List Files</label>
                             <comment>You can supply your own URL list for each store view.  To do this go to the “Current Configuration Scope” box and select a store.</comment>
@@ -566,7 +587,7 @@ Each file listed should contain a list of custom-defined URLs (one per line). Th
                         </allow_ips>
                         <debug translate="label,comment">
                             <label>Enable Debug Log</label>
-                            <comment>Prints additional information to var/log/system.log for debugging purposes. (Ensure developer log is enabled.) 
+                            <comment>Prints additional information to var/log/litemage.log for debugging purposes.
                              <![CDATA[<span class="notice">Turn off for production use.</span>]]></comment>
                             <frontend_type>select</frontend_type>
                             <source_model>litemage/config_source_enableDebugLog</source_model>
@@ -575,17 +596,37 @@ Each file listed should contain a list of custom-defined URLs (one per line). Th
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </debug>
-                        <delta_log translate="label,comment">
-                            <label>Enable Log for Delta crawler</label>
-                            <comment>Prints delta crawler activities to var/log/lmdelta.log.</comment>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                        <debug_level translate="label,comment">
+                            <label>Debug Level</label>
+                            <comment>Specifies debug level ranging from 1 to 9. The higher the value, the more detailed the output.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-digits-range digits-range-1-9</validate>
                             <sort_order>30</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
+                        </debug_level>
+                        <delta_log translate="label,comment">
+                            <label>Enable Log for Crawlers</label>
+                            <comment>Prints warmup and delta crawler activities to var/log/litemage_crawler.log.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
                         </delta_log>
-                        
+                        <safe_mode>
+                            <label>Disable Layout Override for Non-Cacheable Routes</label>
+                            <comment>This will disable LiteMage’s layout class override for non-cacheable frontend pages at the expense of performance. 
+                                Enable this setting if there are issues during the checkout process.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </safe_mode>
                     </fields>
                 </test>
 

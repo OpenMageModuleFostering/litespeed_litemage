@@ -27,10 +27,13 @@ class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
 {
 
 	protected $_peer ;
+    protected $_isDebug;
 
 	public function initByPeer( $peer )
 	{
 		$this->_peer = $peer ;
+        $this->_isDebug = Mage::helper('litemage/data')->isDebug(Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE);
+        
 		parent::setData('litemage_bconf', $peer->getData('litemage_bconf')) ;
 
 		$this->_layout = $peer->_layout ;
@@ -66,7 +69,8 @@ class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
 
 	public static function __callStatic($method, $args)
 	{
-		Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_nameInLayout . " called static $method - ignore");
+		Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_nameInLayout . " called static $method - ignore", 
+                Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE);
 	}
 	
 
@@ -78,7 +82,10 @@ class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
 		}
 
 		$bconf = $this->getData('litemage_bconf') ;
-		Mage::helper('litemage/data')->debugMesg('Injected ESI block ' . $this->_nameInLayout . ' ' . $esiHtml) ;
+        if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) {
+            Mage::helper('litemage/data')->debugMesg('Injected ESI block ' . $this->_nameInLayout . ' ' . $esiHtml, 
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) ;
+        }
 
 		if ( ! $bconf['valueonly'] && Mage::registry('LITEMAGE_SHOWHOLES') ) {
 			$tip = 'LiteMage ESI block ' . $this->_nameInLayout ;
@@ -111,7 +118,10 @@ class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
 				$ignored = 0;
 			}
 		}		
-		Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_nameInLayout . " called setData $key=$value ignored=$ignored");
+        if ($this->_isDebug) {
+            Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_nameInLayout . " called setData $key=$value ignored=$ignored", 
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE);
+        }
 		return parent::setData($key, $value);
     }
 	
@@ -124,7 +134,10 @@ class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
 			parent::setData('litemage_bconf', $bconf);
 			$ignored = 0;
 		}
-		Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_nameInLayout . " called unsetData $key ignored=$ignored");
+        if ($this->_isDebug) {
+            Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_nameInLayout . " called unsetData $key ignored=$ignored", 
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE);
+        }
 		return parent::unsetData($key);
 	}
 }

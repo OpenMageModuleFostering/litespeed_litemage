@@ -87,6 +87,18 @@ class Litespeed_Litemage_Helper_Esi
 		return ( ($this->_cacheVars['flag'] & self::CHBM_NOT_CACHEABLE) == self::CHBM_NOT_CACHEABLE );
 	}
 
+    public function setNotCacheable()
+    {
+        $oldflag = $flag = $this->_cacheVars['flag'];
+        $flag |= self::CHBM_NOT_CACHEABLE;
+        $flag &= ~self::CHBM_CACHEABLE;
+        $this->_cacheVars['flag'] = $flag;
+        if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) {
+            $this->_config->debugMesg('setNotCacheable from ' . $oldflag . ' to ' . $flag, 
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) ;
+        }
+    }
+    
     protected function _setEsiOn()
     {
         if ( ($this->_cacheVars['flag'] & self::CHBM_ESI_ON) == 0 ) {
@@ -133,7 +145,9 @@ class Litespeed_Litemage_Helper_Esi
     public function canInjectEsi()
     {
         $flag = $this->_cacheVars['flag'] ;
-        return ((($flag & self::CHBM_CACHEABLE) != 0) && (($flag & self::CHBM_ESI_REQ) == 0)) ;
+        return ((($flag & self::CHBM_CACHEABLE) != 0) 
+                && (($flag & self::CHBM_ESI_REQ) == 0)
+                && (($flag & self::CHBM_NOT_CACHEABLE) == 0)) ;
     }
 
     public function isEsiRequest()
@@ -142,6 +156,33 @@ class Litespeed_Litemage_Helper_Esi
         return (($flag & self::CHBM_ESI_REQ) != 0) ;
     }
 
+    public function hasMobileThemeMismatch()
+    {
+        $mobile_theme = $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_MOBILE_THEME);
+        if ($mobile_theme == '') {
+            return false;
+        }
+        $current_theme = Mage::getDesign()->getTheme('template') ;
+        $mismatched = false;
+        $vary = '';
+        if (isset($_SERVER['LSCACHE_VARY_VALUE'])) {
+            // means .htaccess detected mobile
+            $mismatched = ($current_theme != $mobile_theme);
+            $vary = $_SERVER['LSCACHE_VARY_VALUE'];
+        }
+        else {
+            // means .htaccess detected not mobile
+            $mismatched = ($current_theme == $mobile_theme);
+        }
+        
+        if ($mismatched && ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_ENVCOOKIE)) {
+            $this->_config->debugMesg('hasMobileThemeMismatch current_theme=' . $current_theme 
+                    . ' mobile_theme=' . $mobile_theme . ' LSCACHE_VARY_VALUE=' . $vary, 
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_ENVCOOKIE) ;
+        }
+        return $mismatched;
+    }
+    
     public function initFormKey()
     {
         $session = Mage::getSingleton('core/session') ;
@@ -206,8 +247,9 @@ class Litespeed_Litemage_Helper_Esi
 			$purgeHeader .= trim($t, ',');
 			
 			header(self::LSHEADER_PURGE . ': ' . $purgeHeader, true);
-			if ($this->_isDebug) {
-				$this->_config->debugMesg("SetPurgeHeader: " . $purgeHeader . '  (triggered by event ' . $eventName . ')') ;
+			if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_PURGEEVENT) {
+				$this->_config->debugMesg("SetPurgeHeader: " . $purgeHeader . '  (triggered by event ' . $eventName . ')', 
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_PURGEEVENT) ;
 			}
 		}
     }
@@ -235,8 +277,9 @@ class Litespeed_Litemage_Helper_Esi
             $response = Mage::app()->getResponse() ;
         }
         $response->setHeader(self::LSHEADER_PURGE, $purgeHeader, true) ;
-		if ($this->_isDebug) {
-            $this->_config->debugMesg("SetPurgeHeader: " . $purgeHeader . '  (triggered by ' . $by . ')') ;
+		if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_PURGEEVENT) {
+            $this->_config->debugMesg("SetPurgeHeader: " . $purgeHeader . '  (triggered by ' . $by . ')', 
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_PURGEEVENT) ;
 		}
     }
 	
@@ -244,8 +287,9 @@ class Litespeed_Litemage_Helper_Esi
     {
         $response = Mage::app()->getResponse() ;
 
-        if ($this->_isDebug) {
-            $this->_config->debugMesg("SetPurgeHeader: " . $url . '  (triggered by ' . $by . ')') ;
+        if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_PURGEEVENT) {
+            $this->_config->debugMesg("SetPurgeHeader: " . $url . '  (triggered by ' . $by . ')', 
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_PURGEEVENT) ;
 		}
         $response->setHeader(self::LSHEADER_PURGE, $url, true) ;
     }
@@ -320,9 +364,10 @@ class Litespeed_Litemage_Helper_Esi
             $this->_esiLayoutCache['blocks'] = unserialize($result) ;
         }
 
-        if ( $this->_isDebug ) {
+        if ( $this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION ) {
 			// 0 not in cache, 1 from cache
-            $this->_config->debugMesg('INJECTING_' . $preload . '  ' . $_SERVER['REQUEST_URI']) ;
+            $this->_config->debugMesg('INJECTING_' . $preload . '  ' . $_SERVER['REQUEST_URI'], 
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) ;
 		}
     }
 
@@ -466,8 +511,9 @@ class Litespeed_Litemage_Helper_Esi
 		else {
 			$msg = 'cannot find Fishpig helper';
 		}
-		if ($this->_isDebug) {
-            $this->_config->debugMesg('Fishpig WP - ' . $msg);
+		if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE) {
+            $this->_config->debugMesg('Fishpig WP - ' . $msg, 
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE);
         }
 		
 	}
@@ -486,6 +532,7 @@ class Litespeed_Litemage_Helper_Esi
 		$this->_cacheVars['internal']['response_code'] = $responseCode;
 
         if ( (($flag & self::CHBM_CACHEABLE) == 0)
+                || (($flag & self::CHBM_NOT_CACHEABLE) > 0)
 				|| $envChanged
                 || Mage::registry('LITEMAGE_SHOWHOLES')
                 || Mage::registry('LITEMAGE_PURGE')
@@ -551,11 +598,13 @@ class Litespeed_Litemage_Helper_Esi
         }
 
         $this->_restoreFormKey() ;
+        $debug = ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_PURGEEVENT) ?
+                Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_PURGEEVENT : 0;
 
         foreach($extraHeaders as $key => $val) {
             $response->setHeader($key, $val);
-            if ($this->_isDebug) {
-                $this->_config->debugMesg("Header $key: $val");
+            if ($debug) {
+                $this->_config->debugMesg("Set Header $key: $val", $debug);
             }
         }
 
@@ -571,12 +620,15 @@ class Litespeed_Litemage_Helper_Esi
         $tracker = '' ;
         $sharedParams = $this->getEsiSharedParams();
         $esiIncludeTag = $this->_config->esiTag('include');
+        $debug = ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) ? 
+                Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION : 0;
+
         if ( (($this->_cacheVars['flag'] & self::CHBM_FORMKEY_REPLACED) != 0) && strpos($responseBody, self::FORMKEY_REPLACE) ) {
 			// use single quote for pagespeed module
             $replace = '<' . $esiIncludeTag . " src='" . $this->getEsiBaseUrl() . "litemage/esi/getFormKey' as-var='1' combine='sub' cache-control='no-vary,private' cache-tag='E.formkey'/>" ;
             $responseBody = str_replace(self::FORMKEY_REPLACE, $replace, $responseBody) ;
-			if ($this->_isDebug) {
-				$this->_config->debugMesg('FormKey replaced as ' . $replace);
+			if ($debug) {
+				$this->_config->debugMesg('FormKey replaced as ' . $replace, $debug);
 			}
             $updated = true ;
         }
@@ -585,8 +637,8 @@ class Litespeed_Litemage_Helper_Esi
 			// use single quote for pagespeed module
             $replace = '<' . $esiIncludeTag . " src='" . $this->getEsiBaseUrl() . "litemage/esi/getNickName' combine='sub' cache-control='no-vary,private' cache-tag='E.welcome'/>" ;
             $responseBody = str_replace(self::NICKNAME_REPLACE, $replace, $responseBody) ;
-			if ($this->_isDebug) {
-				$this->_config->debugMesg('Nickname replaced as ' . $replace);
+			if ($debug) {
+				$this->_config->debugMesg('Nickname replaced as ' . $replace, $debug);
 			}
             $updated = true ;
 		}
@@ -598,8 +650,8 @@ class Litespeed_Litemage_Helper_Esi
             // if response coming from backend, no need to send separate log request
             $tracker = '<' . $esiIncludeTag . ' src="' . $this->_getSubReqUrl('litemage/esi/log', $logOptions)
                     . '" test="$(RESP_HEADER{X-LITESPEED-CACHE})!=\'hit,litemage\'" cache-control="no-cache" combine="sub"/>' ;
-			if ($this->_isDebug) {
-				$this->_config->debugMesg('Track recently viewed  as ' . $tracker);
+			if ($debug) {
+				$this->_config->debugMesg('Track recently viewed  as ' . $tracker, $debug);
 			}
             $updated = true ;
         }
@@ -611,8 +663,8 @@ class Litespeed_Litemage_Helper_Esi
         if ( ($this->_cacheVars['flag'] & self::CHBM_ESI_ON) != 0 ) {
             // no need to use comment, will be removed by minify extensions
             $combined = '<' . $esiIncludeTag . ' src="' . $this->_getSubReqUrl('litemage/esi/getCombined', $sharedParams) . '" combine="main2" cache-control="no-cache"/>' ;
-			if ($this->_isDebug) {
-				$this->_config->debugMesg('_updateResponseBody combined is ' . $combined);
+			if ($debug) {
+				$this->_config->debugMesg('_updateResponseBody combined is ' . $combined, $debug);
 			}
             $updated = true;
         }
@@ -638,8 +690,8 @@ class Litespeed_Litemage_Helper_Esi
 						$responseBody);
 				}
 	            $response->setBody($combined . $tracker . $responseBody) ;
-				if ($this->_isDebug && !$isAjax) {
-					$this->_config->debugMesg('_updateResponseBody failed to insert combined after <body>');
+				if ($debug && !$isAjax) {
+					$this->_config->debugMesg('_updateResponseBody failed to insert combined after <body>', $debug);
 				}
 			}
         }
@@ -667,8 +719,10 @@ class Litespeed_Litemage_Helper_Esi
             }
 
 			$debugMesg = $this->_autoCollectUrls($curStoreId, $tags);
-			if ($this->_isDebug && $debugMesg) {
-				$this->_config->debugMesg('_autoCollectUrls: ' . $debugMesg);
+			if (($this->_isDebug > Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_AUTOCOLLECT) 
+                    && $debugMesg) {
+				$this->_config->debugMesg('_autoCollectUrls: ' . $debugMesg, 
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_AUTOCOLLECT);
 			}
         }
 		if ($isPublic) {
@@ -966,7 +1020,7 @@ class Litespeed_Litemage_Helper_Esi
 			$this->_config->saveInternalCache(serialize($data), $cacheId) ;
 		}
 
-		if ($this->_isDebug) {
+		if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_DELTAQ) {
 			if ($updated == 0)
 				$msg = 'Delta tags not added, already in pending list';
 			elseif ($updated == 1)
@@ -974,7 +1028,7 @@ class Litespeed_Litemage_Helper_Esi
 			else
 				$msg = 'Delta queue [time=' . $data['time'] . '] appended tag ' . implode(',', $extra);
 
-			$this->_config->debugMesg($msg) ;
+			$this->_config->debugMesg($msg, Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_DELTAQ) ;
 		}
 	}
 
@@ -1026,8 +1080,9 @@ class Litespeed_Litemage_Helper_Esi
             if ($oldVal != $newVal) {
                 Mage::getSingleton('core/cookie')->set($name, $newVal);
                 $changed = true;
-                if ($this->_isDebug)
-                    $this->_config->debugMesg('Env ' . $name . ' changed, old=' . $oldVal . '  new=' . $newVal) ;
+                if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_ENVCOOKIE)
+                    $this->_config->debugMesg('Env ' . $name . ' changed, old=' . $oldVal . '  new=' . $newVal,
+                            Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_ENVCOOKIE) ;
             }
         }
         return $changed;
@@ -1176,8 +1231,9 @@ class Litespeed_Litemage_Helper_Esi
 						$this->_cacheVars['cookie'][$cookieName][$cv[$i]] = $cv[$i+1];
 					}
 				}
-				else if ($this->_isDebug) {
-                    $this->_config->debugMesg('Env Cookie value parse error ' . $cookieName . ' = ' . $cookieVal) ;
+				else if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE) {
+                    $this->_config->debugMesg('Env Cookie value parse error ' . $cookieName . ' = ' . $cookieVal,
+                            Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE) ;
 				}
 
                 $this->_cacheVars['cookie'][$cookieName]['_ORG_'] = $cookieVal ;

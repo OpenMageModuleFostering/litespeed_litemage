@@ -310,7 +310,9 @@ class Litespeed_Litemage_Model_EsiData
 				Mage::dispatchEvent('catalog_controller_product_view', array( 'product' => $product )) ;
 			} catch ( Exception $e ) {
 				if ( $this->_isDebug ) {
-					$this->_config->debugMesg('_logData, exception for product ' . $product->getId() . ' : ' . $e->getMessage()) ;
+					$this->_config->debugMesg('_logData, exception for product ' 
+                            . $product->getId() . ' : ' . $e->getMessage(),
+                            Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION) ;
 				}
 			}
 		}

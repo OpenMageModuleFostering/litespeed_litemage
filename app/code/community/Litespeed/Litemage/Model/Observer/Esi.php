@@ -103,6 +103,8 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
             $this->_canInjectEsi = 0;
             return ;
         }
+        $debug = ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_CHECKROUTE) 
+                ? Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_CHECKROUTE : 0;
         $req = Mage::app()->getRequest() ;
         $controller = $eventObj->getControllerAction();
         $curActionName = $controller->getFullActionName() ;
@@ -132,8 +134,9 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 
 		if ($this->_helper->notCacheable()) {
 			// from previous redirect
-			if ( $this->_isDebug ) {
-				$this->_config->debugMesg('no cache from previous redirect route_action ' . $controller->getFullActionName()) ;
+			if ( $debug ) {
+				$this->_config->debugMesg('NO_CACHE from previous redirect route_action ' 
+                        . $controller->getFullActionName(), $debug) ;
 			}
 			return;
 		}
@@ -160,6 +163,13 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 
         if ($reason == '') {
             $reason = $this->_cannotCache($req, $curActionName, $reqUrl);
+            // if non-cacheable route, and safemode enabled, disable layout override
+            if ($reason && $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_SAFE_MODE) ) {
+                $update = $controller->getLayout()->getUpdate();
+                if ($update instanceof Litespeed_Litemage_Model_Layout_Update) {
+                    $update->setNoModify();
+                }
+            }
         }
 
         if ($reason != '') {
@@ -232,8 +242,9 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 
         }
 
-        if ( $this->_isDebug ) {
-            $this->_config->debugMesg('****** PRECHECK route_action [' . $curActionName . '] ' . $req->getRequestString() . $reason) ;
+        if ( $debug ) {
+            $this->_config->debugMesg('****** PRECHECK route_action [' . $curActionName . '] ' 
+                    . $req->getRequestString() . $reason, $debug) ;
         }
 
     }
@@ -257,8 +268,9 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 				}
 			}			
 			else {
-				if ($this->_isDebug)
-					$this->_config->debugMesg('Uncaptured Forwarded Info ' . print_r($info,true));
+				if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE)
+					$this->_config->debugMesg('Uncaptured Forwarded Info ' . print_r($info,true), 
+                            Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_SAFEIGNORE);
 			}
 			$this->_internal['before_forward'] = $tags;
 		}		
@@ -276,8 +288,9 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 					break;
 				}
 			}
-			if ($this->_isDebug) {
-				$this->_config->debugMesg('Updated header ' . $xtag . ': ' . $value);
+			if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_ENVCOOKIE) {
+				$this->_config->debugMesg('Updated header ' . $xtag . ': ' . $value,
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_ENVCOOKIE);
 			}
 			$resp->setHeader($xtag, $value, true);
 		}
@@ -345,7 +358,14 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
         return ''; // can be cached
     }
 
-
+    protected function initCanInjectEsi()
+    {
+        if ($this->_helper->hasMobileThemeMismatch()) {
+            $this->_helper->setNotCacheable();
+        }
+        $this->_canInjectEsi = $this->_helper->canInjectEsi();
+    }
+    
     // event core_layout_block_create_after
     public function checkEsiBlock($eventObj)
     {
@@ -353,7 +373,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
             return;
 
         if ($this->_canInjectEsi === -1) {
-            $this->_canInjectEsi = $this->_helper->canInjectEsi();
+            $this->initCanInjectEsi();
         }
 
         if ( ! $this->_canInjectEsi )
@@ -378,7 +398,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
     public function prepareInjection( $eventObj )
     {
         if ($this->_canInjectEsi === -1) {
-            $this->_canInjectEsi = $this->_helper->canInjectEsi();
+            $this->initCanInjectEsi();
         }
 
         if ( ! $this->_canInjectEsi )
@@ -419,8 +439,9 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 				$parent->setChild($alias, $esiReplace);
 				$esiReplace->setParentBlock($oldParent);
 			}
-		    if ($this->_isDebug) {
-                $this->_config->debugMesg('_catchLostChildBlocks ' . $msg) ;
+		    if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) {
+                $this->_config->debugMesg('_catchLostChildBlocks ' . $msg,
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) ;
             }
 		}
 		else {
@@ -482,9 +503,10 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 				$resp->setHttpResponseCode($this->_routeCache['content']['respcode']);
 			}
 			$this->_addForwardTags($resp);
-            if ($this->_isDebug) {
+            if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_CHECKROUTE) {
                 // last debug mesg
-                $this->_config->debugMesg('###### Served whole route from cache') ;
+                $this->_config->debugMesg('###### END Served whole route from cache',
+                        Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_CHECKROUTE) ; // end point
             }
             return;
         }
@@ -519,8 +541,9 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
         }
 
 		$this->_addForwardTags($resp);
-        if ($this->_isDebug) {
-            $this->_config->debugMesg('###### end of process, body length ' . strlen($resp->getBody()));
+        if ($this->_isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_CHECKROUTE) {
+            $this->_config->debugMesg('###### END of process, body length ' . strlen($resp->getBody()),
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_CHECKROUTE); // end point
         }
 
     }

@@ -55,7 +55,8 @@ class Litespeed_Litemage_AdminController extends Mage_Core_Controller_Front_Acti
     protected function _errorExit($errorMesg)
     {
         if ( $this->_isDebug ) {
-            $this->_config->debugMesg('litemage/admin ErrorExit: ' . $errorMesg) ;
+            $this->_config->debugMesg('litemage/admin ErrorExit: ' . $errorMesg, 
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION) ;
         }
         $resp = $this->getResponse() ;
         $resp->setHttpResponseCode(500) ;
@@ -80,7 +81,7 @@ class Litespeed_Litemage_AdminController extends Mage_Core_Controller_Front_Acti
 
     public function shellAction()
     {
-		if (Mage::helper('core/http')->getHttpUserAgent() !== 'litemage_walker'
+		if ($this->_config->getLiteMageUserAgent() !== Litespeed_Litemage_Helper_Data::LITEMAGE_USER_AGENT
 				|| ! $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_ENABLED)) {
 			$this->_errorExit('Access denied');
 		}

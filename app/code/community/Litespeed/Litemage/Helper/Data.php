@@ -30,6 +30,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	const STOREXML_PUBLICTTL = 'litemage/general/public_ttl' ;
 	const STOREXML_PRIVATETTL = 'litemage/general/private_ttl' ;
 	const STOREXML_HOMETTL = 'litemage/general/home_ttl' ;
+    const STOREXML_MOBILETHEME = 'litemage/general/mobile_theme' ;
 	const STOREXML_TRACKLASTVIEWED = 'litemage/general/track_viewed' ;
 	const STOREXML_DIFFCUSTGRP = 'litemage/general/diff_customergroup' ;
 	const STOREXML_DIFFCUSTGRP_SET = 'litemage/general/diff_customergroup_set' ;
@@ -37,13 +38,13 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	const STOREXML_FPWP_ENABLED = 'litemage/fishpigwp/fpwp_cache';
 	const STOREXML_FPWP_TTL = 'litemage/fishpigwp/fpwp_ttl';
 	const CFG_ENABLED = 'enabled' ;
-	const CFG_DEBUGON = 'debug' ;
+	const CFG_DEBUG = 'debug' ;
 	const CFG_WARMUP = 'warmup' ;
 	const CFG_WARMUP_SERVER_IP = 'server_ip' ;
 	const CFG_WARMUP_LOAD_LIMIT = 'load_limit' ;
 	const CFG_WARMUP_MAXTIME = 'max_time' ;
 	const CFG_WARMUP_THREAD_LIMIT = 'thread_limit' ;
-	const CFG_WARMUP_DELTA_LOG = 'delta_log';
+	const CFG_WARMUP_CRAWLER_LOG = 'delta_log';
 	const CFG_AUTOCOLLECT = 'collect' ;
 	const CFG_TRACKLASTVIEWED = 'track_viewed' ;
 	const CFG_DIFFCUSTGRP = 'diff_customergroup' ;
@@ -64,18 +65,31 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	const CFG_FPWP_TTL = 'fpwp_ttl';
 	const CFG_FPWP_PREFIX = 'fpwp_prefix';
 	const CFG_FLUSH_PRODCAT = 'flush_prodcat' ;
+    const CFG_MOBILE_THEME = 'mobile_theme';
 	const CFG_NEED_ADD_DELTA = 'add_delta' ;
+    const CFG_SAFE_MODE = 'safe_mode';
 	const LITEMAGE_GENERAL_CACHE_TAG = 'LITESPEED_LITEMAGE' ;
 	const LITEMAGE_DELTA_CACHE_ID = 'LITEMAGE_DELTA' ;
+	const LITEMAGE_USER_AGENT = 'litemage_walker' ;
+	const LITEMAGE_FAST_USER_AGENT = 'litemage_runner' ;
+    const DEBUG_LEVEL_EXCEPTION = 1;
+    const DEBUG_LEVEL_CHECKROUTE = 2;
+    const DEBUG_LEVEL_PURGEEVENT = 3;
+    const DEBUG_LEVEL_DELTAQ = 4;
+    const DEBUG_LEVEL_ENVCOOKIE = 5;
+    const DEBUG_LEVEL_SAFEIGNORE = 7;
+    const DEBUG_LEVEL_INJECTION = 8;
+    const DEBUG_LEVEL_LAYOUTUPDATE = 8;
+    const DEBUG_LEVEL_AUTOCOLLECT = 9;
 
 	// config items
 	protected $_conf = array() ;
 	protected $_userModuleEnabled = -2 ; // -2: not set, true, false
 	protected $_moduleEnabled = -2 ; // -2: not set, true, false
 	protected $_esiTag ;
-	protected $_isDebug = null;
 	protected $_translateParams = null ;
 	protected $_debugTag = 'LiteMage' ;
+    protected $_litemageUserAgent = -1;
 
 	public function licenseEnabled()
 	{
@@ -109,8 +123,8 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				$tag = '' ;
 				$httphelper = Mage::helper('core/http') ;
 				$remoteAddr = $httphelper->getRemoteAddr() ;
-				$ua = $httphelper->getHttpUserAgent() ;
-				if ( $ua == 'litemage_walker' || $ua == 'litemage_runner' ) {
+				$ua = $this->getLiteMageUserAgent();
+				if ( $ua ) {
 					$tag = $ua . ':' ;
 				}
 				else if ( $ips = $this->getConf(self::CFG_ALLOWEDIPS) ) {
@@ -118,18 +132,36 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 						$allowed = false ;
 					}
 				}
-
-				if ( $this->_isDebug && $allowed ) {
-					$tag .= $remoteAddr ;
-					$msec = microtime() ;
-					$msec1 = substr($msec, 2, strpos($msec, ' ') - 2) ;
-					$this->_debugTag .= ' [' . $tag . ':' . $_SERVER['REMOTE_PORT'] . ':' . $msec1 . ']' ;
-				}
+                if ($allowed) {
+                    if ( $this->getConf(self::CFG_DEBUG) ) {
+                        $tag .= $remoteAddr ;
+                        $msec = microtime() ;
+                        $msec1 = substr($msec, 2, strpos($msec, ' ') - 2) ;
+                        $this->_debugTag .= ' [' . $tag . ':' . $_SERVER['REMOTE_PORT'] . ':' . $msec1 . ']' ;
+                    }
+                }
 			}
 			$this->_userModuleEnabled = $allowed ;
 		}
 		return $this->_userModuleEnabled ;
 	}
+    
+    public function getLiteMageUserAgent()
+    {
+        if ($this->_litemageUserAgent === -1) {
+			$ua = Mage::helper('core/http')->getHttpUserAgent() ;
+            if (strpos($ua, self::LITEMAGE_USER_AGENT) !== false) {
+                $this->_litemageUserAgent = self::LITEMAGE_USER_AGENT;
+            }
+            elseif (strpos($ua, self::LITEMAGE_FAST_USER_AGENT) !== false) {
+                $this->_litemageUserAgent = self::LITEMAGE_FAST_USER_AGENT;
+            }
+            else {
+                $this->_litemageUserAgent = '';
+            }
+        }
+        return $this->_litemageUserAgent;
+    }
 
 	public function isAdminIP()
 	{
@@ -147,9 +179,10 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 		return ($this->getConf(self::CFG_ALLOWEDIPS) != '') ;
 	}
 
-	public function isDebug()
+	public function isDebug($requiredLevel=0)
 	{
-		return $this->getConf(self::CFG_DEBUGON) ;
+		$debug = $this->getConf(self::CFG_DEBUG) ;
+        return ($debug < $requiredLevel) ? 0 : $debug;
 	}
 
 	public function esiTag( $type )
@@ -158,8 +191,8 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 			return $this->_esiTag[$type] ;
 		}
 
-		if ( $this->_isDebug ) {
-			$this->debugMesg('Invalid type for esiTag ' . $type) ;
+		if ( $this->getConf(self::CFG_DEBUG) ) { // should never happen
+			$this->debugMesg('Invalid type for esiTag ' . $type, self::DEBUG_LEVEL_EXCEPTION) ;
 		}
 	}
 
@@ -502,6 +535,9 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 		}
 
 		$vary_cgrp = $this->_getStoreWarmUpCustGroupVary($store);
+
+        $crawl_mobile = Mage::getStoreConfig('litemage/warmup/mobile_view', $storeId)
+                && Mage::getStoreConfig('litemage/general/mobile_theme', $storeId);
 		
 		$env = '' ;
 
@@ -528,6 +564,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				'default_store' => $is_default_store,
 				'default_site' => $is_default_site,
 				'env' => $env,
+                'crawl_mobile' => $crawl_mobile,
 				'interval' => $interval,
 				'ttl' => $ttl,
 				'priority' => $priority,
@@ -551,6 +588,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				'default_store' => $is_default_store,
 				'default_site' => $is_default_site,
 				'env' => $env,
+                'crawl_mobile' => $crawl_mobile,
 				'interval' => $autointerval,
 				'ttl' => $ttl,
 				'priority' => $autopriority,
@@ -568,6 +606,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				'default_store' => $is_default_store,
 				'default_site' => $is_default_site,
 				'env' => $env,
+                'crawl_mobile' => $crawl_mobile,
 				'priority' => $priority,
 				'depth' => $autoconf['deltaDeep'],
 				'baseurl' => $baseurl ) ;
@@ -596,6 +635,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 					'store_name' => $storeName,
 					'default_curr' => $default_currency,
 					'env' => $env,
+                    'crawl_mobile' => $crawl_mobile,
 					'interval' => $custInterval,
 					'ttl' => $ttl,
 					'priority' => $custPriority + $orderAdjust,
@@ -700,17 +740,23 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 			case self::CFG_HOMETTL:
 				$this->_conf[self::CFG_HOMETTL] = Mage::getStoreConfig(self::STOREXML_HOMETTL) ;
 				break;
+			case self::CFG_MOBILE_THEME:
+				$this->_conf[self::CFG_MOBILE_THEME] = Mage::getStoreConfig(self::STOREXML_MOBILETHEME) ;
+				break;
 			case self::CFG_TRACKLASTVIEWED:
 				$this->_conf[self::CFG_TRACKLASTVIEWED] = Mage::getStoreConfig(self::STOREXML_TRACKLASTVIEWED) ;
 				break;
 		}
 
-		if ( $type == '' )
+		if ( $type == '' ) {
 			return $this->_conf[$name] ;
-		elseif ( $name == '' )
+        }
+		elseif ( $name == '' ) {
 			return $this->_conf[$type] ;
-		else
+        }
+		else {
 			return $this->_conf[$type][$name] ;
+        }
 	}
 
 	protected function _parseCustGrpSets($groupings)
@@ -834,21 +880,25 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 					self::CFG_WARMUP_THREAD_LIMIT => $warmup[self::CFG_WARMUP_THREAD_LIMIT],
 					self::CFG_WARMUP_MAXTIME => $warmup[self::CFG_WARMUP_MAXTIME],
 					self::CFG_WARMUP_SERVER_IP => $server_ip,
-					self::CFG_WARMUP_DELTA_LOG => $delta_log) ;
+					self::CFG_WARMUP_CRAWLER_LOG => $delta_log) ;
 				break ;
 
 			default:
 				$general = $this->_conf['defaultlm']['general'] ;
 				$this->_conf[self::CFG_ENABLED] = $general[self::CFG_ENABLED] ;
-
-				$test = $this->_conf['defaultlm']['test'] ;
-				$this->_conf[self::CFG_DEBUGON] = $test[self::CFG_DEBUGON] ;
-				$this->_isDebug = $test[self::CFG_DEBUGON] ; // required by cron, needs to be set even when module disabled.
 				$adminIps = trim($general[self::CFG_ADMINIPS]) ;
 				$this->_conf[self::CFG_ADMINIPS] = $adminIps ? preg_split($pattern, $adminIps, null, PREG_SPLIT_NO_EMPTY) : '' ;
-				if ( ($this->_isDebug == 2) && (empty($this->_conf[self::CFG_ADMINIPS]) || ! in_array(Mage::helper('core/http')->getRemoteAddr(), $this->_conf[self::CFG_ADMINIPS])) ) {
-					$this->_isDebug = 0 ;
-				}
+
+				$test = $this->_conf['defaultlm']['test'] ;
+                $debug = $test['debug']; // 0: no debug, 1: log, 2: log only admin ip
+                if (($debug == 2) && !in_array(Mage::helper('core/http')->getRemoteAddr(), $this->_conf[self::CFG_ADMINIPS])) {
+                    $debug = 0;
+                }
+                if ($debug) {
+                    $debug = $test['debug_level'];
+                }
+                
+				$this->_conf[self::CFG_DEBUG] = $debug ; // required by cron, needs to be set even when module disabled.
 
 				if ( ! $general[self::CFG_ENABLED] )
 					break ;
@@ -873,6 +923,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				$allowedIps = trim($test[self::CFG_ALLOWEDIPS]) ;
 				$this->_conf[self::CFG_ALLOWEDIPS] = $allowedIps ? preg_split($pattern, $allowedIps, null, PREG_SPLIT_NO_EMPTY) : '' ;
 				$this->_conf[self::CFG_FLUSH_PRODCAT] = isset($general[self::CFG_FLUSH_PRODCAT]) ? $general[self::CFG_FLUSH_PRODCAT] : 0 ; // for upgrade, maynot save in config
+                $this->_conf[self::CFG_SAFE_MODE] = isset($test['safe_mode']) ? $test['safe_mode'] : 0; // default is disabled
 				
 				if (isset($this->_conf['defaultlm']['fishpigwp'])) {
 					$fpwp = $this->_conf['defaultlm']['fishpigwp'];
@@ -883,6 +934,12 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				else {
 					$this->_conf[self::CFG_FPWP_ENABLED] = 0;
 				}
+                if (!empty($this->_conf['defaultlm']['mobile_theme'])) {
+                    $this->_conf[self::CFG_MOBILE_THEME] = $this->_conf['defaultlm']['mobile_theme'];
+                }
+                else {
+                    $this->_conf[self::CFG_MOBILE_THEME] = '';
+                }
 		}
 	}
 
@@ -908,14 +965,20 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 		Mage::app()->saveCache($data, $id, $tags, null) ;
 	}
 
-	public function debugMesg( $mesg )
+	public function debugMesg( $mesg, $debugLevel=9 )
 	{
-		if ($this->_isDebug === null) {
-			$this->_initConf();
-		}
-		if ( $this->_isDebug ) {
+        $debug = $this->getConf(self::CFG_DEBUG) ;
+		if ( $debug >= $debugLevel) {
+            if ($debugLevel == self::DEBUG_LEVEL_EXCEPTION) {
+                ob_start();
+                debug_print_backtrace(0, 30);
+                $trace = ob_get_contents();
+                ob_end_clean();                
+                $mesg .= "\n" . $trace;
+            }
 			$mesg = str_replace("\n", ("\n" . $this->_debugTag . '  '), $mesg) ;
-			Mage::log($this->_debugTag . ' ' . $mesg) ;
+            //($message, $level = null, $file = '', $forceLog = false)
+            Mage::log($this->_debugTag . ' (' . $debugLevel . ') ' . $mesg, null, 'litemage.log', true) ;
 		}
 	}
 

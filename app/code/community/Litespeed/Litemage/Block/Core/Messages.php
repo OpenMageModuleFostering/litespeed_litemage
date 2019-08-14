@@ -32,8 +32,9 @@ class Litespeed_Litemage_Block_Core_Messages extends Mage_Core_Block_Messages
 	protected $_peerTemplate ;
 	protected $_blockIndex ;
 	protected $_isEsiInject ;
+    protected $_isDebug;
 
-	/* Override Mage_Core_Block_Abstract:getMessagesBlock */
+    /* Override Mage_Core_Block_Abstract:getMessagesBlock */
 
 	public function getMessagesBlock()
 	{
@@ -43,6 +44,8 @@ class Litespeed_Litemage_Block_Core_Messages extends Mage_Core_Block_Messages
 	public function initByPeer( $peer )
 	{
 		$this->_peer = $peer ;
+        $this->_isDebug = Mage::helper('litemage/data')->isDebug(Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION);
+        
 		$this->setData('litemage_bconf', $peer->getData('litemage_bconf')) ;
 		$this->_peerClass = get_class($peer) ;
 		$this->_peerTemplate = $peer->getTemplate() ; // todo: check if null;
@@ -119,7 +122,10 @@ class Litespeed_Litemage_Block_Core_Messages extends Mage_Core_Block_Messages
 		}
 
 		$esiHtml = $this->getData('esiHtml') ;
-		Mage::helper('litemage/data')->debugMesg('Injected ESI Message block renderview ' . $this->_nameInLayout . ' ' . $esiHtml) ;
+        if ($this->_isDebug) {
+            Mage::helper('litemage/data')->debugMesg('Injected ESI Message block renderview ' . $this->_nameInLayout . ' ' . $esiHtml, 
+                    Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_INJECTION) ;
+        }
 
 		if ( Mage::registry('LITEMAGE_SHOWHOLES') ) {
 			$tip = 'LiteMage ESI message block ' . $this->_nameInLayout ;

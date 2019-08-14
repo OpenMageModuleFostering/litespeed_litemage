@@ -96,7 +96,7 @@ class Litespeed_Litemage_Helper_Viewvary
 
         if ( $isSave ) {
             $saved = false ;
-            $mesg = 'addEnv ' . $cookieName;
+            $mesg = 'Add Env ' . $cookieName;
             foreach ( $keys as $key ) {
                 if ( $value = $session->getData($key) ) {
                     // only save limit_page if mode is same
@@ -119,8 +119,8 @@ class Litespeed_Litemage_Helper_Viewvary
                 $helper->addEnvVars($cookieName) ;
             }
 
-            if ( $isDebug ) {
-                Mage::helper('litemage/data')->debugMesg($mesg) ;
+            if ( $isDebug >= Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_ENVCOOKIE) {
+                Mage::helper('litemage/data')->debugMesg($mesg, Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_ENVCOOKIE) ;
             }
 
         }

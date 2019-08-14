@@ -165,8 +165,10 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
 			$message = 'category ' . implode(', ', $tags);
 		}
 
-		Mage::helper('litemage/data')->debugMesg($reason);
-		if (!empty($tags)) {
+		if (empty($tags)) {
+            Mage::helper('litemage/data')->debugMesg($reason, Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_PURGEEVENT);
+        }
+        else {
 			Mage::helper('litemage/esi')->setPurgeHeader($tags, $reason) ;
 			$this->_getAdminSession()->addSuccess(Mage::helper('litemage/data')->__('Notified LiteSpeed web server to purge ' . $message)) ;
 		}
@@ -224,7 +226,8 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
                 }
             }
         } catch ( Exception $e ) {
-            Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCatalogCategory: ' . $e->getMessage()) ;
+            Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCatalogCategory: ' 
+                    . $e->getMessage(), Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION) ;
         }
 
     }
@@ -257,7 +260,8 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
 				}
 			}
 		} catch ( Exception $e ) {
-			Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCatalogProduct: ' . $e->getMessage()) ;
+			Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCatalogProduct: ' 
+                    . $e->getMessage(), Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION) ;
 		}
 	}
 
@@ -317,10 +321,11 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
 						Mage::helper('litemage/esi')->setPurgeHeader($tags, $reason) ;
 					}
 				}
-				Mage::helper('litemage/data')->debugMesg($reason);
+				Mage::helper('litemage/data')->debugMesg($reason, Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_PURGEEVENT);
             }
         } catch ( Exception $e ) {
-            Mage::helper('litemage/data')->debugMesg('Error on purgeCatalogProductByStock: ' . $e->getMessage()) ;
+            Mage::helper('litemage/data')->debugMesg('Error on purgeCatalogProductByStock: ' 
+                    . $e->getMessage(), Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION) ;
         }
     }
 
@@ -339,7 +344,8 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
                 }
             }
         } catch ( Exception $e ) {
-            Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCmsPage: ' . $e->getMessage()) ;
+            Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCmsPage: ' 
+                    . $e->getMessage(), Litespeed_Litemage_Helper_Data::DEBUG_LEVEL_EXCEPTION) ;
         }
     }
 
