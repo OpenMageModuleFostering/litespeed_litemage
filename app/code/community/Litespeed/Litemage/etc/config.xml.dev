@@ -26,7 +26,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.18</version>
+            <version>1.0.17</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -445,17 +445,17 @@
     <default>
         <litemage>
             <general>
-                <enabled>0</enabled>
+                <enabled>1</enabled>
                 <admin_ips>127.0.0.1</admin_ips>
                 <public_ttl>28800</public_ttl>
-                <private_ttl>1800</private_ttl>
-                <track_viewed>0</track_viewed>
+                <private_ttl>3600</private_ttl>
+                <track_viewed>1</track_viewed>
                 <diff_customergroup>0</diff_customergroup>
                 <diff_cookie/>
                 <alt_esi_syntax>0</alt_esi_syntax>
             </general>
             <warmup>
-                <enable_warmup>0</enable_warmup>
+                <enable_warmup>1</enable_warmup>
                 <load_limit>5</load_limit>
                 <thread_limit>6</thread_limit>
                 <max_time>360</max_time>
@@ -494,7 +494,8 @@
         <jobs>
             <litemage_warmup_cache>
                 <schedule>
-                    <cron_expr>0,10,20,30,40,50 * * * *</cron_expr>
+                    <!--cron_expr>0,10,20,30,40,50 * * * *</cron_expr-->
+                    <cron_expr>0,5,10,15,20,25,30,35,40,45,50,55 * * * *</cron_expr>
                 </schedule>
                 <run>
                     <model>litemage/observer_cron::warmCache</model>

@@ -1,34 +1,74 @@
-<?php //0046a
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
-?>
-HR+cPnFOsN2i8o97lMzCKx9ZYvd3d+tds9fSMBAiOhUJriRwumwxmHa/zZ6lxac05tB4essZ8oOT
-tbCpFZw4V5TWd1XmkVdgPx4Vf+hffsm9apNBabM7WZUz9S3nN/k16Lpe4tI86RuJK/bJeBq0l7nC
-EH3MT0r3OhggSh8mLn/2iO/aJue988GPXF2eb0xeKwkf2qwxxENTzjpJgwULSTOnmn1a62dcZiBQ
-kdwymhzYa9v2OsSdh8pYo0yLC2pRPhl4JNzaxyReeB5cYA6obmOLniPLXKR4pDf9/rhoqmfgiR3y
-1UZoEVX1oh/v6/8iJhOERuAiqBwsDSZk/D7HJP1zz8y83+HGLC2BNizuBsA6wOPk55M4+4R/P2PH
-wywDUeAbJ3hbtIFDC8QdUBrJ8A6F9P71u77KNHnY/7z8hYrSc4o6XPEMe96ZUhQZgohm/UzmnSbA
-Q7Ko6XpWAySZbplyRS0YjFVm5+LHTT9+KkJgf3qKzDsWEkqNMyuxCVf0QQTBhcnoZMwEgzgoQuQu
-RfCIRdRBO/zoODEoIdJUjHAxe+yZBfB2gIpRjCV8eKN/WhBPDUiSfT/oHKGzS8/AlmEkG/Jbn0QZ
-smd8FqaWokU9N467buDvXT4PJdOxQRL2BYN5T8TxNnEjGtIq+HgjHm+3UjKMKHjIbWwSxjF2lwgT
-oMDlZ2l8pSun7etAPMNlwvV0h50UzUcMvbGxA1PX9knUvLJbNmsHZVcovtWDdA/aRVm8Og2a55+a
-cParQn7l0WyXfpJNiOB+4+2ppo0dEkRl8w0n/2cKFNE7hj5LQJr2ja/3+N664PDt79r6+v/yixpa
-KA/1u9y0qH6rUfjGFYuELL/JqnXu8QaarZIgdoCKDxYEaPQMt0MW/eLikrJjD3j1XgVDuVAfP+pa
-GeAuRVMlxDJURNDxKgjKVlKbXB/MeuEPtjUp/UCpFJwremGf/ukX3LeIMtLpCEVwrnRFKDPmUaES
-byA8cBlNi6iIB8nIhNH3uDjMGg/9wrTUmKm2zRqSu2J9Fg8iQQY4w1dWcthiPF5XVLRGNKO/p/YF
-H+6Lmy3TxYWVceqsk+QSCUSxg2HJrBVADfdOsafPvxG5gyuIWSTEoIwkn4uCDBRuGwRoZdcB4/QC
-mDhBTngr7olRJQswjnxzduzWFRzRS2w5X8vEA9UzlFcmCLqMzm14W228bkBVRoBGnIhuUNvFwubh
-TTtVe2p5x3lAswDmg84NHf2evkKxBwCNShJo8WtydlrCXqaDdKd/5tHdN6SPK7zR0cuXFIHxaUn/
-4CiWmitjCqkMr6OwuoH38ENYjYtUkkLSZ/+tQWnc9iWp/jS3PMpodwX4fI7kaU95yF+tUwckRwmG
-w4OU0C+bVezumfRIXgqG1Pif9Xrja5nI7s+gyGXMhZjPE0pVmBHY7ZIuL7KCyFBZS9p1P40e7mEI
-ss6oXvDrhxwiSE4FOGhThvThHqSiNf0FHyUuv2e3oNqIYEDIBaXIBAh3ah8BUWOx2MhVB11zAW+N
-JZCAMLcN9sIBgCF+0yJfVuyfwvnHIOSdbt9NZBsKIjf2f6skvuCLP6X/WrV7e6fWU7qf3z/SkyIJ
-BffRKH6xb4GPnWLD4zZ1ETvCg0w/7TxNHkVo+Qp5JZrbtbXevcY/aQ+qQvrggcUUkpSzuP9YkRvA
-sU83LMAdp3gRIcd/xMfuTObjGkAe6/r/vplULhuiXUXiAO50kiog7xnVV8DfT2JmU9nAhBEF1G7L
-/R+oql4EewdiKVgT13YnMbK+DuKZYlLX+FgBcb4kt8zWwdaeLcOkT9ktNXbMjUnse7o8zhDDHdHp
-kYhtINH/Rde+B4LNR3ysq4Vd50MHprE2HkKAOiFExOyPQxc7Td+u6RmzkSQljNiShZePCcV2pHVk
-rbzr9O/+mZbiSJkR82Xes+F9VVI9ePd8eDUgfBZMN6oMIhwXzsvRrLpdAYP7DrR+Egp19VnFbUZi
-GlFvbhASlBS1fG7wf0iMerfn85IqU0PF7f78X36SwqLgTOw9LTPtAEbQeuKiUxpSnTjTWZywYVX9
-fIBa/hlDMENKetTOMNfv9aioye88anADZ1N1cGdNjdtYd+Wc+sMnFLMF6gOEsQAhGefey4XEilpI
-6N4/pV7cYPv3XFxYL7flfFML0jimzOkIyjgBWw0xp2nNkTm167/Z2o+AxY4wtFeVDbbAkpaiByng
-kr16RQ/QnyxKzCPLJVvctoXPMoXB3Dtz8nxw3cyOMciPROfhOa/1luI+3xMHO7UfUiAnJO/k091e
-HZz38t7XqcLOjoToGIsqsGIeg1K7A64GI0ZBeXxupy/yq9fGMHxsMRLwb66Ldg1l65cc
+<?php
+
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0
+ */
+
+
+class Litespeed_Litemage_Block_Adminhtml_Cache_Management extends Mage_Adminhtml_Block_Template
+{
+    /**
+     * Get clean cache url
+     *
+     * @return string
+     */
+    public function getPurgeUrl($type)
+    {
+		if ($type == 'Refresh') {
+			return $this->getUrl('*/cache/index');
+		}
+		else {
+	        $types = array('All', 'Tag', 'Url');
+
+			if (in_array($type, $types)) {
+				return $this->getUrl('*/litemageCache/purge' . $type);
+			}
+			else {
+				return $this->getUrl('*/litemageCache/purgeAll');
+			}
+		}
+    }
+
+	public function getCrawlerStatus()
+	{
+		$status = Mage::getModel( 'litemage/observer_cron' )->getCrawlerStatus();
+		$status['url_reset'] = $this->getUrl('*/litemageCache/resetCrawlerList');
+		$status['url_details'] = $this->getUrl('*/litemageCache/getCrawlerList');
+		return $status;
+	}
+
+    /**
+     * Check if block can be displayed
+     *
+     * @return bool
+     */
+    public function canShowButton()
+    {
+        return Mage::helper('litemage/data')->moduleEnabled();
+    }
+
+    public function isCacheAvailable()
+    {
+        return Mage::app()->useCache('layout') && Mage::app()->useCache('config');
+    }
+
+}

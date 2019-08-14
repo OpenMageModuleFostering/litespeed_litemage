@@ -1,360 +1,670 @@
-<?php //0046a
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
-?>
-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
-rKc0Hq9X1UIxuYsui0==
+<?php
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0
+ */
+
+
+class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
+{
+
+    /**
+     * Add the core/messages block rewrite if the flash message fix is enabled
+     *
+     * The core/messages block is rewritten because it doesn't use a template
+     * we can replace with an ESI include tag, just dumps out a block of
+     * hard-coded HTML and also frequently skips the toHtml method
+     *
+     * @param Varien_Object $eventObj
+     * @return null
+     */
+    protected $_esi ;
+    protected $_isDebug ;
+    protected $_moduleEnabledForUser ;
+    protected $_canInjectEsi = -1;
+    protected $_helper ;
+    protected $_config ;
+    protected $_viewVary = array();
+    protected $_routeCache;
+    protected $_injectedBlocks = array();
+
+    protected function _construct()
+    {
+        $this->_helper = Mage::helper('litemage/esi') ;
+        $this->_config = Mage::helper('litemage/data') ;
+        $this->_isDebug = $this->_config->isDebug() ;
+        $this->_moduleEnabledForUser = $this->_config->moduleEnabledForUser();
+    }
+
+    public function purgeEsiCache( $eventObj )
+    {
+        if ( $this->_moduleEnabledForUser ) {
+            $this->_helper->addPurgeEvent($eventObj->getEvent()->getName()) ;
+        }
+    }
+
+    //customer_login, customer_logout
+    public function purgePrivateCache( $eventObj )
+    {
+        if ( $this->_moduleEnabledForUser ) {
+            $this->_helper->setPurgeHeader(array('*'), $eventObj->getEvent()->getName(), null, true) ;
+            $this->_viewVary[] = 'env';
+        }
+    }
+
+    //customer_login
+    //other are captured when pre-dispatch by action name
+    public function changeEnvCookie( $eventObj )
+    {
+        if ( $this->_moduleEnabledForUser ) {
+            $this->_viewVary[] = 'env';
+        }
+    }
+
+//controller_action_predispatch
+    public function checkControllerNoCache( $eventObj )
+    {
+        // no need to check admin, this is frontend event only
+        if ( ! $this->_moduleEnabledForUser ) {
+            $this->_canInjectEsi = 0;
+            return ;
+        }
+        $req = Mage::app()->getRequest() ;
+        $controller = $eventObj->getControllerAction();
+        $reason = '';
+
+        if (($lmdebug = $req->getParam('LITEMAGE_DEBUG')) !== null) {
+            // either isDebug or IP match
+            if ($this->_isDebug || $this->_config->isRestrainedIP() || $this->_config->isAdminIP()) {
+                if ($lmdebug == 'SHOWHOLES') {
+					// for redirect, maybe already set, need to check, otherwise exception
+					if ( ! Mage::registry('LITEMAGE_SHOWHOLES') ) {
+						Mage::register('LITEMAGE_SHOWHOLES', 1) ;
+					}
+					// set to nocache later at beforeResponseSend
+                }
+                elseif ($lmdebug == 'NOCACHE') {
+                    $reason = 'contains var LITEMAGE_DEBUG=NOCACHE';
+                }
+            }
+            else {
+                $controller->norouteAction();
+                return;
+            }
+        }
+
+        $curActionName = $controller->getFullActionName() ;
+        if ($reason == '') {
+            $reason = $this->_cannotCache($req, $curActionName);
+        }
+
+        if ($reason != '') {
+            $this->_canInjectEsi = 0;
+            $reason = ' NO_CACHE=' . $reason;
+
+            // special checks
+            $envChanged = array('customer_account_logoutSuccess', 'directory_currency_switch');
+            if (in_array($curActionName, $envChanged)) {
+                $this->_viewVary[] = 'env';
+            }
+        }
+        else {
+
+            // hardcode for now
+            if ( strncmp('catalog_category_', $curActionName, strlen('catalog_category_')) == 0 ) {
+                $this->_viewVary[] = 'toolbar' ;
+                Mage::Helper('litemage/viewvary')->restoreViewVary($this->_viewVary) ;
+            }
+            elseif (in_array($curActionName, $this->_config->getNoCacheConf(Litespeed_Litemage_Helper_Data::CFG_FULLCACHE_ROUTE))) {
+                $this->_setWholeRouteCache($curActionName, $controller);
+            }
+
+            if (($lmctrl = $req->getParam('LITEMAGE_CTRL')) !== null) {
+                // either isDebug or IP match
+                if ($this->_config->isAdminIP()) {
+                    if ($lmctrl == 'PURGE') {
+						// for redirect, maybe already set, need to check, otherwise exception
+						if (!Mage::registry('LITEMAGE_PURGE')) {
+							Mage::register('LITEMAGE_PURGE', 1);
+						}
+                        // set to nocache later at beforeResponseSend
+                    }
+                }
+                else {
+                    $controller->norouteAction();
+                    return;
+                }
+            }
+
+            $this->_helper->setCacheControlFlag(Litespeed_Litemage_Helper_Esi::CHBM_CACHEABLE) ;
+
+            if (Mage::getSingleton('core/cookie')->get('litemage_cron') == Litespeed_Litemage_Model_Observer_Cron::USER_AGENT) {
+                $currency = Mage::getSingleton('core/cookie')->get('currency');
+                if ($currency != '')
+                    Mage::app()->getStore()->setCurrentCurrencyCode($currency);
+            }
+        }
+
+        if ( $this->_isDebug ) {
+            $this->_config->debugMesg('****** PRECHECK route_action [' . $curActionName . '] url=' . $req->getRequestString() . $reason) ;
+        }
+
+    }
+
+    // return reason string. if can be cached, return false;
+    protected function _cannotCache( $req, $curActionName )
+    {
+        $requrl = $req->getRequestString() ;
+
+        if ( $req->isPost() ) {
+            return 'POST';
+        }
+
+        $nocache = $this->_config->getNoCacheConf() ;
+        foreach ( $nocache[Litespeed_Litemage_Helper_Data::CFG_NOCACHE_VAR] as $param ) {
+            if ( $req->getParam($param) ) {
+                return 'contains param ' . $param;
+            }
+        }
+
+        // check controller level
+        $cacheable = false;
+        foreach ( $nocache[Litespeed_Litemage_Helper_Data::CFG_CACHE_ROUTE] as $route ) {
+            if ( strncmp($route, $curActionName, strlen($route)) == 0 ) {
+                $cacheable = true;
+                break;
+            }
+        }
+        if ( !$cacheable ) {
+            return 'route not cacheable';
+        }
+
+        foreach ( $nocache[Litespeed_Litemage_Helper_Data::CFG_NOCACHE_ROUTE] as $route ) {
+            if ( strncmp($route, $curActionName, strlen($route)) == 0 ) {
+                return 'subroute disabled';
+            }
+        }
+
+        foreach ( $nocache[Litespeed_Litemage_Helper_Data::CFG_NOCACHE_URL] as $url ) {
+            if ( strpos($requrl, $url) !== false ) {
+                return 'disabled url ' . $url;
+            }
+        }
+
+        return ''; // can be cached
+    }
+
+
+    // event core_layout_block_create_after
+    public function checkEsiBlock($eventObj)
+    {
+        if ( ! $this->_moduleEnabledForUser )
+            return;
+
+        if ($this->_canInjectEsi === -1) {
+            $this->_canInjectEsi = $this->_helper->canInjectEsi();
+        }
+
+        if ( ! $this->_canInjectEsi )
+            return ;
+
+        // this is to deal with duplicated block names, caused by bad extensions, those blocks are lost in layout->_blocks[name], since name not unique
+        $block = $eventObj->getData('block') ;
+
+        $bconf = $this->_config->isEsiBlock($block);
+        if ($bconf != null) {
+            $blockName = $bconf['bn'];
+
+            if (!isset($this->_injectedBlocks[$blockName])) {
+                $bconf['blocks'] = array();
+                $this->_injectedBlocks[$blockName] = $bconf;
+            }
+            $this->_injectedBlocks[$blockName]['blocks'][] = $block;
+        }
+        // needs to be in its own section, not in else
+        if ($block->hasData('litemage_dynamic')) {
+            // dynamic injection right now
+            $this->_injectDynamicBlock($block);
+        }
+    }
+
+    protected function _injectDynamicBlock($block)
+    {
+        $bd = $block->getData('litemage_dynamic');
+        if (!isset($bd['type']))
+            return;
+
+        if (!isset($bd['tag'])) { // todo: need to validate tag
+                /*$conf = $this->_config->getEsiConf('tag', $tag) ;
+                if ($conf == null) {
+                    if ( $this->_isDebug ) {
+                        $this->_config->debugMesg('Missing config for tag '. $tag) ;
+                    }
+                    return false ;
+                } */
+            $bd['tag'] = 'welcome';
+        }
+        $bd['cache-tag'] = 'E.' . $bd['tag'];
+        if (!isset($bd['access']) || !in_array($bd['access'], array('private', 'public'))) {
+            $bd['access'] = 'private';
+        }
+        if (!isset($bd['valueonly'])) {
+            $bd['valueonly'] = false;
+        }
+
+        /*
+         *     $litemage_attr = array('litemage_dynamic' =>
+                        array('tag' => 'welcome', 'access' => 'private', 'type' => 'customer/form_login', 'template' => 'customer/form/mini.login.phtml'));
+         */
+
+        $blockName = $block->getNameInLayout();
+        $layout = $block->getLayout();
+
+        //re-init just in case
+        $conf = $this->_config->getEsiConf() ;
+        $preload = $this->_initInjectionCache($layout) ; // -1: donot use cache, 0 : no cahce, 1: cache loaded, 2: require update
+
+
+        $esiHtml = '' ;
+        if ( $preload && isset($this->_esi['layout']['blocks'][$blockName]) ) {
+            $esiHtml = $this->_esi['layout']['blocks'][$blockName] ;
+            unset($this->_esi['layout']['blocks'][$blockName]) ;
+        }
+        else {
+            if ( $preload == 1 ) {
+                $preload = 2 ; // found a new blockName not preloaded
+            }
+
+            $urlOptions = array('b' => $blockName, 't' => $bd['tag']);
+            $urlOptions['p'] = str_replace('/', '--', $bd['type']);
+            if (isset($bd['template'])) {
+                $urlOptions['l'] = str_replace('/', '--', $bd['template']);
+            }
+            $urlOptions = array_merge($urlOptions, $this->_esi['urlParams']);
+
+            $esiUrl = $this->_helper->getSubReqUrl('litemage/esi/getBlock', $urlOptions) ;
+            $esiHtml = '<' . $this->_config->esiTag('include') . ' src="' . $esiUrl . '" combine="sub" cache-tag="' . $bd['cache-tag'] . '" cache-control="no-vary,' . $bd['access'] . '"/>' ;
+            if (!$bd['valueonly'] && $this->_isDebug) {
+                $esiHtml = '<!--Litemage esi started ' . $blockName . '-->' . $esiHtml . '<!--Litemage esi ended ' . $blockName . '-->' ;
+            }
+        }
+
+        $this->_helper->setEsiBlockHtml($blockName, $esiHtml) ;
+
+        $esiBlock = new Litespeed_Litemage_Block_Core_Esi() ;
+        if ($bd['valueonly']) {
+            $esiBlock->setData('valueonly', 1); // needs to set before initbypeer
+        }
+        $esiBlock->setData('dynamic', 1);
+        $esiBlock->initByPeer($block, $esiHtml) ;
+        $this->_esi['layout']['preload'] = $preload ;
+
+    }
+
+    //controller_action_layout_generate_blocks_after
+    public function prepareInjection( $eventObj )
+    {
+        if ($this->_canInjectEsi === -1) {
+            $this->_canInjectEsi = $this->_helper->canInjectEsi();
+        }
+
+        if ( ! $this->_canInjectEsi )
+            return ;
+
+        $this->_helper->initFormKey() ;
+
+        if (count($this->_injectedBlocks) == 0)
+            return;
+
+        $layout = $eventObj->getData('layout') ;
+        $conf = $this->_config->getEsiConf() ;
+        $preload = $this->_initInjectionCache($layout) ; // -1: donot use cache, 0 : no cahce, 1: cache loaded, 2: require update
+        $esiLayoutUpdate = null ;
+        $conflict = array();
+
+        foreach ( $this->_injectedBlocks as $blockName => $bd ) {
+
+            foreach ($bd['blocks'] as $block) {
+
+                $esiHtml = '' ;
+
+                $blockAlias = $block->getBlockAlias();
+                $blockIndex = $blockName;
+                if ($blockAlias != '' && $blockAlias != $blockName) {
+                    $blockIndex .= '!' . $blockAlias;
+                }
+
+                // check confliction
+                if (!isset($conflict[$blockIndex])) {
+                    $conflict[$blockIndex] = array($block);
+                }
+                else {
+                    $conflict[$blockIndex][] = $block;
+                    if ( $this->_isDebug )
+                        $this->_config->debugMesg('ALERT not unique block name plus alias ' . $blockIndex);
+                }
+
+                if ( $preload && isset($this->_esi['layout']['blocks'][$blockIndex]) ) {
+                    $esiHtml = $this->_esi['layout']['blocks'][$blockIndex] ;
+                    unset($this->_esi['layout']['blocks'][$blockIndex]) ;
+                }
+                else {
+                    if ( $preload == 1 ) {
+                        $preload = 2 ; // found a new blockIndex not preloaded
+                    }
+
+                    // check if it is a child block of an injected block, bypassed one also need to save esihtml
+                    if ( $this->_checkIsInjectedChild($block) ) {
+                        $esiHtml = 'BYPASS';
+                    }
+                    else {
+
+                        if ( $esiLayoutUpdate == null ) {
+                            $esiLayoutUpdate = Mage::getSingleton('litemage/layout_update') ;
+                            $esiLayoutUpdate->setStoreId($this->_esi['urlParams']['s']) ;
+                        }
+
+                        $urlOptions = $this->_getEsiUrlBHOptions($blockName, $block, $layout, $esiLayoutUpdate) ;
+                        $urlOptions['t'] = $bd['tag'];
+                        if ($blockAlias != '' && $blockName != $blockAlias) {
+                            $urlOptions['a'] = $blockAlias;
+                        }
+                        $urlOptions = array_merge($urlOptions, $this->_esi['urlParams']);
+
+                        $esiUrl = $this->_helper->getSubReqUrl('litemage/esi/getBlock', $urlOptions) ;
+
+                        $esiHtml = '<' . $this->_config->esiTag('include') . ' src="' . $esiUrl . '" combine="sub" cache-tag="' . $bd['cache-tag'] . '" cache-control="no-vary,' . $bd['access'] . '"/>' ;
+                        if (!$bd['valueonly'] && $this->_isDebug) {
+                            //$esiHtml = '<esi:remove>ESI processing not enabled</esi:remove><!--esi' . $esiInclude . '-->' ; // remove comment, for html minify
+                            $esiHtml = '<!--Litemage esi started ' . $blockName . '-->' . $esiHtml . '<!--Litemage esi ended ' . $blockName . '-->' ;
+                        }
+                    }
+                }
+
+                $this->_helper->setEsiBlockHtml($blockIndex, $esiHtml) ;
+
+                if ($esiHtml == 'BYPASS') {
+                    // can be a child block of an injected block
+                    continue;
+                }
+
+                if ( $bd['tag'] == 'messages' ) {
+                    $esiBlock = new Litespeed_Litemage_Block_Core_Messages() ;
+                }
+                else {
+                    $esiBlock = new Litespeed_Litemage_Block_Core_Esi() ;
+                }
+                if ($bd['valueonly']) {
+                    $esiBlock->setData('valueonly', 1); // needs to be before initbypeer
+                }
+                $esiBlock->initByPeer($block, $esiHtml) ;
+
+            }
+
+        }
+
+        $this->_esi['layout']['preload'] = $preload ;
+    }
+
+    protected function _checkIsInjectedChild($block)
+    {
+        $layer = 20;
+        $blk = $block;
+        while (($blk = $blk->getParentBlock()) && $layer > 0 ) {
+            if ($blk->getData('litemageInjected')) {
+                return true;
+            }
+            $layer --;
+        }
+        return false;
+    }
+
+    protected function _setWholeRouteCache($actionName, $controller)
+    {
+        $app = Mage::app();
+        $design = Mage::getDesign() ;
+        $tags = array($actionName);
+        $tags[] = $app->getStore()->getId() ;
+        $tags[] = $design->getPackageName();
+        $tags[] = $design->getTheme('layout');
+        $cacheId = 'LITEMAGE_ROUTE_' . md5(join('__', $tags));
+
+        $this->_routeCache = array('actionName' => $actionName, 'cacheId' => $cacheId);
+        if ($result = $app->loadCache($cacheId)) {
+            $this->_routeCache['content'] = unserialize($result);
+            $controller->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_DISPATCH, 1);
+        }
+    }
+
+    protected function _initInjectionCache( $layout )
+    {
+        if (isset($this->_esi['layout']['cacheId'])) {
+            // already initialized
+            return isset($this->_esi['layout']['preload']) ? $this->_esi['layout']['preload'] : 0;
+        }
+
+        $this->_esi = array(
+            'layout' => array(),
+            'urlParams' => $this->_helper->getEsiSharedParams()) ;
+        $rootHandles = $layout->getUpdate()->getHandles() ;
+        //should we deal with wrong theme input? THEME_frontend_neoshop_Designer Sarees, Salwar Kameez, Lehengas, Wedding Sherwanis, Mens Kurta Pyjama, Online Shopping
+        $tags = array() ;
+        foreach ( $rootHandles as $handle ) {
+            if ( (strpos($handle, 'CATEGORY_') === false) && ((strpos($handle, 'PRODUCT_') === false) || (strpos($handle, 'PRODUCT_TYPE_') !== false)) ) {
+                $this->_esi['layout']['handles'][] = $handle ;
+                if ( ($handle != 'customer_logged_out') && ($handle != 'customer_logged_in') )
+                    $tags[] = $handle ;
+            }
+        }
+        sort($tags) ;
+        $tags[] = 'LITEMAGE_INJECT_ESI' ;
+        $tags[] = join('-', $this->_esi['urlParams']); // for env vary
+        $cacheId = 'LITEMAGE_BLOCK_' . md5(join('__', $tags)) ;
+        $this->_esi['layout']['cacheId'] = $cacheId ;
+        $this->_helper->setEsiOn() ;
+
+        $preload = 0 ;
+
+        if ( $result = Mage::app()->loadCache($cacheId) ) {
+            $preload = 1 ;
+            $this->_esi['layout']['blocks'] = unserialize($result) ;
+        }
+
+        if ( $this->_isDebug )
+            $this->_config->debugMesg('INJECTING_' . $preload . '  ' . $_SERVER['REQUEST_URI']) ;
+
+        return $preload ;
+    }
+
+    protected function _getEsiUrlBHOptions( $blockName, $block, $layout, $esiLayoutUpdate )
+    {
+        // for blocks and handles
+        $hParam = array() ;
+        $handles = array() ;
+        $packageLayout = $esiLayoutUpdate->getPackageLayout() ;
+
+        $blockNames = $this->_getChildrenNames($block, $layout) ;
+        if ( ($alias = $block->getBlockAlias()) && ($alias != $blockName) ) {
+            array_unshift($blockNames, $blockName, $alias) ;
+        }
+        else {
+            array_unshift($blockNames, $blockName) ;
+        }
+        foreach ( $this->_esi['layout']['handles'] as $h ) {
+            if ( $h == 'customer_logged_out' || $h == 'customer_logged_in' ) {
+                $handles[] = $h ;
+            }
+            else {
+
+                foreach ( $blockNames as $name ) {
+                    $xpath = '//' . $h . '//*[@name="' . $name . '"]' ;
+                    if ( $node = $packageLayout->xpath($xpath) ) {
+                        $handles[] = $h ;
+                        $hParam[] = $h ;
+                        break ;
+                    }
+                }
+            }
+        }
+
+        $hasCache = $esiLayoutUpdate->loadEsiBlockCache($blockName, $handles) ;
+        if ( $hasCache === 0 ) {
+            //save layout cache right now, most economic way, blockNames will be filtered
+            $blockNames = $esiLayoutUpdate->importLayoutUpdate($blockNames, $handles, $layout) ;
+        }
+        elseif ( $hasCache == 1 ) {
+            // blockNames will be filtered
+            $blockNames = $esiLayoutUpdate->getBlockNames() ;
+        }
+
+        $urlOptions = array(
+            'b' => implode(',', $blockNames) ) ;
+
+        if ( count($hParam) > 0 )
+            $urlOptions['h'] = implode(',', $hParam) ;
+
+        return $urlOptions ;
+    }
+
+    protected function _getChildrenNames( $block, $layout )
+    {
+        if ($block == null) {
+            return array();
+        }
+
+        $children = $block->getSortedChildren() ;
+        foreach ( $children as $childName ) {
+            if ( $childBlock = $layout->getBlock($childName) ) {
+                $alias = $childBlock->getBlockAlias() ;
+                if ( $alias != $childName ) {
+                    $children[] = $alias ;
+                }
+                $grandChildren = $this->_getChildrenNames($childBlock, $layout) ;
+                if ( count($grandChildren) > 0 ) {
+                    $children = array_merge($children, $grandChildren) ;
+                }
+            }
+        }
+        return $children ;
+    }
+
+    //event: http_response_send_before
+    public function beforeResponseSend( $eventObj )
+    {
+        if ( !$this->_moduleEnabledForUser )
+            return;
+
+        $resp = $eventObj->getResponse();
+
+        if (isset($this->_routeCache['content'])) {
+            // serve cached whole page
+            $resp->setBody($this->_routeCache['content']['body']);
+            foreach($this->_routeCache['content']['header'] as $key => $val) {
+                $resp->setHeader($key, $val);
+            }
+			if (isset($this->_routeCache['content']['respcode'])) {
+				$resp->setHttpResponseCode($this->_routeCache['content']['respcode']);
+			}
+            if ($this->_isDebug) {
+                // last debug mesg
+                $this->_config->debugMesg('###### Served whole route from cache') ;
+            }
+            return;
+        }
+
+        if ( $this->_esi != null && ($this->_esi['layout']['preload'] != 1 || ! empty($this->_esi['layout']['blocks']) || $this->_helper->isEsiBlockAdjusted()) ) {
+            $tags = array(Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG, Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG);
+
+            if (Mage::app()->useCache('layout')) {
+                Mage::app()->saveCache($this->_helper->getEsiBlockHtml(), $this->_esi['layout']['cacheId'], $tags) ;
+            }
+        }
+
+        if ( count($this->_viewVary) ) {
+            // this needs to run before helper's beforeResponseSend
+            Mage::Helper('litemage/viewvary')->persistViewVary($this->_viewVary) ;
+        }
+
+        $extraHeaders = $this->_helper->beforeResponseSend($resp) ;
+
+        if (isset($this->_routeCache['cacheId']) && Mage::app()->useCache('layout')) {
+            $tags = array(Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG);
+            $content = array();
+            $content['body'] = $resp->getBody();
+			$cheaders = array();
+			$headers = $resp->getHeaders();
+			foreach ($headers as $header) {
+				$cheaders[$header['name']] = $header['value'];
+			}
+			foreach($extraHeaders as $key => $val) {
+				$cheaders[$key] = $val;
+			}
+            $content['header'] = $cheaders;
+			$curRespCode = $resp->getHttpResponseCode();
+			if ($curRespCode != 200) {
+				$content['respcode'] = $curRespCode;
+			}
+
+            Mage::app()->saveCache(serialize($content), $this->_routeCache['cacheId'], $tags);
+        }
+
+        if ($this->_isDebug) {
+            $this->_config->debugMesg('###### end of process, body length ' . strlen($resp->getBody()));
+        }
+
+    }
+
+    //catalog_controller_product_view
+    public function onCatalogProductView( $eventObj )
+    {
+        if ( $this->_moduleEnabledForUser && ! $this->_helper->isEsiRequest() ) {
+            $productId = $eventObj->getProduct()->getId() ;
+            $this->_helper->addCacheEntryTag(Litespeed_Litemage_Helper_Esi::TAG_PREFIX_PRODUCT . $productId) ;
+
+            if ( $this->_config->trackLastViewed() ) {
+                $this->_helper->addPurgeEvent($eventObj->getEvent()->getName()) ;
+                $this->_helper->trackProduct($productId) ;
+            }
+        }
+    }
+
+    // cms_page_render
+    public function onCmsPageRender( $eventObj )
+    {
+        if ( $this->_moduleEnabledForUser ) {
+            $pageId = $eventObj->getPage()->getId() ;
+            $this->_helper->addCacheEntryTag(Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CMS . $pageId) ;
+        }
+    }
+
+    public function initNewVisitor($eventObj)
+    {
+        if ( $this->_moduleEnabledForUser ) {
+            if (Mage::registry('LITEMAGE_NEWVISITOR')) {
+                Mage::unregister('LITEMAGE_NEWVISITOR'); // to be safe
+            }
+            else {
+                Mage::register('LITEMAGE_NEWVISITOR', 1);
+            }
+        }
+    }
+
+}

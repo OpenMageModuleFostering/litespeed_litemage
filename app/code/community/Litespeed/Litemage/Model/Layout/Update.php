@@ -1,113 +1,215 @@
-<?php //0046a
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
-?>
-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
-WMHirtrymJCJ5UQZvxERZ562
+<?php
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0
+ */
+
+
+class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Update
+{
+    protected $_esiBlockName;
+    protected $_storeId;
+    protected $_filtered = false;
+    protected $_blockNames = array();
+    protected $_peerFullXml;
+    protected $_isDebug;
+
+    public function getPackageLayout()
+    {
+        if (empty($this->_packageLayout)) {
+            $this->fetchFileLayoutUpdates();
+        }
+        return $this->_packageLayout;
+    }
+
+    public function setStoreId($storeId)
+    {
+        $this->_storeId = $storeId;
+        $this->_isDebug = Mage::helper('litemage/data')->isDebug() ;
+    }
+
+    public function getEsiBlockName()
+    {
+        return $this->_esiBlockName;
+    }
+
+    public function setBlockNames($blockNames)
+    {
+        $this->_blockNames = $blockNames;
+        $this->_esiBlockName = $blockNames[0];
+        $this->_cacheId = null;
+        $this->_filtered = false;
+        $this->resetHandles();
+        $this->resetUpdates();
+    }
+
+    public function getBlockNames()
+    {
+        return $this->_blockNames;
+    }
+
+    public function importLayoutUpdate($blockNames, $blockHandles, $layout )
+    {
+        $this->setBlockNames($blockNames);
+        if ($this->_peerFullXml == null)
+            $this->_peerFullXml = $layout->getUpdate()->asSimplexml() ;
+
+        $this->_filterUpdates($this->_peerFullXml);
+        $this->addHandle($blockHandles);
+        $this->saveCache();
+        return $this->_blockNames;
+    }
+
+    protected function _filterUpdates($layoutUpdateXml)
+    {
+        $this->resetUpdates();
+        $blockUsed = array();
+
+        foreach ($this->_blockNames as $blockName) {
+            $xpath = '//*[@name="' . $blockName . '"]';
+            $nameUsed = false;
+            if ($els = $layoutUpdateXml->xpath($xpath)) {
+                foreach ($els as $el) {
+                    if (!$el->getAttribute('litemage_used')) {
+                        $this->addUpdate($el->asNiceXml());
+                        $nameUsed = true;
+                        $this->_markNodeUsed($el);
+                    }
+                }
+            }
+            if ($nameUsed)
+                $blockUsed[] = $blockName;
+        }
+
+        // check if children blocks being removed
+        $removeNodes = $layoutUpdateXml->xpath("//remove");
+
+        if (is_array($removeNodes)) {
+            $xml = $this->asSimplexml();
+
+            foreach ($removeNodes as $removeNode) {
+                $attributes = $removeNode->attributes();
+                $blockName = (string)$attributes->name;
+                if ($blockName) {
+                    $ignoreNodes = $xml->xpath("//block[@name='".$blockName."']");
+                    if (is_array($ignoreNodes) && count($ignoreNodes) > 0) {
+                        $this->addUpdate($removeNode->asNiceXml());
+                    }
+                }
+            }
+        }
+
+        $this->_blockNames = $blockUsed;
+        $this->_filtered = true;
+    }
+
+    protected function _markNodeUsed($node)
+    {
+        $node->addAttribute('litemage_used', 'esi');
+        $children = $node->children();
+        foreach ($children as $child) {
+            $this->_markNodeUsed($child);
+        }
+    }
+
+    /**
+     * Get cache id
+     *
+     * @return string
+     */
+    public function getCacheId()
+    {
+        if (!$this->_cacheId) {
+            $tags = $this->getHandles();
+            if (count($tags) > 1) {
+                sort($tags);
+            }
+            $tags[] = 'LITEMAGE_ESI_' . $this->_esiBlockName;
+
+            $this->_cacheId = 'LAYOUT_' . $this->_storeId . md5(join('__', $tags));
+        }
+        return $this->_cacheId;
+    }
+
+    /*
+     * @return -1: no layout cache allowed, 0: nocache, 1: has cache
+     */
+
+    public function loadEsiBlockCache($blockName, $handles)
+    {
+        if (!Mage::app()->useCache('layout')) {
+            return -1;
+        }
+        //reset internals
+        $this->setBlockNames(array($blockName));
+        $this->addHandle($handles);
+
+        if ($this->loadCache())
+            return 1;
+        else
+            return 0;
+    }
+
+    public function loadCache()
+    {
+        if (!Mage::app()->useCache('layout')) {
+            return false;
+        }
+
+        if (!$result = Mage::app()->loadCache($this->getCacheId())) {
+            return false;
+        }
+
+        $pos = strpos($result, "\n");
+        $filteredBlocks = substr($result, 0, $pos);
+        $this->_filtered = true;
+        if ($this->_isDebug) {
+            Mage::helper('litemage/data')->debugMesg('LU_Load B=' . $filteredBlocks . ' H=' . join(',',$this->getHandles()) . ' ID=' . substr($this->getCacheId(), 8, 10));
+        }
+        $this->_blockNames = explode(',', $filteredBlocks);
+        $this->addUpdate(substr($result, $pos+1));
+
+        return true;
+    }
+
+    public function saveCache()
+    {
+        if (!$this->_filtered) {
+            $this->_filterUpdates($this->asSimplexml());
+        }
+
+        if (!Mage::app()->useCache('layout')) {
+            return false;
+        }
+
+        $tags = $this->getHandles();
+        $tags[] = Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG;
+        $tags[] = Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG;
+        $firstLine = join(',', $this->_blockNames);
+        if ($this->_isDebug) {
+            Mage::helper('litemage/data')->debugMesg('LU_Save B=' . $firstLine . ' H=' . join(',',$this->getHandles()) . ' ID=' . substr($this->getCacheId(), 8, 10));
+        }
+
+        $content = $firstLine . "\n" . $this->asString();
+        return Mage::app()->saveCache($content, $this->getCacheId(), $tags, null);
+    }
+
+}

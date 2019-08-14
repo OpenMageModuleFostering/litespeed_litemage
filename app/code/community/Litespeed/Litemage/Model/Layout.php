@@ -1,57 +1,121 @@
-<?php //0046a
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
-?>
-HR+cP+54wKE/1T9qKeXyOB0nTflxBBo68J+IpPAi8dbC8tuRfb6WzhK1FR90Es8WPZEYRnDCQ5vb
-Pe2vIs1OPBu4LB0h6LY5YcRVQLlI9dKMv5V6SgpLxmw4l/qDzb+Et2iRWKL+zdZGMeVb/b+wurkt
-Mml66+c60t8ZikGY1pWvWtJzIXodP4OhhwuX0r+mZUudi5ymuiEY0FL+EjLwhBatp3XzwkY/fvEa
-ubXVrcG/EEC5FiTllISCo0yLC2pRPhl4JNzaxyReeBbVW4RIBhzb5Q3YJVRHCTeY/ugIGzF/W5D9
-jdyTn6DaoNIYOkO43bIgRrm+NZlS2cwa8TNWIF782+VPcWEm7TAfPaV2FXC/58L8Oq5t9aM3rb5t
-dq9bH/ReiFsx4a3+83GxvYpq7KL3k4jeZuXmom1nfJB7uCSJL3LEAwH6/2/+4f4jnFia/Nt9Rm0r
-LjI2K1bPgrt590urU7hCvoAIZedXvUABkaQj0IAvV93EhRKgTJt2Cbft05A9KE/mgAjfvuHn3Ax/
-DnHSd/OsiQk0TFjl9ZsHJC0avES/wyg0Hyaq339bYrPrIoO+Od/Ix/N8Ny7haH/ASXrtQM9Let0Q
-UoZiMpsqS3YR6i/LS5fdniBJ24DU9gQYfg7lU4bzs2p3wmaGebBCm5yOVx3zzFN/d9qsghndIHaA
-T5GvWetBhhrk/bM52AS10q3NCJsjKqAzWXKp/BNo5BdIUPY9ixXTWRhCQ+GThQmPooNlmEcOeUlA
-ueDpA58th7IG0Frsw9w2sqmiX1Seue/f3hsmoGEZBmarw9WLMiLg1CYyG7bYVCsWrIqr6rc92XdJ
-x3gKLaCLDx0sjlc3tq6Pw2M3xUiblEySL3rSKPMbY8K5JJVzS3wstYn1gEUj2l0Ywte2Kw7nv/v+
-rZOFmaYUsKzYv7Nf/baFfhGZeQVuTrJ1UURvxtbhElnHLFnRFtA2aGgm0xEV+aNwPOjxz+ZuDmbn
-JAN1hMOpC1oNNoDI95G0l/dgL+V5nrsT1KI0XCXwfaZO3c15Rjj4Wq5W9eA7Yf/FdIQ+PQuVFXEb
-yBNRTd01W2WS6wiaohplm29wE+qS+wp5iYLbXvu9Kui3fgrfQ8EnDeLmpVb4Ea43by7JI3vpYIwH
-fsFRO3Yz5bmpAKQdjRcRkIaZDTT2a7JjxQSH8o3lyOvYL0SSyjw911WwesoZ5WGrhXATODqUQS8b
-1/Cv0CBJaJw7oxffEQcCKVrJGiKnV+cK7PsExZ4z5ZSt6pwHxyQ0CmGzmNQIcSthR6G5FPS67zIZ
-T39RbZiG6cbg7SjooyAwNFnfgxO3tI9tIzw0vOWXJzzxaA9T0VzK/vxUC5X/tegm+FUin+u48l5P
-sI9A7C69WgsL0GdzhlFCoFtr950MRdKMSpAHcpBhHxx7fMX+T1BkjnDV0o+yk4iEsgA6elTat8Qe
-7AUaL1IDFqz4eqT0IbLUfG87aiBkRfFxNxR1IHbMwG99rfhAjLb53GsZEd8OlCxOmNlVvtKHox8h
-ff1G2Z1UzlGHjWkcEaH8l4W9rh4mKjfeWuUyJGQpFdqJpkFbCrNV9RrCqNaqmAzmxaAJ2I/1XEIP
-iFWYo/5Sn3OUtkeEIhed3HNu/mOEQ6VdhERzaPTxxMIPSRmic86fw/FXgXoPX3lneXtkdcgBwHAT
-NltERpEL1IoQBWtNRM3YXI0lMn2RZyzjoGgV7Dy79UCt3NN6QtZoFoS70D2VoNpjrNvsTV7z9C+E
-4H+tjmCTKjjSsYL77ECJgYTnUYPyMsNu1j5sn6S+gc3ZZi0Flp2jlcl9ToXNowsbhTkKQbZQdpZ5
-ef/g0km325iKLMkM8SdWBTM+WlByC4dUVY9MeFtEmKd4yxRbqpZdw2iK9EU1QnIFO/gqw16JK04Z
-jNlwX0Hcy7WWcs0HYnnPlLYpyUW14cYCh5CVhSL1CjAUTkv9RmvZHvs3mIeN7xyU/chvlO6you6D
-vnSdL+nUFgWivawqpCb7yyLUgP8REIBGweafuMKs1cMvN5QP3m4JAI96KfHWHlOl83HGsgHrjIbX
-veO+6VpSfd4r507N/R95ywYkhW7cxRZhrcUfk2Gp534BNwXZ440HGtqxiXAx3rQqfbW8uScJfvoG
-gFPo+HsZ8+a4Oc5MpGbe30kh+BdfeXicul9rpZE8UQLwQkolKYc05+i7Jyc9tAzLIrDWulUEBjZF
-WeZCpEjKDE5J4tee37yD1W3VvcD5agrAQc57ctADP+Lc4yLVc0/wucUvnVKDCAArthx6SPerdvF6
-/T10G6dukSqnZ6nQPeVWU3apb1rhf3I/oilMETeYYeZk1zHP9YgHVtGG9WZuFZcNxy9j96Otr4xM
-Agl5wHVEHwTY7XvvwUzNI4WP/msT2lB0Z35OxZxZvujLdOIMyZMQ0dEd7/obMXj8WHDf5wUq1IA1
-aqmSabKHPOhR0VoK0zCP48u00oKKItgN+kbai3K9LH0MtuS5IH780OY0fdqT0mNWGrDxn3DmyI6u
-ddso4Rp1NIRjsz9zYZCOIkhOFdQ7iTUEjt71QbdYmBlVc2Ngk4DOHtxywAFEWOSAWZIPJ5FqzJgF
-4sB81Gz2s5aGS0qOUGzjj70cKCIFbyv5BgNqVUWjdP8esJisEyFVwhQ/FmM7i6KFiEfonaU8RA6w
-tL22BL8fUTqbnrZ5wmK5iY7mSDHPXefJrzSwMGxq6R6XSH6Kd2oEG/hZHKCnBbcUBtRmZ5JOJNm8
-hp+MgyXos0Y7D2bCxiSXQ1PGgtIYPHVrB4uYWkTwBI5lPG0jO9SYTT8/X6XHXnZypzNYISI7RBdn
-raV//2C/pEP9hR5K+RBnTPzVGyLyh5mYxNpI70dRM/3vyJRig/64Si2uz4TOtbP7U4Gicn6sueXh
-P/xpy4Tnxspn8HrHulIJb6eV5BWSadteO7+2uXZqcKBXspcP2srWeXGpLpkuMMHEnkCuzMhQdLMF
-2Uj4abQt1TMncnq8lcaSLxDyVnDYYYlUbJaIcmqU3Eq4Yv0LsnO/mLf+NuaowSAlt1QRs8l/2GXK
-8PpAIW/NsXI/8KgpllA+gkx/2zhS30nFYg06lI0CnPtR4KkCgmh38nEAuJ4J1zwVZRKUitVNZ2Xm
-BIgVOYGh34aH8O35QnFjOCbOtAJ9AXMmEhg0enKTR2YkcHzybXal+V+YI1EQV6AL0HaY5OjGqEde
-gdnXQhDKccQ3ZxkJYCU7XGhsXwqu3V1Cu+fX2Prt198ppf9CSvkHSACMoJ2gCfHZkIEL0revYefO
-KO2vWvuCQGFaU1+qGbBv3x+DjUFup5tWEncOPXrcQsUT0IWfTC8BYKiQZfhey2S19o49kC2Z3r9M
-S7NoLbsiYlS5BiPg401ivKWcAWGBUs9VlpVWRVy+qQ7b5gqc/mtiQFSYFuaN0XCNscgAEh2jiyyV
-USoxiapQv2gsPHCEdqWUn2TqwtYTIy84iISR6awk0+XpaBWsjIDOUdi25lB17PE8RI8RfD+Ybcoj
-8G2/FIQGimEQlyiSgphyzqM1JDRc+7Fj77xbo1XEcVnZwT/wbgIVxfQzn+ScBPLapCsO5BSzZ6qD
-0tyJGwBOI+AV/6w55obT7ckbrUZJL0EkDI71llC/+Nbp/anUQRXgMict1XE4DDk7ZR5INegUBI6b
-zsUjyC4WLIZhgYY1qlqFVD9X9UMWZGIxI+glj7mQ7JzfeQyZSL1/kD9gDBuS3SeDyGmI01vBQDks
-elVGV9k/vhTp0/nFRT/Mf6e/yLlLSEVxoVDKzcGBnN8Z8ywabc6VX+HJskQmaWqFl6Mid0ib1Gfh
-cVb4ag3t6RrPVDcIQ5cehTl8OAwa8vK2cBr/u6LiY+mSf6avATG8RPrtIFZawKE/8mAHZWNdXuQI
-t5Edc+kDzduU/tOD5/RZ6UQ08iZdBKtfAsOrLtoNxQE1FGdzi4inVF6yH6+jZCFfDKonULGmzPyE
-xgY2cynOs57g1oC0NY1bFh+ZLW9snpqdmK7gP9Hqlh01chShMzJuZJbuhRWj+nYY4fzKMfBf0FUJ
-XOEgg6pO+udzeyVagu9bu2K=
+<?php
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0
+ */
+
+
+class Litespeed_Litemage_Model_Layout extends Mage_Core_Model_Layout
+{
+    /**
+     * Class constructor
+     *
+     * @param array $data
+     */
+
+    //protected $_isDebug;
+
+    public function __construct()
+    {
+        $this->_elementClass = Mage::getConfig()->getModelClassName('core/layout_element');
+        $this->setXml(simplexml_load_string('<layout/>', $this->_elementClass));
+        $this->_update = Mage::getModel('litemage/layout_update');
+    }
+
+    public function getBlock($name)
+    {
+        if (!isset($this->_blocks[$name])) {
+            $dummyblocks = array('root', 'head');
+            if (in_array($name, $dummyblocks)) {
+                $dummy = new Varien_Object();
+                return $dummy;
+            }
+            return null;
+        }
+        return $this->_blocks[$name];
+    }
+
+    public function resetBlocks()
+    {
+        $this->_output = array();
+        $this->_blocks = array();
+    }
+
+    /**
+     * Create layout blocks hierarchy from layout xml configuration
+     *
+     * @param Mage_Core_Layout_Element|null $parent
+     */
+    public function generateBlocks($parent=null)
+    {
+        if (empty($parent)) {
+            $root = $this->addBlock('page/html', 'esiroot');// dummy root
+            $parent = $this->getNode();
+            foreach ($parent as $node) {
+                $node['parent'] = 'esiroot';
+            }
+        }
+        parent::generateBlocks($parent);
+    }
+
+    public function getOutputBlock($name_alias)
+    {
+        $block = null;
+        $mesg = '';
+
+        if (isset($this->_blocks['esiroot']) && ($block = $this->_blocks['esiroot']->getChild($name_alias))) {
+            // as alias
+            if ( ($name = $block->getNameInLayout()) != $name_alias ) {
+                if ($this->_blocks[$name] != $block) {
+                    $mesg = 'block name in layout is not unique, please check layout xml for block name ' . $name;
+                }
+            }
+
+        }
+        elseif (isset($this->_blocks[$name_alias])) {
+            $block = $this->_blocks[$name_alias]; // dynamic block
+        }
+        else {
+            $mesg = 'failed to find the block by alias or name';
+        }
+        if ($mesg != '') {
+            Mage::helper('litemage/data')->debugMesg('getOutputBlock ' . $name_alias . ' ALERT: ' . $mesg);
+        }
+        return $block;
+    }
+
+    // override getOutput, as the output block maybe go by alias
+    public function getOutput()
+    {
+        $out = '';
+        if (!empty($this->_output)) {
+            foreach ($this->_output as $callback) {
+                if ($block = $this->getOutputBlock($callback[0])) {
+                    $out .= $block->$callback[1]();
+                }
+            }
+        }
+
+        return $out;
+    }
+
+}
+

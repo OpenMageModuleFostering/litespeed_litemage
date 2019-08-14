@@ -1,55 +1,108 @@
-<?php //0046a
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
-?>
-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
+<?php
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0
+ */
+
+
+class Litespeed_Litemage_AdminController extends Mage_Core_Controller_Front_Action
+{
+
+    protected $_helper ;
+    protected $_config ;
+    protected $_isDebug ;
+    protected $_data;
+
+    protected function _construct()
+    {
+        $this->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_START_SESSION, 1) ; // Do not start standart session
+        $this->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_PRE_DISPATCH, true) ;
+        $this->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_POST_DISPATCH, true) ;
+    }
+
+    /**
+     * It seems this has to exist so we just make it redirect to the base URL
+     * for lack of anything better to do.
+     *
+     * @return null
+     */
+    public function indexAction()
+    {
+        Mage::log('Err: litemage/admin/ come to indexaction') ;
+        $this->getResponse()->setRedirect(Mage::getBaseUrl()) ;
+    }
+
+    protected function _errorExit($errorMesg)
+    {
+        if ( $this->_isDebug ) {
+            $this->_config->debugMesg('litemage/admin ErrorExit: ' . $errorMesg) ;
+        }
+        $resp = $this->getResponse() ;
+        $resp->setHttpResponseCode(500) ;
+        $resp->setBody($errorMesg) ;
+    }
+
+
+    public function purgeAction()
+    {
+        if ( $this->_accessAllowed()) {
+            if ($error = $this->_validatePurgeTags()) {
+                $this->_errorExit($error);
+            }
+            else {
+                $this->_helper->setPurgeHeader($this->_data, 'litemage/admin/purgeAction');
+            }
+        }
+        else {
+            $this->_errorExit('Access denied') ;
+        }
+    }
+
+
+    protected function _accessAllowed()
+    {
+        $this->_config = Mage::helper('litemage/data') ;
+        $this->_isDebug = $this->_config->isDebug() ;
+        if ( $this->_config->moduleEnabledForUser() && $this->_config->isAdminIP() ) {
+            $this->_helper = Mage::helper('litemage/esi') ;
+            return true ;
+        }
+        else
+            return false ;
+    }
+
+    protected function _validatePurgeTags()
+    {
+        $req = $this->getRequest() ;
+        $tags = $req->getParam('tags');
+        if ($tags == null) {
+            return 'Missing tags value';
+        }
+        $data = explode(',', $tags);
+        foreach ($data as $d) {
+            if ( !preg_match("/^[GCP]\.\d+$/", $d)) {
+                return 'Invalid Format';
+            }
+        }
+        $this->_data = $data;
+    }
+
+}

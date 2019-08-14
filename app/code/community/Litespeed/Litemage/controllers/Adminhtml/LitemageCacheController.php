@@ -1,38 +1,66 @@
-<?php //0046a
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
-?>
-HR+cPxjmtG8lqYKr8i188IjkZ+fq1rLecEhGeAcioYp4ZUVJwGd4Y5FTltF32g9m7V69pmeOfpaQ
-c9o3OOMg6QLvD7weA2f5WRUBMB13cRABKgYDK4NA27n1Es29APh0NfWixrgkQlJgZKQIPMq6Q3EF
-484LXC0S9ktbHm6GaeCMwaxeSRyNthypaseCP/TD9CHl13/BcnmWI3dWXXltnKXYd4qShsrUDoPg
-diuuYFixLv2qYnQLjfV9o0yLC2pRPhl4JNzaxyRee5LUnAC4nd/nn8l8+/R5pDeHG7B8Fp83wgFS
-sWaPaFAYohKx1HPdY4XNhF0bKaTeAGSXJtH95O/4+505fit1DJTKe4XEmYGNHk8mkA8GCPERVC2H
-U6OPnGpNbIO1rdEk/2A19w/zzZy0c8bV3d2hcuRZSsz0ceCtuqBmRpRvlfcdfU7wVmVGhb4ZP5YV
-zJ4NJhtqWDxg46oztsTOwWRkUMzzISmFeGx36VdXjVwP6kXVs2OMUEcaUqkY8hqQN9DvsP13B0O9
-brRU/ziBz5DMCTsitNo/M6LUAqUMmLgkQ9jrwWUJvJKqVMhlpuybB9OIcih+OCm1sEpWi3xCkyoh
-Dguj0uLige2/v4DlZKWYhXcJh8I64c0pGfGDNN7/opkz1ChluWDPKCzF92iHbS/jtOgP+/xKBkYk
-GxZhRsLYcNjwMNy3jv9nKMDXXkCvkDdGoUJwRo5uR2RxVlSLbssWO3JbisaudCHFgc3QH6AouwLB
-i/QmN7aBJbpkslfSyyf5bqt1cgwGesPGPnutGiVvvHsYIP5m8PwN4JMC3E7SRomSS+Xd0wJY4DoH
-d4Cag8jRVzrZkWrqPQGDI5LGgbDODttE4xLB90fhdN43sYvSz2+k+isMU8NEsMnMC8xHo81x4y2t
-G17573BGc2LTiFxj+ccuCt97V4KCE+9qnVrLbCdLGp9y+r7MER8Lt276/3YevecYZtRq/PkqzJEl
-6n3MJqs29yOEsIENLAMMq5ttc+0AYslirx+pfvOT9n6UWJCOQkzuSPiub83sqdXqpA+1gHJJbE0A
-H+d4sAQ3ovvigpQ/8ZbDWDPK2PF8JgebghhZqsjPmf9/StQX5f8wb4iK803bYPnJstt2P9Ev4LNl
-5fJrInNTVKpDxjMkTsmkDLlnqbVthit5b38ppk6fOsE+R+r9tKek1WOlJtU0fr+AGYmvbDqPBLE1
-D29qnfek3REEi+2zY+SCHzwpiY0rkErFbkQy5Gwhx+w3dlwtlAfxL7A5qYW1B/VFXO5xZ7OGA9eT
-rfuwciSOUFlKpwtC9h2fG/RcA9GW5bCD7WeD0/psZx9n0c9IV4PKsxlKCqTdIU77VVU1IjdnuTT6
-pHSpRM1uBtjwUiACZaE3TZzB1ZtxZdeKD1m/a+XEmyX+r2H0Rrnt413XYa0R0YPRKyxtH6gLz4jx
-9lRNNoQk2BCzZcKVHns9JvqXo7CdLfv39rjBvyHCFVQbib6D1v5chH8bM1M60Yk6K/YD0xb7exsW
-dYEK/m0uc+99VgE9V6DZGAC0nPp1iG1MkPUeW0BmWTmQg6GnvBFDg40haGLLuHzvDTPEiufvtM2Z
-ZbMQSj9vSaFNlRvcrjSVH/sP+KJPm1nn0iQWez0Sp9GmEoFNjvAkoWkW9imRGkHZDhjQn73WbyMr
-n3aKQvq110nLBONZAMB/EjhsOvS2tfLN+WCqerAX4tgka16Bk9SYChwoKK1gsuv2zfAd107jHuOd
-IzYcNwd6dctqmU8w5YBJDbbk6Wj/ehTYkw3YNrQlW4QDfbZGHofwy2sCPa6y9PXH1PG3Nc4awr6j
-VFUcODuCOlAPP4wZvghH1smlJCJgqjIn8rC80RtQ991ZavOOxphALYU62fhraI+s/odQz3ksLS3C
-Qi2bCw23q1c9yICory1muZxNwGzMmrK9dvvBVKu7wnDkSxKAZ8dxWV8ZSo89EDYaAJ9tRp7Xr7CL
-HIMJxid7YitBASYdky88HifKBDjlc48LXrgU3A3yp5EGBSlLwFh4gePbA0gSGBXwS5oAycFLYA1e
-t+PaFq3OMRFpS6eMfTP29uVHTb2ZL+mfEcJf0PN0S42327V1R6aPGHb0FoYglEVDq5tYyTCiKqgP
-GTvVK5MshtzMjnBY+5VP8pPEj6qYmF6evS2npE749jHvur3yt9zQE5tb9wAp4S90qoia1ezD8rjY
-AVeXsWhCvHUKcHhiJG4Kb/3KH1b7p2zKlPisRD4aqLvpgyJHRLmXW4iNQMuMIVWqo/m5MlCAaxhz
-Oq4VU7b+626GfHy/r+LVaby3xEdNx1Vjml54L2EVH9sbFcdckZ4leG1WB83BTGeMGo1SpEo8ytqK
-HioTY0x4cnluaRmnUpZHxWw20BD4ja7egAFovN/mwtBtmla9yTIngfmmIZ7+lg3vC8JpLYH2K02q
-DwdRzLuikcv6ArqIG0jpFSFfi2Cb/3yT0jY8V1xvGufNeAwXRDzO+qu1foQzRicuksOeEW8A5X6C
-ohzzZfe5VVuBq/26K0ADCdMDpYokBZ1syD446Z+0fhhq8E3IRRuNW39L0vnVRv5tpPDTrni3UVMg
-zumvRRKKJOjvdcP40vB/zFx1UImvA5gGsgmhgzYQWryCjgnbOEC=
+<?php
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0
+ */
+
+
+
+class Litespeed_Litemage_Adminhtml_LitemageCacheController extends Mage_Adminhtml_Controller_Action
+{
+    public function purgeAllAction()
+    {
+        Mage::getModel( 'litemage/observer_purge' )->adminPurgeCache(null);
+        $this->_redirect('*/cache/index');
+    }
+
+    public function purgeTagAction()
+    {
+        $req = $this->getRequest();
+        Mage::getModel( 'litemage/observer_purge' )->adminPurgeCacheBy($req->getParam('tag_types'), $req->getParam('purge_tag'));
+        $this->_redirect('*/cache/index');
+    }
+
+    public function purgeUrlAction()
+    {
+        Mage::getModel( 'litemage/observer_purge' )->adminPurgeCacheBy('U', $this->getRequest()->getParam('purge_url'));
+        $this->_redirect('*/cache/index');
+    }
+
+	public function resetCrawlerListAction()
+	{
+        $req = $this->getRequest();
+        Mage::getModel( 'litemage/observer_cron' )->resetCrawlerList($req->getParam('list'));
+        $this->_redirect('*/cache/index');
+	}
+
+	public function getCrawlerListAction()
+	{
+        $req = $this->getRequest();
+        $output = Mage::getModel( 'litemage/observer_cron' )->getCrawlerList($req->getParam('list'));
+		$this->getResponse()->setBody($output);
+	}
+
+    protected function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('system/cache/litemage');
+    }
+}
