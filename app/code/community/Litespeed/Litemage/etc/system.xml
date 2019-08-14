@@ -11,7 +11,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache  1.0.8</label>
+            <label>LiteMage Cache  1.0.9</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -194,6 +194,15 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </toplinks>
+                        <messages translate="label comment">
+                            <label>Customized Block Names for "messages" Tag</label>
+                            <comment>Comma-separated list of customized block names associated with the "messages" tag. Only define here if the block is not derived from Mage_Core_Block_Messages.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </messages>
                     </fields>
                 </donotcache>
                 <warmup translate="label" module="litemage">

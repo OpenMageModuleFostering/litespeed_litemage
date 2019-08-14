@@ -450,6 +450,7 @@
                 <urls/>
                 <welcome/>
                 <toplinks/>
+                <messages/>
             </donotcache>
             <test>
                 <debug>0</debug>
