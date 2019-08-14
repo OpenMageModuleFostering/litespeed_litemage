@@ -27,7 +27,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.2.1</label>
+            <label>LiteMage Cache 1.2.2</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -290,7 +290,7 @@
                         </enable_warmup>                        
                         <server_ip translate="label,comment">
                             <label>LiteMage Server IP</label>
-                            <comment>Tell the crawler where the LiteMage cache server is located so it can directly hit the server instead of having to go through DNS lookup. Use this if LiteMage is behind a CDN or proxy server or on LiteSpeed Load Balancer in front of the crawler node.</comment>
+                            <comment>Tell the crawler where the LiteMage cache server is located so it can directly hit the server instead of having to go through proxy. Use this if LiteMage is behind a CDN or proxy server or on LiteSpeed Load Balancer in front of the crawler node.</comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>15</sort_order>
                             <show_in_default>1</show_in_default>

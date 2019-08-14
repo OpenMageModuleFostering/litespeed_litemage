@@ -714,7 +714,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				$warmup = $this->_conf['defaultlm']['warmup'] ;
 				$server_ip = trim($warmup[self::CFG_WARMUP_SERVER_IP]) ;
 				if ( !$server_ip || ! Mage::helper('core/http')->validateIpAddr($server_ip) ) {
-					$server_ip = '127.0.0.1' ; //default
+					$server_ip = '' ; //default
 				}
 				$delta_log = isset($this->_conf['defaultlm']['test']['delta_log']) && ($this->_conf['defaultlm']['test']['delta_log'] == 1);
 				$this->_conf[self::CFG_WARMUP] = array(

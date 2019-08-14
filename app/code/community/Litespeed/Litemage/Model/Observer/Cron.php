@@ -221,20 +221,24 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			$regular = array();
 			$ajax = array();
 			foreach ($urls as $url) {
-				// replace domain with direct IP
-				if (preg_match($pattern, $url, $m)) {
-					$domain = $m[1];
-					$pos = strpos($url, $domain);
-					$url2 = substr($url, 0, $pos) . $server_ip . substr($url, $pos + strlen($domain));
-					$curlOptions[CURLOPT_HTTPHEADER] = array("Host: $domain");
+				if ($server_ip) {
+					// replace domain with direct IP
+					if (preg_match($pattern, $url, $m)) {
+						$domain = $m[1];
+						$pos = strpos($url, $domain);
+						$url2 = substr($url, 0, $pos) . $server_ip . substr($url, $pos + strlen($domain));
+						$curlOptions[CURLOPT_HTTPHEADER] = array("Host: $domain");
+					}
+					else {
+						if ( $this->_isDebug ) {
+							$this->_debugLog('invalid url ' . $url);
+						}
+						continue;
+					}
 				}
 				else {
-					if ( $this->_isDebug ) {
-						$this->_debugLog('invalid url ' . $url);
-					}
-					continue;
+					$url2 = $url;
 				}
-				
 				if ($url2{0} == ':')
 					$ajax[] = substr($url2, 1);
 				else

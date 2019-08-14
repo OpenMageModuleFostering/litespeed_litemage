@@ -57,12 +57,14 @@ class Litespeed_Litemage_Shell_Purge extends Mage_Shell_Abstract
 		if ($pos = strpos($base, 'litemage_purge')) {
 			$base = substr($base, 0, $pos);
 		}
-		$pattern = "/:\/\/([^\/^:]+)(\/|:)?/";
-		if (preg_match($pattern, $base, $m)) {
-			$domain = $m[1];
-			$pos = strpos($base, $domain);
-			$base = substr($base, 0, $pos) . $server_ip . substr($base, $pos + strlen($domain));
-			$options[CURLOPT_HTTPHEADER] = array("Host: $domain");
+		if ($server_ip) {
+			$pattern = "/:\/\/([^\/^:]+)(\/|:)?/";
+			if (preg_match($pattern, $base, $m)) {
+				$domain = $m[1];
+				$pos = strpos($base, $domain);
+				$base = substr($base, 0, $pos) . $server_ip . substr($base, $pos + strlen($domain));
+				$options[CURLOPT_HTTPHEADER] = array("Host: $domain");
+			}
 		}
 		
 		$url = $base . 'litemage/admin/shell/' . implode('/', $params);
