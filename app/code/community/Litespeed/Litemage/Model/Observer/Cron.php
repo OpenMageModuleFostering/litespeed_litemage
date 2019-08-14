@@ -196,12 +196,11 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			}
 
 			try {
-				$client->multiRequest($urls, $curlOptions);
-	          } catch ( Exception $e ) {
-				  $endReason = 'Error when crawling url ' . implode(' ', $urls) . ' : ' . $e->getMessage();
-				  break ;
-            }
-
+				$client->multiRequest($urls, $curlOptions) ;
+			} catch ( Exception $e ) {
+				$endReason = 'Error when crawling url ' . implode(' ', $urls) . ' : ' . $e->getMessage() ;
+				break ;
+			}
 
 			$this->_finishCurPosition() ;
 
@@ -217,6 +216,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 					break;
 				}
 			}
+			sleep(1);
 		}
 		$this->_meta['endreason'] = $endReason;
 
@@ -235,10 +235,29 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			return file_get_contents($filename);
 	}
 
-	protected function _saveCrawlListFileData($listId, $data)
+	protected function _saveCrawlListFileData($listId, $urls)
 	{
+		$this->_meta[$listId]['listsize'] = count($urls);
+		$this->_meta[$listId]['gentime'] = time();
+		$this->_meta[$listId]['endtime'] = 0;
+		$this->_meta[$listId]['lastquerytime'] = 0;
+		$this->_meta[$listId]['curpos'] = 0;
+		$this->_meta[$listId]['curvary'] = '';
+		$this->_meta[$listId]['queried'] = 0;
+
+		$this->_meta['lastupdate'] = $this->_meta[$listId]['gentime'];
+		$header = $this->_meta[$listId]['gentime'] . "\t"
+				. $this->_meta[$listId]['listsize'] . "\t"
+				. $this->_meta[$listId]['env'] . "\n";
+
+		if ( $this->_isDebug ) {
+			$this->_debugLog('Generate url map for ' . $listId . ' url count =' . $this->_meta[$listId]['listsize']);
+		}
+
+		$buf = $header . implode("\n", $urls);
+
 		$filename = $this->_listDir . DS . self::WARMUP_MAP_FILE . '_' . strtolower($listId);
-		if (!file_put_contents($filename, $data)) {
+		if (!file_put_contents($filename, $buf)) {
 			$this->_debugLog('Failed to save url map file ' . $filename);
 		}
 		else {
@@ -368,38 +387,37 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
         return $fixed;
     }
 
-    protected function _getNextUrls(&$curCookie)
-    {
-		$id = $this->_curList['id'];
-		if ($this->_meta[$id]['endtime'] > 0) {
-			if ($this->_prepareCurList()) {
-				return $this->_getNextUrls($curCookie);
+    protected function _getNextUrls( &$curCookie )
+	{
+		$this->_curList['working'] = 0 ;
+		$id = $this->_curList['id'] ;
+		if ( $this->_meta[$id]['endtime'] > 0 ) {
+			if ( $this->_prepareCurList() ) {
+				return $this->_getNextUrls($curCookie) ;
 			}
 			else {
-				return null;
+				return null ;
 			}
 		}
 
-		$curpos = $this->_meta[$id]['curpos'];
-		$curCookie = $this->_curList['fixed'] . $this->_meta[$id]['curvary'];
-		$urls = array_slice($this->_curList['urls'],
-				$this->_meta[$id]['curpos'],
-				$this->_curThreads);
-		$this->_curList['working'] = count($urls);
+		$curpos = $this->_meta[$id]['curpos'] ;
+		$curCookie = $this->_curList['fixed'] . $this->_meta[$id]['curvary'] ;
+		$urls = array_slice($this->_curList['urls'], $this->_meta[$id]['curpos'], $this->_curThreads) ;
 
-		if (empty($urls)) {
-			return null;
+		if ( empty($urls) ) {
+			return null ;
 		}
 		else {
-			$baseurl = $this->_meta[$id]['baseurl'];
-			foreach ($urls as $key => $val) {
-				$urls[$key] = $baseurl . $val;
+			$baseurl = $this->_meta[$id]['baseurl'] ;
+			foreach ( $urls as $key => $val ) {
+				$urls[$key] = $baseurl . $val ;
 			}
+			$this->_curList['working'] = count($urls) ;
 			return $urls ;
 		}
-    }
+	}
 
-    protected function _finishCurPosition()
+	protected function _finishCurPosition()
     {
 		$now = time();
 		$id = $this->_curList['id'];
@@ -705,22 +723,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		$produrls = array_unique($produrls);
 		$urls = array_merge($urls, $produrls);
 
-		$this->_meta[$listId]['listsize'] = count($urls);
-		$this->_meta[$listId]['gentime'] = time();
-		$this->_meta[$listId]['curpos'] = 0;
-		//$this->_meta[$listId]['queried'] = 0;
-		$this->_meta['lastupdate'] = $this->_meta[$listId]['gentime'];
-		$header = $this->_meta[$listId]['gentime'] . "\t"
-				. $this->_meta[$listId]['listsize'] . "\t"
-				. $this->_meta[$listId]['env'] . "\n";
-
-		if ( $this->_isDebug ) {
-			$this->_debugLog('Generate url map for ' . $listId . ' url count =' . $this->_meta[$listId]['listsize']);
-		}
-
-		$buf = $header . implode("\n", $urls);
-
-		$this->_saveCrawlListFileData($listId, $buf);
+		$this->_saveCrawlListFileData($listId, $urls);
 
 		return $urls;
     }
@@ -755,19 +758,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			$urls = array_unique($urls);
 		}
 
-		$this->_meta[$listId]['listsize'] = count($urls);
-		$this->_meta[$listId]['gentime'] = time();
-		$this->_meta['lastupdate'] = $this->_meta[$listId]['gentime'];
-		$header = $this->_meta[$listId]['gentime'] . "\t"
-				. $this->_meta[$listId]['listsize'] . "\t"
-				. $this->_meta[$listId]['env'] . "\n";
-
-		if ( $this->_isDebug ) {
-			$this->_debugLog('Generate url map for ' . $listId . ' url count =' . $this->_meta[$listId]['listsize']);
-		}
-
-		$buf = $header . implode("\n", $urls);
-		$this->_saveCrawlListFileData($listId, $buf);
+		$this->_saveCrawlListFileData($listId, $urls);
 
 		return $urls;
     }

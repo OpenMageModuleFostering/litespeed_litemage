@@ -280,7 +280,8 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	protected function _getStoreWarmUpInfo( $storeId, $vary_dev )
 	{
 		$storeInfo = array();
-		if (!Mage::getStoreConfig(self::STOREXML_WARMUP_EANBLED, $storeId))
+		$enabled = Mage::getStoreConfig(self::STOREXML_WARMUP_EANBLED, $storeId);
+		if ($enabled == 0)
 			return $storeInfo;
 
 		$store = Mage::app()->getStore($storeId) ;
@@ -335,7 +336,6 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 
 		$env = '' ;
 
-		$priority = Mage::getStoreConfig(self::STOREXML_WARMUP_PRIORITY, $storeId) + $orderAdjust ;
 		$storeName = $store->getName();
 		if ( ! $is_default_store ) {
 			$env .= '/store/' . $store->getCode() . '/storeId/' . $storeId ;
@@ -343,24 +343,29 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 		$env .= $vary_curr . $vary_cgrp . $vary_dev ;
 		$baseurl = $store->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK) ;
 		$ttl = Mage::getStoreConfig(self::STOREXML_PUBLICTTL, $storeId) ;
-		$interval = Mage::getStoreConfig(self::STOREXML_WARMUP_INTERVAL, $storeId) ;
-		if ( $interval == '' || $interval < 600 ) { // for upgrade users, not refreshed conf
-			$interval = $ttl ;
-		}
 
-		$listId = 'store' . $storeId ;
-		$storeInfo[$listId] = array(
-			'id' => $listId,
-			'storeid' => $storeId,
-			'store_name' => $storeName,
-			'default_curr' => $default_currency,
-			'default_store' => $is_default_store,
-			'default_site' => $is_default_site,
-			'env' => $env,
-			'interval' => $interval,
-			'ttl' => $ttl,
-			'priority' => $priority,
-			'baseurl' => $baseurl) ;
+		if ($enabled == 1) {
+			$priority = Mage::getStoreConfig(self::STOREXML_WARMUP_PRIORITY, $storeId) + $orderAdjust ;
+
+			$interval = Mage::getStoreConfig(self::STOREXML_WARMUP_INTERVAL, $storeId) ;
+			if ( $interval == '' || $interval < 600 ) { // for upgrade users, not refreshed conf
+				$interval = $ttl ;
+			}
+
+			$listId = 'store' . $storeId ;
+			$storeInfo[$listId] = array(
+				'id' => $listId,
+				'storeid' => $storeId,
+				'store_name' => $storeName,
+				'default_curr' => $default_currency,
+				'default_store' => $is_default_store,
+				'default_site' => $is_default_site,
+				'env' => $env,
+				'interval' => $interval,
+				'ttl' => $ttl,
+				'priority' => $priority,
+				'baseurl' => $baseurl ) ;
+		}
 
 		// check custom list
 		$custlist = Mage::getStoreConfig(self::STOREXML_WARMUP_CUSTLIST, $storeId) ;

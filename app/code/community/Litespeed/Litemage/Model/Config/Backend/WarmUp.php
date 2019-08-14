@@ -29,6 +29,9 @@ class Litespeed_Litemage_Model_Config_Backend_WarmUp extends Mage_Core_Model_Con
     protected function _beforeSave()
     {
         $value = $this->getValue();
+		if (trim($value) == '')
+			return $this;
+		
 		$lines = explode("\n", $value);
 		$errs = array();
 		foreach ($lines as $line) {
