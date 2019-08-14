@@ -1,48 +1,109 @@
-<?php //0046a
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
-?>
-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
-2WyFgAM5cLq=
+<?php
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0
+ */
+
+
+class Litespeed_Litemage_Helper_Viewvary
+{
+
+    protected $_vary = array( 'toolbar' => '_adjustToolbar', 'env' => '_setEnv' ) ;
+
+    public function persistViewVary( $tags )
+    {
+        foreach ( $tags as $tag ) {
+            $func = $this->_vary[$tag] ;
+            $this->$func(true) ;
+        }
+    }
+
+    public function restoreViewVary( $tags )
+    {
+        foreach ( $tags as $tag ) {
+            $func = $this->_vary[$tag] ;
+            $this->$func(false) ;
+        }
+    }
+
+    protected function _setEnv( $isSave )
+    {
+        if ($isSave) {
+            // run before exit, as value maybe changed during process.
+            Mage::helper('litemage/esi')->setDefaultEnvCookie();
+        }
+    }
+
+    protected function _adjustToolbar( $isSave )
+    {
+        // for Mage_Catalog_Block_Product_List
+        $helper = Mage::helper('litemage/esi') ;
+        $isDebug = $helper->isDebug() ;
+        $session = Mage::getSingleton('catalog/session') ;
+        $cookieName = '_lscache_vary_toolbar' ;
+        $keys = array( 'sort_order', 'sort_direction', 'display_mode', 'limit_page' ) ;
+        // limit_page is linked to display_mode, sort_direction is linked to sort_order
+        $cookieVars = $helper->getCookieEnvVars($cookieName) ;
+
+        if ( $isSave ) {
+            $saved = false ;
+            $mesg = 'addEnv ' . $cookieName;
+            foreach ( $keys as $key ) {
+                if ( $value = $session->getData($key) ) {
+                    // only save limit_page if mode is same
+                    if ( $key == 'limit_page' ) {
+                        $old_mode = ( $cookieVars != null && isset($cookieVars['display_mode']) ) ? $cookieVars['display_mode'] : '' ;
+                        $cur_mode = $session->getData('display_mode') ;
+                        if ( $old_mode != $cur_mode )
+                            continue ;
+                    }
+
+                    $helper->addEnvVars($cookieName, $key, $value) ;
+                    if ($isDebug) {
+                        $mesg .= ' ' . $key . '=' . $value ;
+                    }
+                    $saved = true ;
+                }
+            }
+
+            if ( ! $saved ) {
+                $helper->addEnvVars($cookieName) ;
+            }
+
+            if ( $isDebug ) {
+                Mage::helper('litemage/data')->debugMesg($mesg) ;
+            }
+
+        }
+        else {
+            // restore
+            if ( $cookieVars != null ) {
+                foreach ( $keys as $key ) {
+                    if ( isset($cookieVars[$key]) )
+                        $session->setData($key, $cookieVars[$key]) ;
+                    else
+                        $session->unsetData($key) ;
+                }
+            }
+        }
+    }
+
+}

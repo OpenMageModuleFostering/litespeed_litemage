@@ -1,47 +1,74 @@
-<?php //0046a
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
-?>
-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
+<?php
+
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0
+ */
+class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
+{
+
+	protected $_peer ;
+
+	public function initByPeer( $peer )
+	{
+		$this->_peer = $peer ;
+		$this->setData('litemage_bconf', $peer->getData('litemage_bconf')) ;
+
+		$this->_layout = $peer->_layout ;
+		$this->_nameInLayout = $peer->_nameInLayout ;
+		$this->_alias = $peer->_alias ;
+		if ( $parent = $peer->getParentBlock() ) {
+			$parent->setChild($peer->_alias, $this) ;
+		}
+
+		if ( $this->_layout->getBlock($peer->_nameInLayout) === $peer ) {
+			// some bad plugins with duplicated names may lost this block, only replace if same object
+			$this->_layout->setBlock($this->_nameInLayout, $this) ;
+		}
+	}
+
+	protected function _loadCache()
+	{
+		$esiHtml = Mage::helper('litemage/esi')->getEsiIncludeHtml($this) ;
+		if ( ! $esiHtml ) {
+			return false ;
+		}
+
+		$bconf = $this->getData('litemage_bconf') ;
+		Mage::helper('litemage/data')->debugMesg('Injected ESI block ' . $this->_nameInLayout . ' ' . $esiHtml) ;
+
+		if ( ! $bconf['valueonly'] && Mage::registry('LITEMAGE_SHOWHOLES') ) {
+			$tip = 'LiteMage ESI block ' . $this->_nameInLayout ;
+			$wrapperBegin = '<div style="position:relative;border:1px dotted red;background-color:rgba(198,245,174,0.3);margin:2px;padding:18px 2px 2px 2px;zoom:1;" title="' . $tip
+					. '"><div style="position: absolute; left: 0px; top: 0px; padding: 2px 5px; color: white; font-style: normal; font-variant: normal; font-weight: normal; font-size: 11px; line-height: normal; font-family: Arial; z-index: 998; text-align: left !important; background: rgba(0,100,0,0.5);">' . $tip . '</div>' ;
+			$wrapperEnd = '</div>' ;
+
+			return $wrapperBegin . $esiHtml . $wrapperEnd ;
+		}
+		return $esiHtml ;
+	}
+
+	protected function _saveCache( $data )
+	{
+		return false ;
+	}
+
+}

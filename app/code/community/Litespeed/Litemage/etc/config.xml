@@ -1,8 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0 
+ */
+-->
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.8</version>
+            <version>1.1.0</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -23,6 +47,7 @@
             <core>
                 <rewrite>
                     <translate>Litespeed_Litemage_Model_Translate</translate>
+                    <layout_update>Litespeed_Litemage_Model_Layout_Update</layout_update>
                 </rewrite>
             </core>
         </models>
@@ -43,7 +68,7 @@
             <adminhtml>
                 <args>
                     <modules>
-                        <Litespeed_Litemage before="Mage_Adminhtml">Litespeed_Litemage_Adminhtml</Litespeed_Litemage>
+                        <litemage after="Mage_Adminhtml">Litespeed_Litemage_Adminhtml</litemage>
                     </modules>
                 </args>
             </adminhtml>
@@ -65,9 +90,9 @@
                             <children>
                                 <cache>
                                     <children>
-                                    <litemage>
-                                        <title>LiteMage Cache Management</title>
-                                    </litemage>
+                                        <litemage>
+                                            <title>LiteMage Cache Management</title>
+                                        </litemage>
                                     </children>
                                 </cache>
                                 <config>
@@ -180,7 +205,7 @@
                 <observers>
                     <litemage_esi>
                         <class>litemage/observer_esi</class>
-                        <method>checkControllerNoCache</method>
+                        <method>predispatchCheckControllerNoCache</method>
                     </litemage_esi>
                 </observers>
             </controller_action_predispatch>
@@ -220,7 +245,7 @@
                 <observers>
                     <litemage_esi>
                         <class>litemage/observer_esi</class>
-                        <method>purgePrivateCache</method>
+                        <method>purgeUserPrivateCache</method>
                     </litemage_esi>
                 </observers>
             </customer_login>
@@ -228,7 +253,7 @@
                 <observers>
                     <litemage_esi>
                         <class>litemage/observer_esi</class>
-                        <method>purgePrivateCache</method>
+                        <method>purgeUserPrivateCache</method>
                     </litemage_esi>
                 </observers>
             </customer_logout>
@@ -335,7 +360,7 @@
                 <welcome>
                     <!-- blocks only purged by login/logout events, no purge_events configuration is required as login/logout will auto purge all private blocks -->
                     <access>private</access>
-                    <blocks>welcome, litemage.jsvar,nickname$v</blocks>
+                    <blocks>T:Mage_Page_Block_Html_Welcome,welcome,litemage.jsvar,nickname$v</blocks>
                     <!-- Marking a block as valueonly, denoted by the suffix “$v”, will only output 
                     the blocks html value without the added html tags and comments when in debug mode. 
                     The block will also not be highlighted when using the LITEMAGE_DEBUG=SHOWHOLES parameter -->
@@ -405,13 +430,13 @@
                     </purge_events>
                 </wishlist>
                 <!-- public blocks -->
-                <footer>
                     <!-- Some themes will use a variable in footer that is declared in the header, 
                 this causes the footer block to fail to generate. You can modify the 
                 template to generate the missing variable or simply choose to not punch 
                 a hole in footer (comment out the footer block).
                 
                 Making the footer a public block will speed up page generation and save some disk space  -->
+                <footer>
                     <access>public</access>
                     <blocks>footer</blocks>
                 </footer>
@@ -422,8 +447,10 @@
         <litemage>
             <general>
                 <enabled>0</enabled>
+                <admin_ips>127.0.0.1</admin_ips>
                 <public_ttl>28800</public_ttl>
                 <private_ttl>1800</private_ttl>
+                <home_ttl>28800</home_ttl>
                 <track_viewed>0</track_viewed>
                 <diff_customergroup>0</diff_customergroup>
                 <diff_cookie/>
@@ -432,13 +459,20 @@
             <warmup>
                 <enable_warmup>0</enable_warmup>
                 <load_limit>5</load_limit>
-                <max_time>300</max_time>
+                <thread_limit>6</thread_limit>
+                <max_time>360</max_time>
+                <interval>21600</interval>
+                <priority>100</priority>
+                <multi_currency/>
+                <custlist/>
+                <custlist_priority>50</custlist_priority>
+                <custlist_interval>7200</custlist_interval>
             </warmup>
             <default>
                 <!-- Full or partial match on controller full action name for cacheable routes. Space, return, and comma separated -->
                 <cache_routes><![CDATA[catalog cms contacts_index_index]]></cache_routes>
                 <!-- Full or partial match on controller full action name for non-cacheable routes within cacheable routes. Space, return, and comma separated -->
-                <nocache_subroutes><![CDATA[catalog_product_compare]]></nocache_subroutes>
+                <nocache_subroutes><![CDATA[catalog_product_compare catalogsearch]]></nocache_subroutes>
                 <!-- Entire response cached based on routes, same content for all urls, such as "cms_index_noRoute" for 404 pages. Space, return, and comma separated. -->
                 <fullcache_routes><![CDATA[cms_index_noRoute]]></fullcache_routes>
             </default>
@@ -446,7 +480,7 @@
                 <!-- configured through Admin Panel, do not update here. Customized settings will be picked up from database -->
                 <cache_routes/>
                 <nocache_subroutes/>
-                <vars/>
+                <vars>no_cache</vars>
                 <urls/>
                 <welcome/>
                 <toplinks/>

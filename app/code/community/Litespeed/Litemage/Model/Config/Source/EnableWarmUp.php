@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?php
 /**
  * LiteMage
  *
@@ -20,14 +19,17 @@
  *
  * @package   LiteSpeed_LiteMage
  * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
- * @license     https://opensource.org/licenses/GPL-3.0 
+ * @license     https://opensource.org/licenses/GPL-3.0
  */
--->
 
-<layout>
-    <default>
-        <reference name="before_body_end">
-            <block type="litemage/inject_jsvar" name="litemage.jsvar" template="litemage/inject/jsvar.phtml" />
-        </reference>
-    </default>
-</layout>
+
+class Litespeed_Litemage_Model_Config_Source_EnableWarmUp {
+    public function toOptionArray() {
+        $helper = Mage::helper('litemage/data');
+        return array(
+            array( 'value' => 1, 'label' => $helper->__( 'Yes' ) ),
+            array( 'value' => 2, 'label' => $helper->__( 'Only for custom defined URL list' ) ),
+            array( 'value' => 0, 'label' => $helper->__( 'No' ) ),
+        );
+    }
+}

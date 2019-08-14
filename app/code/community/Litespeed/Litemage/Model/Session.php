@@ -1,33 +1,66 @@
-<?php //0046a
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
-?>
-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
-tb3u
+<?php
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0
+ */
+
+class Litespeed_Litemage_Model_Session extends Mage_Core_Model_Session_Abstract
+{
+    protected $_isDebug;
+
+    public function __construct()
+    {
+        $this->init('litemage');
+        $this->_isDebug = Mage::helper('litemage/data')->isDebug();
+    }
+
+    /**
+     * Save the messages for a given block to the session
+     *
+     * @param  string $blockName
+     * @param  array $messages
+     * @return null
+     */
+    public function saveMessages( $blockName, $messages )
+    {
+        $stored = $this->getData($blockName);
+        if ($stored != null) {
+            $messages = array_merge($stored, $messages);
+        }
+        $this->setData($blockName, $messages);
+        if ($this->_isDebug)
+            Mage::helper('litemage/data')->debugMesg("saveMessages for $blockName " . print_r($messages, true));
+    }
+
+    /**
+     * Retrieve the messages for a given messages block
+     *
+     * @param  string $blockName
+     * @return array
+     */
+    public function loadMessages( $blockName )
+    {
+        $messages = $this->getData($blockName);
+        $this->unsetData($blockName);
+        return $messages;
+    }
+
+}

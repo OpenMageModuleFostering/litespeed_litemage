@@ -1,40 +1,145 @@
-<?php //0046a
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
+<?php
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0
+ */
+
+if ($this->canShowButton()):
+	$lmhelper = Mage::helper('litemage/data');
 ?>
-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
+<br/>
+<div class="content-header">
+    <table cellspacing="0">
+        <tr>
+            <td><h3><?php echo $lmhelper->__('LiteMage Cache Management (LiteSpeed Web Server)') ?></h3></td>
+         </tr>
+    </table>
+</div>
+<?php if (!$this->isCacheAvailable()) {
+    echo '<div><ul class="messages">
+        <li class="error-msg">LiteMage extension requires Configuration and Layouts cache types to be enabled. It will not function properly with these settings disabled.
+        </li></ul></div>';
+}
+?>
+
+<table class="form-list">
+    <tr>
+        <td class="scope-label">
+            <button onclick="setLocation('<?php echo $this->getPurgeUrl('All')?>')" type="button" class="scalable"><span><?php echo $lmhelper->__('Flush All LiteMage Cache') ?></span></button>
+        </td>
+        <td class="scope-label">
+            <?php echo $lmhelper->__('All cache storage.')?>
+        </td>
+    </tr>
+</table>
+<form action="<?php echo $this->getPurgeUrl('Tag')?>" method="post" id="litemage_purgeTag">
+<?php echo $this->getBlockHtml('formkey')?>
+<table class="form-list">
+    <tr>
+        <td class="scope-label">
+            <button type="submit" class="scalable"><span><?php echo $lmhelper->__('Flush LiteMage Cache By IDs') ?></span></button>
+        </td>
+        <td class="scope-label">
+            <select name="tag_types" class="required-entry select local-validation">
+                <option value="P"><?php echo $lmhelper->__('Product IDs')?></option>
+                <option value="C"><?php echo $lmhelper->__('Category IDs')?></option>
+                <option value="G"><?php echo $lmhelper->__('CMS IDs')?></option>
+            </select>
+        </td>
+        <td class="scope-label">
+            <input type="text" name="purge_tag" class="input-text required-entry" style="width:150px"/>
+        </td>
+        <td class="scope-label">
+            <?php echo $lmhelper->__('Specify one or more IDs separated by spaces. (Under normal operation, related pages will automatically be purged when saving changes to an item through the Admin Panel.)')?>
+        </td>
+    </tr>
+</table>
+</form>
+<form action="<?php echo $this->getPurgeUrl('Url')?>" method="post" id="litemage_purgeUrl">
+<?php echo $this->getBlockHtml('formkey')?>
+<table class="form-list">
+    <tr>
+        <td class="scope-label">
+            <button type="submit" class="scalable"><span><?php echo $lmhelper->__('Flush LiteMage Cache By URL') ?></span></button>
+        </td>
+        <td class="scope-label">
+            <input type="text" name="purge_url" class="input-text required-entry" style="width:350px"/>
+        </td>
+        <td class="scope-label">
+            <?php echo $lmhelper->__('Specify a relative URL starting with /.')?>
+        </td>
+    </tr>
+</table>
+</form>
+<br/>
+<?php echo $this->getChildHtml();
+
+if ($status = $this->getCrawlerStatus()) : ?>
+<form method="get" action="<?php echo $this->getPurgeUrl('Refresh')?>" id="litemage_crawlstatus">
+<div class="content-header">
+    <table class="form-list" cellspacing="0">
+        <tr>
+            <td><h3><?php echo $lmhelper->__('LiteMage Crawler Warm-up Status') ?><button type="submit" class="scalable"><span><?php echo $lmhelper->__('Refresh') ?></span></button></h3></td>
+         </tr>
+		 <tr><td class="scope-label"><?php echo $lmhelper->__('You can click Reset All / Reset links below to restart a crawler queue.') ?></td></tr>
+    </table>
+</div>
+</form>
+
+<div class="grid"><div class="hor-scroll"><table>
+    <tr class="headings">
+		<th class="no-link a-center"><?php echo $lmhelper->__('Warm-up List')
+				. '<br><a href="' . $status['url_reset'] . '" class="form-button" title="Click to reset all crawler queues">' . $lmhelper->__('Reset All') . '</a>'; ?>
+		</th>
+		<th class="no-link"><?php echo $lmhelper->__('Store Name') . ' (' . $lmhelper->__('default currency') . ')<br>' . $lmhelper->__('Base URL') . '<br>' . $lmhelper->__('Custom URL List File Path'); ?></th>
+		<th class="no-link a-right"><?php echo $lmhelper->__('Prioirty') . '<br>' . $lmhelper->__('Run Interval (secs)')
+				. '<br>' . $lmhelper->__('Public TTL (secs)'); ?>
+		</th>
+		<th class="no-link a-center"><?php echo $lmhelper->__('Generated') . '<br>' . $lmhelper->__('Finished') . '<br>' . $lmhelper->__('Last Query Time'); ?></th>
+		<th class="no-link"><?php echo $lmhelper->__('Environment') . '<br>' . $lmhelper->__('Current Vary'); ?></th>
+		<th class="no-link a-right"><?php echo $lmhelper->__('Current Position') . ' | ' . $lmhelper->__('List Size') . '<br>' . $lmhelper->__('Total Queried')
+				. '<br>' . $lmhelper->__('Current Status'); ?></th>
+	</tr>
+	<?php
+	$i = 0;
+	foreach ($status['stores'] as $s) {
+		++$i;
+		$buf = (($i % 2) == 0) ? '<tr class="even">' : '<tr>';
+		$buf .= '<td class="a-center">' . $s['id'] . ' <a title="Click to see details" target="_blank" class="field-tooltip" href="' . $status['url_details'] . '?list=' . $s['id']
+				. '"> </a><br/> <a href="' . $status['url_reset'] . '?list=' . $s['id'] . '" title="Click to reset this crawler queue">' . $lmhelper->__('Reset') . '</a></td>'
+				. '<td>' . $s['store_name']. ' ('. $s['default_curr'] . ')<br>'. $s['baseurl'] . '<br>' . $s['file'] . '</td>'
+				. '<td class="a-right">' . $s['priority'] . '<br>' . $s['interval'] . '<br>' . $s['ttl'] . '</td>'
+				. '<td class="a-center">' . $s['gentime'] . '<br>' . $s['endtime'] . '<br>' . $s['lastquerytime'] . '</td>'
+				. '<td>' . $s['env'] . '<br>' . $s['curvary'] . '</td>'
+				. '<td class="a-right">Current Position: ' . $s['curpos'] . '  |  List Size: ' . $s['listsize'] . ' <br>Total Queried:  '. $s['queried'] . '<br>' . $s['tmpmsg'] . '</td>'
+				. "</tr>\n";
+		echo $buf;
+	}
+	?>
+	</table></div>
+	<p class="comment"><?php echo $lmhelper->__('Crawler status updated on') . ' ' . $status['lastupdate'] . '. ' . $status['endreason']; ?></p>
+</div>
+
+<?php endif;
+
+endif;
+
+?>

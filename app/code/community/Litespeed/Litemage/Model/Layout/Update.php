@@ -1,113 +1,267 @@
-<?php //0046a
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
-?>
-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
+<?php
+
+/**
+ * LiteMage
+ *
+ * NOTICE OF LICENSE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
+ *
+ * @package   LiteSpeed_LiteMage
+ * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
+ * @license     https://opensource.org/licenses/GPL-3.0
+ */
+/*
+ * this class rewrite just try to remember what updates imported by which handle, only modify for frontend area
+ */
+
+class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Update
+{
+
+	protected $_handleUpdates ;
+	protected $_layoutHandles ;
+	protected $_curHandles ;
+	protected $_recursiveUpdates ;
+	protected $_modified = false ;
+	protected $_sharedCacheId ;
+	protected $_layoutMaster ;
+	protected $_handleXml ;
+	protected $_isDebug ;
+
+	public function __construct()
+	{
+		if ( Mage::getSingleton('core/design_package')->getArea() == 'frontend' && Mage::helper('litemage/data')->moduleEnabled() ) {
+			$this->_modified = true ;
+			$this->_layoutMaster = Mage::getSingleton('litemage/layout_master') ;
+			$this->_isDebug = Mage::helper('litemage/data')->isDebug() ;
+		}
+		parent::__construct() ;
+	}
+
+	public function resetUpdates()
+	{
+		if ( $this->_modified ) {
+			$this->_resetInternals() ;
+		}
+		return parent::resetUpdates() ;
+	}
+
+	public function resetHandles()
+	{
+		if ( $this->_modified ) {
+			$this->_resetInternals() ;
+		}
+		return parent::resetHandles() ;
+	}
+
+	protected function _resetInternals()
+	{
+		$this->_cacheId = null ;
+		$this->_curHandles = array() ;
+		$this->_handleUpdates = array() ;
+		$this->_recursiveUpdates = array() ;
+		$this->_layoutHandles = array() ;
+	}
+
+	public function getUsedHandles()
+	{
+		return array_keys($this->_handleUpdates) ;
+	}
+
+	/**
+	 * Merge layout update by handle
+	 *
+	 * @param string $handle
+	 * @return Mage_Core_Model_Layout_Update
+	 */
+	public function merge( $handle )
+	{
+		if ( ! $this->_modified ) {
+			return parent::merge($handle) ;
+		}
+
+		// can be recusively loaded handle
+		array_push($this->_curHandles, $handle) ;
+
+		if ( ($update = $this->_layoutMaster->getHandleUpdates($handle)) !== false ) {
+			$this->addUpdate($update) ;
+		}
+		else {
+			parent::merge($handle) ;
+		}
+
+		array_pop($this->_curHandles) ;
+		return $this ;
+	}
+
+	public function addUpdate( $update )
+	{
+		$update = trim($update) ;
+		if ( $update == '' )
+			return $this ;
+
+		if ( $this->_modified && ! empty($this->_curHandles) ) {
+			foreach ( $this->_curHandles as $h ) {
+				if ( in_array($h, $this->_layoutHandles) ) {
+					if ( ! isset($this->_handleUpdates[$h]) )
+						$this->_handleUpdates[$h] = '' ;
+					$this->_handleUpdates[$h] .= $update ;
+				}
+				else {
+					if ( ! isset($this->_recursiveUpdates[$h]) )
+						$this->_recursiveUpdates[$h] = '' ;
+					$this->_recursiveUpdates[$h] .= $update ;
+				}
+			}
+		}
+		return parent::addUpdate($update) ;
+	}
+
+	/**
+	 * Get cache id
+	 *
+	 * @return string
+	 */
+	public function getCacheId()
+	{
+		if ( ! $this->_cacheId ) {
+			if ( ! $this->_modified ) {
+				return parent::getCacheId() ;
+			}
+			$this->_resetInternals() ;
+			$this->_layoutHandles = $this->getHandles() ;
+			$tags = $this->_layoutHandles ;
+			$tags[] = 'LITEMAGE_MODIFY' ;
+			$this->_cacheId = 'LAYOUT_' . Mage::app()->getStore()->getId() . md5(join('__', $tags)) ;
+		}
+		return $this->_cacheId ;
+	}
+
+	public function loadCache()
+	{
+		if ( ! Mage::app()->useCache('layout') ) {
+			return false ;
+		}
+
+		if ( ! $this->_modified ) {
+			return parent::loadCache() ;
+		}
+
+		if ( ! $result = Mage::app()->loadCache($this->getCacheId()) ) {
+			return false ;
+		}
+
+		$this->_handleUpdates = unserialize($result) ;
+		if ( $this->_handleUpdates == false ) {
+			return false ;
+		}
+
+		if ( isset($this->_handleUpdates['LITEMAGE_SHARED']) ) {
+			$this->_sharedCacheId = $this->_handleUpdates['LITEMAGE_SHARED'] ;
+			if ( ! $result = Mage::app()->loadCache($this->_sharedCacheId) ) {
+				return false ;
+			}
+
+			$this->_handleUpdates = unserialize($result) ;
+			if ( $this->_handleUpdates == false ) {
+				return false ;
+			}
+		}
+		if ( $this->_isDebug ) {
+			Mage::helper('litemage/data')->debugMesg('Layout cache loaded '
+					. implode(':', array_keys($this->_handleUpdates))
+					. ' ' . substr($this->_cacheId, 8, 12)) ;
+		}
+		parent::addUpdate(implode('', $this->_handleUpdates)) ;
+
+		return true ;
+	}
+
+	public function saveCache()
+	{
+		if ( ! Mage::app()->useCache('layout') ) {
+			return false ;
+		}
+		if ( ! $this->_modified ) {
+			return parent::saveCache() ;
+		}
+
+		$this->_curHandles = array() ;
+		$tags = $this->getHandles() ; // all handles used, include recursive ones
+		$tags[] = self::LAYOUT_GENERAL_CACHE_TAG ;
+		$usedHandles = $this->getUsedHandles() ;
+
+		if ( count($this->_layoutHandles) > count($usedHandles) ) {
+			$shared = $usedHandles ;
+			$shared[] = 'LITEMAGE_SHARED' ;
+			$sharedTags = $usedHandles ;
+			$sharedTags[] = self::LAYOUT_GENERAL_CACHE_TAG ;
+			$this->_sharedCacheId = 'LAYOUT_' . Mage::app()->getStore()->getId() . md5(join('__', $shared)) ;
+			if ( ! $result = Mage::app()->loadCache($this->_sharedCacheId) ) {
+				$res = Mage::app()->saveCache(serialize($this->_handleUpdates), $this->_sharedCacheId, $sharedTags, null) ;
+			}
+			$ref = array( 'LITEMAGE_SHARED' => $this->_sharedCacheId ) ;
+			$res = Mage::app()->saveCache(serialize($ref), $this->getCacheId(), $tags, null) ;
+		}
+		else {
+			$res = Mage::app()->saveCache(serialize($this->_handleUpdates), $this->getCacheId(), $tags, null) ;
+		}
+		if ( $this->_isDebug ) {
+			Mage::helper('litemage/data')->debugMesg('Layout cache saved '
+					. implode(':', array_keys($this->_handleUpdates))
+					. ' ' . substr($this->_cacheId, 8, 12)) ;
+		}
+
+		foreach ( $this->_handleUpdates as $h => $update ) {
+			$this->_layoutMaster->saveHandleUpdates($h, $update) ;
+		}
+		foreach ( $this->_recursiveUpdates as $h => $update ) {
+			$this->_layoutMaster->saveHandleUpdates($h, $update) ;
+		}
+		return $res ;
+	}
+
+	public function getBlockHandles( $blockNameList )
+	{
+		if ( $this->_handleXml == null ) {
+			$this->_handleXml = array() ;
+			foreach ( $this->_handleUpdates as $h => $update ) {
+				if ( ($h != 'customer_logged_out') && ($h != 'customer_logged_in') ) {
+					$updates = '<' . '?xml version="1.0"?' . '><layout>' . $update . '</layout>' ;
+					$this->_handleXml[$h] = simplexml_load_string($updates, $this->getElementClass()) ;
+				}
+			}
+		}
+		$handles = array() ;
+		$parents = array() ;
+		$found = false ;
+		foreach ( $this->_handleXml as $h => $xml ) {
+			foreach ( $blockNameList as $name ) {
+				$xpath = '//*[@name="' . $name . '"]' ;
+				if ( $node = $xml->xpath($xpath) ) {
+					$handles[] = $h ;
+					$found = true ;
+					break ;
+				}
+			}
+			if ( ! $found ) {
+				$parents[] = $h ;
+			}
+		}
+		// need to get all parent handle
+		$blockHandles = count($handles) ? array_merge($parents, $handles) : array_slice($parents, 0, 1) ; // return default
+		return $blockHandles ;
+	}
+
+}
