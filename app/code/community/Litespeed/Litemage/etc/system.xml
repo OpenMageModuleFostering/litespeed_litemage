@@ -11,7 +11,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.0.13</label>
+            <label>LiteMage Cache 1.0.14</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -66,7 +66,7 @@
                             <label>Default Public Cache TTL (seconds)</label>
                             <comment>Default timeout for public cache pages. Recommended value is 28800.</comment>
                             <frontend_type>text</frontend_type>
-                            <validate>validate-greater-than-zero</validate>
+                            <validate>validate-digits validate-digits-range digits-range-600-</validate>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -76,7 +76,7 @@
                             <label>Default Private Cache TTL (seconds)</label>
                             <comment>Default timeout for private cache ESI blocks. Suggested value is 1800. Should not be set over 3600.</comment>
                             <frontend_type>text</frontend_type>
-                            <validate>validate-greater-than-zero</validate>
+                            <validate>validate-digits validate-digits-range digits-range-300-14400</validate>
                             <sort_order>30</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -236,7 +236,7 @@
                             <label>Enable Cache Warm Up</label>
                             <comment>Allow LiteMage to automatically warm up the cache. Magento cron job must be enabled.</comment>
                             <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <source_model>litemage/config_source_enableWarmUp</source_model>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -246,28 +246,38 @@
                             <label>Only Run When Load Is Less Than</label>
                             <comment>Warm up will only run when current server load is less than this limit.</comment>
                             <frontend_type>text</frontend_type>
-                            <validate>validate-greater-than-zero</validate>
+                            <validate>validate-number validate-number-range number-range-1-20</validate>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </load_limit>
+                        <thread_limit translate="label,comment">
+                            <label>Maximum Crawler Threads</label>
+                            <comment>Multi-threading the crawler will help crawl big sites faster. LiteMage will use multiple threads up to this limit and dynamically adjust it based on current server load. Valid range is 1 - 10.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-digits-range digits-range-1-10</validate>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </thread_limit>
                         <max_time translate="label,comment">
                             <label>Maximum Run Time (seconds)</label>
                             <comment>Limit how long Cache Warm Up can run. Warm up cron job is set to run every 10 minutes. Set this value lower than the cron job time interval.</comment>
                             <frontend_type>text</frontend_type>
-                            <validate>validate-greater-than-zero</validate>
-                            <sort_order>30</sort_order>
+                            <validate>validate-digits validate-digits-range digits-range-30-</validate>
+                            <sort_order>40</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </max_time>
                         <priority translate="label,comment">
                             <label>Warm Up Priority</label>
-                            <comment>Sets a custom warm up sequence at the store level. Value should be larger than 0 where the lowest number is given the highest priority.</comment>
+                            <comment>Sets a custom warm up sequence at the store level. This value should be larger than 0, the lower the number, the higher the priority.</comment>
                             <frontend_type>text</frontend_type>
-                            <validate>validate-greater-than-zero</validate>
-                            <sort_order>40</sort_order>
+                            <validate>validate-digits validate-greater-than-zero</validate>
+                            <sort_order>50</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -276,11 +286,49 @@
                             <label>Crawl Non-Default Currencies</label>
                             <comment>Warm up pages for non-default currencies. Set to "ALL" to include all available currencies, or list only the most used currencies. Space, comma separated currency codes, like "USD,GBP,EUR".</comment>
                             <frontend_type>text</frontend_type>
-                            <sort_order>50</sort_order>
+                            <sort_order>60</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </multi_currency>
+                        <custlist_note translate="label,comment">
+                            <label>Custom Defined Url List</label>
+                            <comment>You can supply your own Url list for each store view. Go to the “Current Configuration Scope” box and select a store to set this up.</comment>
+                            <frontend_type>label</frontend_type>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </custlist_note>
+                        <custlist translate="label,comment">
+                            <label>Custom Defined Url List</label>
+                            <comment>Absolute path of the file containing the list of custom-defined Urls. This should contain 1 Url per line. These Urls are relative to the store baseUrl (without http://domain/storepath). You can create a short list of the most important Urls, so they can be warmed up first and refreshed more frequently.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>85</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </custlist>
+                        <custlist_priority translate="label,comment">
+                            <label>Custom List Priority</label>
+                            <comment>You can specify a different priority for the custom-defined Url list. This value should be larger than 0, the lower the number, the higher the priority.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-greater-than-zero</validate>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </custlist_priority>
+                        <custlist_interval translate="label,comment">
+                            <label>Custom List Crawl Interval (seconds)</label>
+                            <comment>Specify how often you want to crawl the custom Url list.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-digits-range-600-</validate>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </custlist_interval>
                     </fields>
                 </warmup>
 
