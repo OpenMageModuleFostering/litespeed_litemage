@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.10</version>
+            <version>1.0.11</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -434,6 +434,7 @@
                 <enable_warmup>0</enable_warmup>
                 <load_limit>5</load_limit>
                 <max_time>300</max_time>
+                <multi_currency/>
             </warmup>
             <default>
                 <!-- Full or partial match on controller full action name for cacheable routes. Space, return, and comma separated -->

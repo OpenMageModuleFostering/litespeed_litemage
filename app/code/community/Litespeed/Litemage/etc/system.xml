@@ -11,7 +11,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.0.10</label>
+            <label>LiteMage Cache 1.0.11</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -104,8 +104,8 @@
                         </diff_customergroup>
                         <diff_cookie translate="label comment">
                             <label>Separate Cache Copy for Customized Cookie Values</label>
-                            <comment>Comma-separated list of user defined cookies (from third party extensions) that will trigger different view for public cached pages.</comment>
-                            <frontend_type>text</frontend_type>
+                            <comment>This settings has been retired since 1.0.11 as using rewrite rules is more efficient. Add the below rewrite rule in .htaccess:  <![CDATA[<br>]]>RewriteRule .* - [E=cache-vary:cookie_name]</comment>
+                            <frontend_type>label</frontend_type>
                             <sort_order>60</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
@@ -262,6 +262,15 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </max_time>
+                        <multi_currency translate="label comment">
+                            <label>Crawl Non-Default Currencies</label>
+                            <comment>Warm up pages for non-default currencies. Set to "ALL" to include all available currencies, or list only the most used currencies. Space, comma separated currency codes, like "USD,GBP,EUR".</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </multi_currency>
                     </fields>
                 </warmup>
 
