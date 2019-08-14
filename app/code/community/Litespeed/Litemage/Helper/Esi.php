@@ -344,6 +344,9 @@ class Litespeed_Litemage_Helper_Esi
 		if (!empty($blockHandles)) {
 			$urlOptions['h'] = implode(',', $blockHandles);
 		}
+		if (!empty($bconf['extra'])) {
+			$urlOptions['extra'] = strtr(base64_encode(serialize($bconf['extra'])), '+/=', '-_,');
+		}
 		$urlOptions = array_merge($urlOptions, $this->getEsiSharedParams());
 
 		$esiUrl = $this->_getSubReqUrl('litemage/esi/getBlock', $urlOptions) ;
@@ -600,8 +603,9 @@ class Litespeed_Litemage_Helper_Esi
             $updated = true ;
         }
 
-        if ( $updated )
+        if ( $updated ) {
             $this->_setEsiOn() ;
+		}
 
         if ( ($this->_cacheVars['flag'] & self::CHBM_ESI_ON) != 0 ) {
             // no need to use comment, will be removed by minify extensions
@@ -621,8 +625,19 @@ class Litespeed_Litemage_Helper_Esi
 				$response->setBody($newbody);
 			}
 			else {
+				$isAjax = $this->_cacheVars['internal']['is_ajax'];
+				// json output will add slashes
+				if ($isAjax) {
+					$responseBody = preg_replace_callback('|src=\'.*\\\/litemage\\\/esi\\\/.+\\\/>|',
+						function ($matches) {
+							$b = stripslashes($matches[0]);
+							$c = preg_replace('/\/esi\/([^\/]+)\//', '/esi/$1/ajax/strip/', $b);
+							return $c;
+						}, 
+						$responseBody);
+				}
 	            $response->setBody($combined . $tracker . $responseBody) ;
-				if ($this->_isDebug && !Mage::app()->getRequest()->isAjax()) {
+				if ($this->_isDebug && !$isAjax) {
 					$this->_config->debugMesg('_updateResponseBody failed to insert combined after <body>');
 				}
 			}

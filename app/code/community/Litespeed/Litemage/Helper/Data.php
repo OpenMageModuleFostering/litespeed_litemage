@@ -653,7 +653,8 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 			'access' => $tagdata['access'],
 			'valueonly' => $valueonly,
 			'bn' => $blockName,
-			'bt' => $blockType
+			'bt' => $blockType,
+			'extra' => array()
 				) ;
 		if ( $startDynamic ) {
 			$bconf['pc'] = get_class($block) ;

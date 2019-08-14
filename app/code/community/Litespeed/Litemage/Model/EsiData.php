@@ -155,6 +155,9 @@ class Litespeed_Litemage_Model_EsiData
 	public function setRawOutput($rawOutput, $responseCode = 200)
 	{
 		$this->_rawOutput = trim($rawOutput);
+		if (strlen($this->_rawOutput) && isset($this->_data['ajax']) && ($this->_data['ajax'] == 'strip')) {
+			$this->_rawOutput = addslashes($this->_rawOutput);
+		}
 		$this->_responseCode = $responseCode;
 		if ( $this->_cacheAttr['ttl'] > 0 && ($responseCode != 200)) { // for esi req, 301 and 404 also treat as error, nocache
 			$this->_cacheAttr['ttl'] = 0 ;
@@ -232,7 +235,9 @@ class Litespeed_Litemage_Model_EsiData
 		if ( isset($params['pt']) ) {
 			$this->_data['pt'] = $params['pt'] ; // dynamic block template
 		}
-
+		if ( isset($params['ajax'])) {
+			$this->_data['ajax'] = $params['ajax'];
+		}
     }
 
 	protected function _initMessage($params, $configHelper)
@@ -269,9 +274,16 @@ class Litespeed_Litemage_Model_EsiData
 		// else exception out
 	}
 
-	public function getData()
+	public function getData($key='')
 	{
-		return $this->_data;
+		if ($key) {
+			if (isset($this->_data[$key]))
+				return $this->_data[$key];
+			else
+				return null;
+		}
+		else
+			return $this->_data;
 	}
 
 	protected function _initCombined($params)
@@ -341,6 +353,10 @@ class Litespeed_Litemage_Model_EsiData
 			if ( ! isset($dparams['s']) || ! isset($dparams['dp']) || ! isset($dparams['dt']) ) {
 				$this->_exceptionOut('missing s_dp_dt') ;
 			}
+		}
+		if (isset($dparams['extra'])) {
+			$extra = base64_decode(strtr($dparams['extra'], '-_,', '+/='));
+			$this->_data['extra'] = unserialize($extra);
 		}
 		return $dparams ;
 	}

@@ -30,7 +30,7 @@ class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
 	public function initByPeer( $peer )
 	{
 		$this->_peer = $peer ;
-		$this->setData('litemage_bconf', $peer->getData('litemage_bconf')) ;
+		parent::setData('litemage_bconf', $peer->getData('litemage_bconf')) ;
 
 		$this->_layout = $peer->_layout ;
 		$this->_nameInLayout = $peer->_nameInLayout ;
@@ -71,4 +71,15 @@ class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
 		return false ;
 	}
 
+    public function setData($key, $value=null)
+    {
+		if (is_scalar($key) && is_scalar($value) 
+				&& ($key == 'form_action')) {
+			$bconf = $this->getData('litemage_bconf');
+			$bconf['extra'][$key] = $value;
+			parent::setData('litemage_bconf', $bconf);
+		}		
+		return parent::setData($key, $value);
+    }
+	
 }

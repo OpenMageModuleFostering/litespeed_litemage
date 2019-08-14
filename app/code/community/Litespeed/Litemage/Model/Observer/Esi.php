@@ -252,21 +252,36 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 
         // check controller level
         $cacheable = false;
-        foreach ( $nocache[Litespeed_Litemage_Helper_Data::CFG_CACHE_ROUTE] as $route ) {
-            if ( strncmp($route, $curActionName, strlen($route)) == 0 ) {
-                $cacheable = true;
-                break;
-            }
-        }
+		$exactMatch = false;
+		if (in_array($curActionName, $nocache[Litespeed_Litemage_Helper_Data::CFG_CACHE_ROUTE])) {
+			$cacheable = true;
+			$exactMatch = true;
+		}
+		else {
+			foreach ( $nocache[Litespeed_Litemage_Helper_Data::CFG_CACHE_ROUTE] as $route ) {
+				if ( strncmp($route, $curActionName, strlen($route)) == 0 ) {
+					$cacheable = true;
+					break;
+				}
+			}
+		}
         if ( !$cacheable ) {
             return 'route not cacheable';
         }
 
-        foreach ( $nocache[Litespeed_Litemage_Helper_Data::CFG_NOCACHE_ROUTE] as $route ) {
-            if ( strncmp($route, $curActionName, strlen($route)) == 0 ) {
-                return 'subroute disabled';
-            }
-        }
+		if ($exactMatch) {
+			// only nocache exact match will override
+			if (in_array($curActionName, $nocache[Litespeed_Litemage_Helper_Data::CFG_NOCACHE_ROUTE])) {
+				return 'subroute disabled';
+			}
+		}
+		else {
+			foreach ( $nocache[Litespeed_Litemage_Helper_Data::CFG_NOCACHE_ROUTE] as $route ) {
+				if ( strncmp($route, $curActionName, strlen($route)) == 0 ) {
+					return 'subroute disabled';
+				}
+			}
+		}
 
         foreach ( $nocache[Litespeed_Litemage_Helper_Data::CFG_NOCACHE_URL] as $url ) {
 			if (substr($url, -1) == '*') {

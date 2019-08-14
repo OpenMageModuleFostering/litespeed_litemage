@@ -194,6 +194,9 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			return $out ;
 		}
 		try {
+			if ($extra = $esiData->getData('extra')) {
+				$this->_setExtraBlockData($block, $extra);
+			}
 			$out = $block->toHtml() ;
 			$tag = $esiData->getCacheAttribute('tag');
 			if ( $tag == 'E.cart' || $tag == 'E.toplinks') {
@@ -218,6 +221,13 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		}
 
 		return $out ;
+	}
+	
+	protected function _setExtraBlockData($block, $extra)
+	{
+		foreach($extra as $key => $value) {
+			$block->setData($key, $value);
+		}
 	}
 
 	// return esiUrl
@@ -477,6 +487,9 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 	{
 		$data = $esiData->getData() ;
 		$block = new $data['pc']() ;
+		if (isset($data['extra'])) {
+			$this->_setExtraBlockData($block, $data['extra']);
+		}
 		if ( isset($data['pt']) ) {
 			$block->setTemplate($data['pt']) ;
 			$out = $block->renderView() ;
