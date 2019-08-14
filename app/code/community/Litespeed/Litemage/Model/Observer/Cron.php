@@ -28,6 +28,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
     const WARMUP_MAP_FILE = 'litemage_warmup_urlmap' ;
     const WARMUP_META_CACHE_ID = 'litemage_warmup_meta' ;
     const USER_AGENT = 'litemage_walker' ;
+	const FAST_USER_AGENT = 'litemage_runner' ;
     const ENV_COOKIE_NAME = '_lscache_vary' ;
 
     protected $_meta ; // time, curfileline
@@ -47,7 +48,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
         $helper = Mage::helper('litemage/data') ;
         $this->_isDebug = $helper->isDebug() ;
 		if ($this->_isDebug) {
-			$this->_debugTag = 'LiteMage [' . self::USER_AGENT . ':';
+			$this->_debugTag = 'LiteMage [cron:';
 			if (isset($_SERVER['USER']))
 				$this->_debugTag .= $_SERVER['USER'];
 			elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
@@ -175,7 +176,6 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		}
 
         $options = array(
-            CURLOPT_USERAGENT      => self::USER_AGENT,
             CURLOPT_SSL_VERIFYPEER => 0,
 			CURLOPT_TIMEOUT		=> 180
         );
@@ -189,9 +189,15 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			if ($curCookie) {
 				$curlOptions[CURLOPT_COOKIE] = $curCookie;
 			}
+			$id = $this->_curList['id'];
+			if (isset($this->_meta[$id]['ua'])) {
+				$curlOptions[CURLOPT_USERAGENT] = $this->_meta[$id]['ua'];
+			}
+			else {
+				$curlOptions[CURLOPT_USERAGENT] = self::FAST_USER_AGENT;
+			}
 
 			if ($this->_isDebug) {
-				$id = $this->_curList['id'];
 				$this->_debugLog('crawling ' . $id . ' urls (cur_pos:' . $this->_meta[$id]['curpos'] . ') with cookie ' . $curCookie . ' ' . print_r($urls, true));
 			}
 
@@ -455,6 +461,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			'gentime' => 0,
 			'listsize' => 0,
 			'env' => $storeInfo['env'],
+			'ua' => self::FAST_USER_AGENT,
 			'curpos' => 0,
 			'curvary' => '',
 			'queried' => 0,
@@ -525,6 +532,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 					elseif (($m['endtime'] + $m['interval'] < $curtime)) {
 						// expired
 						$expired[$listId] = $m['priority'];
+						$m['ua'] = self::USER_AGENT;
 						$tmpmsg = 'Run interval passed, will restart.';
 					}
 					else {
@@ -538,8 +546,10 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 					$m['gentime'] = 0;
 					if ($m['endtime'] == 0)
 						$unfinished[$listId] = $m['priority'];
-					else
+					else {
 						$expired[$listId] = $m['priority'];
+						$m['ua'] = self::USER_AGENT;
+					}
 				}
 			}
 			else {

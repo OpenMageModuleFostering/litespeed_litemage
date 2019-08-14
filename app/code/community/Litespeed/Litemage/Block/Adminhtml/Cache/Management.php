@@ -48,6 +48,48 @@ class Litespeed_Litemage_Block_Adminhtml_Cache_Management extends Mage_Adminhtml
 		}
     }
 
+	public function getCacheStatistics()
+	{
+		$statUri = '/__LSCACHE/STATS';
+        $base = Mage::getBaseUrl();
+		if ((stripos($base, 'http') !== false) && ($pos = strpos($base, '://'))) {
+			$pos2 = strpos($base, '/', $pos+ 4);
+			$statBase = ($pos2 === false) ? $base : substr($base, 0, $pos2);
+		}
+		$statUri = $statBase . $statUri;
+
+        $client = new Varien_Http_Client($statUri) ;
+
+		try {
+			$response = $client->request() ;
+			$data = trim($response->getBody());
+			if ($data{0} !== '{') {
+				return null;
+			}
+
+			$data1 = json_decode($data, true);
+			$data2 = array_values($data1);
+			if (count($data2)) {
+				$stats = $data2[0];
+				switch ($stats['LITEMAGE_PLAN']) {
+					case 11: $stats['plan'] = 'LiteMage Standard';
+						$stats['plan_desc'] = 'up to 25000 publicly cached objects';
+						break;
+					case 3: $stats['plan'] = 'LiteMage Unlimited';
+						$stats['plan_desc'] = 'unlimited publicly cached objects';
+						break;
+					case 9:
+					default:
+						$stats['plan'] = 'LiteMage Starter';
+						$stats['plan_desc'] = 'up to 1500 publicly cached objects';
+				}
+				return $stats;
+			}
+		} catch ( Exception $e ) {
+		}
+		return null;
+	}
+
 	public function getCrawlerStatus()
 	{
 		$status = Mage::getModel( 'litemage/observer_cron' )->getCrawlerStatus();
@@ -70,5 +112,7 @@ class Litespeed_Litemage_Block_Adminhtml_Cache_Management extends Mage_Adminhtml
     {
         return Mage::app()->useCache('layout') && Mage::app()->useCache('config');
     }
+
+
 
 }

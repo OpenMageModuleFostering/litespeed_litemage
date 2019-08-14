@@ -140,9 +140,9 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
         $adminSession->addSuccess($config->__('Notified LiteSpeed web server to purge all cached items.')) ;
     }
 
-    protected function _purgeTagByAdmin( $tags, $message = '' )
+    protected function _purgeTagByAdmin( $tags, $message = '', $reason ='' )
     {
-        Mage::helper('litemage/esi')->setPurgeHeader($tags, 'purgeTagByAdmin') ;
+        Mage::helper('litemage/esi')->setPurgeHeader($tags, 'purgeTagByAdmin ' . $reason) ;
         if ( $message ) {
             $this->_getAdminSession()->addSuccess(Mage::helper('litemage/data')->__('Notified LiteSpeed web server to purge ' . $message)) ;
         }
@@ -184,7 +184,7 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
             if ( Mage::helper('litemage/data')->moduleEnabled() ) {
                 $product = $eventObj->getEvent()->getProduct() ;
                 if ( $product != null ) {
-                    $this->_purgeByProduct($product) ;
+                    $this->_purgeByProduct($product, 'adminPurgeCatalogProduct') ;
                 }
             }
         } catch ( Exception $e ) {
@@ -193,14 +193,38 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
     }
 
     // global cataloginventory_stock_item_save_after
+    public function purgeCatalogProductByStock_orig( $eventObj )
+    {
+        try {
+            if ( Mage::helper('litemage/data')->moduleEnabled() ) {
+                $item = $eventObj->getEvent()->getItem() ;
+                if ( $item->getStockStatusChangedAutomatically() || ($item->getOriginalInventoryQty() <= 0 && $item->getQty() > 0 && $item->getQtyCorrection() > 0) ) {
+                    $product = Mage::getModel('catalog/product')->load($item->getProductId());
+                    $this->_purgeByProduct($product, 'purgeCatalogProductByStock') ;
+					Mage::helper('litemage/data')->debugMesg("in cataloginventory_stock_item_save_after with qy change");
+                }
+				else {
+					Mage::helper('litemage/data')->debugMesg("in cataloginventory_stock_item_save_after -- no change");
+				}
+            }
+        } catch ( Exception $e ) {
+            Mage::helper('litemage/data')->debugMesg('Error on purgeCatalogProductByStock: ' . $e->getMessage()) ;
+        }
+    }
+
     public function purgeCatalogProductByStock( $eventObj )
     {
         try {
             if ( Mage::helper('litemage/data')->moduleEnabled() ) {
                 $item = $eventObj->getEvent()->getItem() ;
-                if ( $item->getStockStatusChangedAutomatically() || ($item->getOriginalInventoryQty() <= 0 && (($item->getQty() + $item->getQtyCorrection()) > 0)) ) {
+
+                if ( $item->getStockStatusChangedAutomatically() ) {
+					$product = Mage::getModel('catalog/product')->load($item->getProductId());
+					$this->_purgeByProduct($product, 'purgeCatalogProductByStock - getStockStatusChangedAutomatically') ;
+				}
+				else if ($item->getOriginalInventoryQty() <= 0 && $item->getQty() > 0 && $item->getQtyCorrection() > 0 ) {
                     $product = Mage::getModel('catalog/product')->load($item->getProductId());
-                    $this->_purgeByProduct($product) ;
+                    $this->_purgeByProduct($product, 'purgeCatalogProductByStock - qty ') ;
                 }
             }
         } catch ( Exception $e ) {
@@ -227,7 +251,7 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
         }
     }
 
-    protected function _purgeByProduct( $product )
+    protected function _purgeByProduct( $product, $reason )
     {
         $productId = $product->getId() ;
         if ( $this->_curProductId == $productId )
@@ -271,7 +295,7 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
                 $tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $cid ;
         }
 
-        $this->_purgeTagByAdmin($tags, $product->getName()) ;
+        $this->_purgeTagByAdmin($tags, $product->getName(), $reason) ;
     }
 
     /* protected function _addDelta($urls)

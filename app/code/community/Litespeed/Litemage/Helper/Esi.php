@@ -62,9 +62,6 @@ class Litespeed_Litemage_Helper_Esi
     {
         $this->_config = Mage::helper('litemage/data');
         $this->_isDebug = $this->_config->isDebug();
-		if (isset($_SERVER['LSCACHE_VARY_COOKIE'])) {
-			$this->_defaultEnvVaryCookie =  $_SERVER['LSCACHE_VARY_COOKIE'];
-		}
     }
 
     public function isDebug()
@@ -328,7 +325,7 @@ class Litespeed_Litemage_Helper_Esi
 
 		if (isset($bconf['is_dynamic'])) {
 			$urlOptions['pc'] = $bconf['pc'];
-			if (!empty($block->getTemplate())) {
+			if (!is_null($block->getTemplate())) {
 				$urlOptions['pt'] = $block->getTemplate();
 			}
 		}

@@ -38,8 +38,48 @@ if ($this->canShowButton()):
         <li class="error-msg">LiteMage extension requires Configuration and Layouts cache types to be enabled. It will not function properly with these settings disabled.
         </li></ul></div>';
 }
-?>
 
+
+if ($stats = $this->getCacheStatistics()) {
+	?>
+
+<div class="grid"><div><table cellspacing="0" class="data">
+    <tr class="headings">
+		<th class="no-link a-center"><?php echo $lmhelper->__('LiteMage Cache Statistics')
+				. '<br>' . $lmhelper->__('Current Plan'); ?>
+		</th>
+		<th class="no-link a-right"><?php echo $lmhelper->__('Public Cache Hits')
+				. ' <br>' . $lmhelper->__('Private Cache Hits'); ?></th>
+		<th class="no-link a-right"><?php echo $lmhelper->__('Full Page Hits')
+				. '<br>' . $lmhelper->__('Partial Page Hits'); ?></th>
+		<th class="no-link a-right"><?php echo $lmhelper->__('LiteMage Cached Objects') . '<br>' . $lmhelper->__('Limited by Plan'); ?></th>
+	</tr>
+	<?php
+		//$buf = (($i % 2) == 0) ? '<tr class="even">' : '<tr>';
+		$buf = '<tr class="even"><td class="a-center">' . $stats['plan'] . '<br>(' . $stats['plan_desc']
+				. ') <div class="a-right field-tooltip"><div>Available Plans:<hr>LiteMage Starter (1,500 publicly cached objects)<br>LiteMage Standard (25,000 publicly cached objects)<br>LiteMage Unlimited</div></div></td>'
+				. '<td class="a-right">' . $stats['PUB_HITS']
+				. ' <div class="a-left field-tooltip"><div>Number of requests that hit public cache since last flush all</div></div><br>'
+				. $stats['PVT_HITS']
+				. '  <div class="a-left field-tooltip"><div>Number of requests that hit private cache since last flush all</div></div></td>'
+				. '<td class="a-right">' . $stats['FULLPAGE_HITS']
+				. ' <div class="a-left field-tooltip"><div>Number of requests fully served from cache (no PHP invoked) since last flush all</div></div><br>'
+				. $stats['PARTIAL_HITS']
+				. ' <div class="a-left field-tooltip"><div>Number of requests partially served from cache (some data retrieved from Magento) since last flush all</div></div></td>'
+				. '<td class="a-right">' . $stats['LITEMAGE_OBJS']
+				. ' <div class="a-left field-tooltip"><div>Current LiteMage cached object count</div></div><br>'
+				. $stats['LITEMAGE_LIMITED']
+				. ' <div class="a-left field-tooltip"><div>Number of requests not served from cache due to plan limitation</div></div></td>'
+				. "</tr>\n";
+		echo $buf;
+
+	?>
+
+		</table>
+	</div></div>
+<?php
+}
+?>
 <table class="form-list">
     <tr>
         <td class="scope-label">
@@ -104,7 +144,7 @@ if ($status = $this->getCrawlerStatus()) : ?>
 </div>
 </form>
 
-<div class="grid"><div class="hor-scroll"><table>
+<div class="grid"><div class="hor-scroll"><table cellspacing="0" >
     <tr class="headings">
 		<th class="no-link a-center"><?php echo $lmhelper->__('Warm-up List')
 				. '<br><a href="' . $status['url_reset'] . '" class="form-button" title="Click to reset all crawler queues">' . $lmhelper->__('Reset All') . '</a>'; ?>
