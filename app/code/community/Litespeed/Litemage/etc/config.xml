@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -122,7 +122,7 @@
                     </litemage_purge>
                 </observers>
             </cms_page_save_commit_after>
-            <!-- purge all cache when module disabled -->
+            <!-- purge all caches when module disabled -->
             <admin_system_config_changed_section_litemage>
                 <observers>
                     <litemage_purge>
@@ -131,7 +131,7 @@
                     </litemage_purge>
                 </observers>
             </admin_system_config_changed_section_litemage>
-            <!-- display warning if license not enabled -->
+            <!-- displays warning if license not enabled -->
             <controller_action_predispatch_adminhtml_system_config_edit>
                 <observers>
                     <litemage_purge>
@@ -307,22 +307,26 @@
         </events>
         <litemage>
             <esiblock>
-                <!--    If you need to inject other privately changed blocks, you can add here. 
-<blocks> contains the block names defined in the layout files. All blocks that 
-share the same purge events can be listed together. If their purge  events are 
-not watched in previous events section, you will need to add litemage esi observer for those events.
- 
-This config file will be updated with module upgrade. If you modified the settings here, please make sure
-you keep a copy. -->
+                <!-- If you need to inject any other privately cached custom block groupings, 
+                you can add them here. <blocks> contains the block names defined in your 
+                layout files. All blocks that share the same purge events can be listed 
+                together in a single grouping. If their purge events are not being watched 
+                in the previous events section, you will also need to add a litemage esi 
+                observer for those events.
+                
+                This config file will be overwritten with upgrades to the LiteMage module. 
+                If you have made any modifications, please make sure to keep a copy -->
                 <welcome>
-                    <!-- blocks only purged by login/logout, no purge_events config required. login/logout will auto purge all the private blocks -->
+                    <!-- blocks only purged by login/logout events, no purge_events configuration is required as login/logout will auto purge all private blocks -->
                     <access>private</access>
                     <blocks>welcome, litemage.jsvar,nickname$v</blocks>
-                    <!-- valueonly will only output block html with no added html tags, comments, also will not show on LITEMAGE_DEBUG=SHOWHOLES, denoted by $v -->
+                    <!-- Marking a block as valueonly, denoted by the suffix “$v”, will only output 
+                    the blocks html value without the added html tags and comments when in debug mode. 
+                    The block will also not be highlighted when using the LITEMAGE_DEBUG=SHOWHOLES parameter -->
                 </welcome>
                 <cart>
                     <access>private</access>
-                    <!-- blocks can be set by class type, which will include all the blocks that inherited this type. Denoted by prefix "T:" -->
+                    <!-- Blocks can be set using class type, denoted by the prefix "T:". This will include all blocks that inherit this type in the grouping -->
                     <blocks>T:Mage_Checkout_Block_Cart_Abstract</blocks>
                     <purge_events>
                         <sales_quote_save_after/>
@@ -332,8 +336,9 @@ you keep a copy. -->
                     <access>private</access>
                     <blocks>top.links</blocks>
                     <purge_tags>cart, wishlist</purge_tags>
-                    <!-- this is composite block that purge events are the combination of other purged tags, 
-                    by including purge_tags, you don't need to redefine purge events  -->
+                    <!-- This is a composite grouping. The purge events for the blocks in this grouping are 
+                    a combination of existing purge event sets from other groupings. By using purge_tags 
+                    to reference these other groupings, you do not need to redefine these purge events  -->                    
                 </toplinks>
                 <compare>
                     <access>private</access>
@@ -385,9 +390,12 @@ you keep a copy. -->
                 </wishlist>
                 <!-- public blocks -->
                 <footer>
-                    <!-- some theme will use a variable in footer which is declared in the header, cause footer block fail to generate.
-               you can modify the template to generate the missing variable, or simply do not punch hole in footer (comment out this footer block).
-                Make it a public block will speed up page generation and save some disk space.  -->
+                    <!-- Some themes will use a variable in footer that is declared in the header, 
+                this causes the footer block to fail to generate. You can modify the 
+                template to generate the missing variable or simply choose to not punch 
+                a hole in footer (comment out the footer block).
+                
+                Making the footer a public block will speed up page generation and save some disk space  -->
                     <access>public</access>
                     <blocks>footer</blocks>
                 </footer>
@@ -410,11 +418,11 @@ you keep a copy. -->
                 <max_time>300</max_time>
             </warmup>
             <default>
-                <!-- Full or partial match on controller full action name for cacheable routes. space, return, comma separated -->
+                <!-- Full or partial match on controller full action name for cacheable routes. Space, return, and comma separated -->
                 <cache_routes><![CDATA[catalog cms contacts_index_index]]></cache_routes>
-                <!-- Full or partial match on controller full action name for no cache, which are within cacheable routes. space, return, comma separated -->
+                <!-- Full or partial match on controller full action name for non-cacheable routes within cacheable routes. Space, return, and comma separated -->
                 <nocache_subroutes><![CDATA[catalog_product_compare]]></nocache_subroutes>
-                <!-- Whole response cached based on routes, same content for all url, current for 404 -->
+                <!-- Entire response cached based on routes, same content for all urls, such as "cms_index_noRoute" for 404 pages. Space, return, and comma separated. -->
                 <fullcache_routes><![CDATA[cms_index_noRoute]]></fullcache_routes>
             </default>
             <donotcache>
