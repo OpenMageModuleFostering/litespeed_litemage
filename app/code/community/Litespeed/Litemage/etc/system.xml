@@ -11,7 +11,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache</label>
+            <label>LiteMage Cache  1.0.8</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -91,6 +91,16 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </diff_cookie>
+                        <alt_esi_syntax translate="label comment">
+                            <label>Use Alternative ESI Syntax</label>
+                            <comment>If the standard ESI include tags are being filtered by some extension(s) and causing ESI parser errors, you can enable Alternative ESI Syntax, which is known only by LiteMage and LiteSpeed Web Server. </comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </alt_esi_syntax>
                     </fields>
                 </general>
                 <default translate="label" module="litemage">
@@ -166,6 +176,24 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </urls>
+                        <welcome translate="label comment">
+                            <label>Customized Block Names for "welcome" Tag</label>
+                            <comment>Comma-separated list of customized block names associated with the "welcome" tag. These are private blocks and only purged by login and logout events.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </welcome>
+                        <toplinks translate="label comment">
+                            <label>Customized Block Names for "toplinks" Tag</label>
+                            <comment>Comma-separated list of customized block names associated with the "toplinks" tag. These are private blocks and only purged by cart and wishlist related events.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </toplinks>
                     </fields>
                 </donotcache>
                 <warmup translate="label" module="litemage">

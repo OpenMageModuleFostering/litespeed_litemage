@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.7</version>
+            <version>1.0.8</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -220,10 +220,18 @@
                 <observers>
                     <litemage_esi>
                         <class>litemage/observer_esi</class>
-                        <method>changeEnvCookie</method>
+                        <method>purgePrivateCache</method>
                     </litemage_esi>
                 </observers>
             </customer_login>
+            <customer_logout>
+                <observers>
+                    <litemage_esi>
+                        <class>litemage/observer_esi</class>
+                        <method>purgePrivateCache</method>
+                    </litemage_esi>
+                </observers>
+            </customer_logout>
             <sales_quote_save_after>
                 <observers>
                     <litemage_esi>
@@ -419,6 +427,7 @@
                 <track_viewed>0</track_viewed>
                 <diff_customergroup>0</diff_customergroup>
                 <diff_cookie/>
+                <alt_esi_syntax>0</alt_esi_syntax>
             </general>
             <warmup>
                 <enable_warmup>0</enable_warmup>
@@ -439,6 +448,8 @@
                 <nocache_subroutes/>
                 <vars/>
                 <urls/>
+                <welcome/>
+                <toplinks/>
             </donotcache>
             <test>
                 <debug>0</debug>
