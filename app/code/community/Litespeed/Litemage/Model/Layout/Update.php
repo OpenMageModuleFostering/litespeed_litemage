@@ -134,6 +134,9 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 			$this->_resetInternals() ;
 			$this->_layoutHandles = $this->getHandles() ;
 			$tags = $this->_layoutHandles ;
+			$design = Mage::getSingleton('core/design_package') ;
+			$tags[] = $design->getPackageName();
+			$tags[] = $design->getTheme('layout');			
 			$tags[] = 'LITEMAGE_MODIFY' ;
 			$this->_cacheId = 'LAYOUT_' . Mage::app()->getStore()->getId() . md5(join('__', $tags)) ;
 		}
@@ -162,6 +165,7 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 		if ( isset($this->_handleUpdates['LITEMAGE_SHARED']) ) {
 			$this->_sharedCacheId = $this->_handleUpdates['LITEMAGE_SHARED'] ;
 			if ( ! $result = Mage::app()->loadCache($this->_sharedCacheId) ) {
+				unset($this->_handleUpdates['LITEMAGE_SHARED']) ;
 				return false ;
 			}
 
@@ -196,6 +200,9 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 
 		if ( count($this->_layoutHandles) > count($usedHandles) ) {
 			$shared = $usedHandles ;
+			$design = Mage::getSingleton('core/design_package') ;
+			$shared[] = $design->getPackageName();
+			$shared[] = $design->getTheme('layout');			
 			$shared[] = 'LITEMAGE_SHARED' ;
 			$sharedTags = $usedHandles ;
 			$sharedTags[] = self::LAYOUT_GENERAL_CACHE_TAG ;

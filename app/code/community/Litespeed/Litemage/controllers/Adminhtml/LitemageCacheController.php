@@ -58,6 +58,29 @@ class Litespeed_Litemage_Adminhtml_LitemageCacheController extends Mage_Adminhtm
         $output = Mage::getModel( 'litemage/observer_cron' )->getCrawlerList($req->getParam('list'));
 		$this->getResponse()->setBody($output);
 	}
+	
+	public function productSaveOptionAction()
+	{
+		$req = $this->getRequest();
+		$session = Mage::getSingleton('admin/session');
+		$id = $req->getParam('id');
+		
+		if ($req->getParam('litemage_purgeprod')) {
+			Mage::dispatchEvent('litemage_purge_trigger',
+				 array('action'=>'admin_prod_save', 'option'=>'p', 'id'=>$id));	
+		}
+		elseif ($req->getParam('litemage_purgepcats')) {
+			Mage::dispatchEvent('litemage_purge_trigger',
+				 array('action'=>'admin_prod_save', 'option'=>'c', 'id'=>$id));	
+		}
+		elseif ($req->getParam('prodpurgeoption')) {
+			$option = $req->getParam('prodpurgeoption');
+			if (in_array($option, array('c','p','n'))) {
+				$session->setData(Litespeed_Litemage_Block_Adminhtml_ItemSave::SAVE_PROD_SESSION_KEY, $option);
+			}
+		}
+		$this->_redirect('*/catalog_product/edit', array('id'=>$id));
+	}
 
     protected function _isAllowed()
     {

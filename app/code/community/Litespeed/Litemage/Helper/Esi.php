@@ -182,19 +182,7 @@ class Litespeed_Litemage_Helper_Esi
 			return;
 
 		$this->_esiPurgeEvents[$eventName] = $eventName ;
-		if ( $cachePurgeTags = $this->_getEsiPurgeTags() ) {
-			$purgeHeader = $this->_getPurgeHeaderValue($cachePurgeTags, true);
-			header(self::LSHEADER_PURGE . ': ' . $purgeHeader, true);
-			if ($this->_isDebug)
-				$this->_config->debugMesg("SetPurgeHeader: " . $purgeHeader . '  (triggered by event ' . $eventName . ')') ;
-		}
-    }
-
-    protected function _getEsiPurgeTags()
-    {
-        if ( count($this->_esiPurgeEvents) == 0 )
-            return null ;
-
+		
         $events = $this->_config->getEsiConf('event');
         $tags = array() ;
         foreach ( $this->_esiPurgeEvents as $e ) {
@@ -207,43 +195,49 @@ class Litespeed_Litemage_Helper_Esi
             }
         }
 
-        if ($this->_isDebug) {
-            $this->_config->debugMesg('Purge events ' . implode(', ', $this->_esiPurgeEvents) . ' tags: ' . implode(', ', $tags));
-        }
-
-        return (count($tags) ? $tags : null) ;
+        if (count($tags)) {		
+			$purgeHeader = 'private,' ;
+			$t = '';
+			foreach ($tags as $tag) {
+				$t .= ( $tag == '*' ) ? '*' : 'tag=' . $tag . ',' ;
+			}
+			$purgeHeader .= trim($t, ',');
+			
+			header(self::LSHEADER_PURGE . ': ' . $purgeHeader, true);
+			if ($this->_isDebug) {
+				$this->_config->debugMesg("SetPurgeHeader: " . $purgeHeader . '  (triggered by event ' . $eventName . ')') ;
+			}
+		}
     }
 
-    protected function _getPurgeHeaderValue($tags, $isPrivate)
+    protected function _getPurgeHeaderValueByPublicTags($tags)
     {
-        $purgeHeader = $isPrivate ? 'private,' : '' ;
-        $t = '';
-        foreach ($tags as $tag) {
-            $t .= ( $tag == '*' ) ? '*' : 'tag=' . $tag . ',' ;
-        }
-        $purgeHeader .= trim($t, ',');
-
-		if (!$isPrivate ) {
-			$this->_addDeltaByTags($tags);
+		$this->_addDeltaByTags($tags);
+		if (in_array('*', $tags)) {
+			return '*';
 		}
 
+        $t = '';
+        foreach ($tags as $tag) {
+            $t .= 'tag=' . $tag . ',' ;
+        }
+        $purgeHeader = trim($t, ',');
         return $purgeHeader;
     }
-
-    public function setPurgeHeader( $tags, $by, $response = null, $isPrivate = false )
+	
+    public function setPurgeHeader( $tags, $by, $response = null )
     {
-        $purgeHeader = $this->_getPurgeHeaderValue($tags, $isPrivate);
+        $purgeHeader = $this->_getPurgeHeaderValueByPublicTags($tags);
 
         if ( $response == null ) {
             $response = Mage::app()->getResponse() ;
         }
         $response->setHeader(self::LSHEADER_PURGE, $purgeHeader, true) ;
-
 		if ($this->_isDebug) {
             $this->_config->debugMesg("SetPurgeHeader: " . $purgeHeader . '  (triggered by ' . $by . ')') ;
 		}
     }
-
+	
     public function setPurgeURLHeader( $url, $by )
     {
         $response = Mage::app()->getResponse() ;
@@ -440,6 +434,39 @@ class Litespeed_Litemage_Helper_Esi
         }
 	}
 
+	protected function _integrateFishpigWP()
+	{
+		$h = Mage::helper('wordpress/app');
+		if ($h) {
+			$blogId = $h->getBlogId();
+			if ($blogId > 0) {
+				$this->_cacheVars['ttl'] = $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_FPWP_TTL);
+				$prefix = $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_FPWP_PREFIX);
+				$this->_cacheVars['wptag'] = $prefix . 'B' . $blogId . '_';
+				if (empty($this->_cacheVars['tag'])) {
+					if ( ($curProduct = Mage::registry('product')) != null ) {
+						$this->_cacheVars['tag'][] = self::TAG_PREFIX_PRODUCT . $curProduct->getId() ;
+					}
+					elseif ( ($curCategory = Mage::registry('category')) != null ) {
+						$this->_cacheVars['tag'][] = self::TAG_PREFIX_CATEGORY . $curCategory->getId() ;
+					}
+				}
+				$this->_cacheVars['tag'][] = $this->_cacheVars['wptag'];
+				return true;
+			}
+			else {
+				$msg = 'cannot find blog Id';
+			}
+		}
+		else {
+			$msg = 'cannot find Fishpig helper';
+		}
+		if ($this->_isDebug) {
+            $this->_config->debugMesg('Fishpig WP - ' . $msg);
+        }
+		
+	}
+	
     public function beforeResponseSend( $response )
     {
 		$this->_refreshEsiBlockCache();
@@ -462,11 +489,20 @@ class Litespeed_Litemage_Helper_Esi
             $cacheable = false;
         }
 
+		$isPublic = (($flag & self::CHBM_PRIVATE) == 0);
+		if ($cacheable && $isPublic
+				&& (strpos($this->_cacheVars['internal']['route_info'], 'wordpress_') !== false)
+				&& $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_FPWP_ENABLED)) {
+			$cacheable = $this->_integrateFishpigWP();
+		}
+		
         if ( $cacheable ) {
-            if ( ($flag & self::CHBM_PRIVATE) != 0 )
-                $cacheControlHeader = 'private,max-age=' . (($this->_cacheVars['ttl'] > 0) ? $this->_cacheVars['ttl'] : $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_PRIVATETTL)) ;
-            else
+            if ( $isPublic ) {
                 $cacheControlHeader = 'public,max-age=' . (($this->_cacheVars['ttl'] > 0) ? $this->_cacheVars['ttl'] : $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_PUBLICTTL)) ;
+			}
+            else {
+                $cacheControlHeader = 'private,max-age=' . (($this->_cacheVars['ttl'] > 0) ? $this->_cacheVars['ttl'] : $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_PRIVATETTL)) ;
+			}
 
             $notEsiReq = (($flag & self::CHBM_ESI_REQ) == 0);
             if ($notEsiReq) {
@@ -481,7 +517,7 @@ class Litespeed_Litemage_Helper_Esi
                     $cacheControlHeader .= ',set-blank';
             }
 
-            if ( ($cacheTagHeader = $this->_getCacheTagHeader($notEsiReq)) ) {
+            if ( ($cacheTagHeader = $this->_getCacheTagHeader($notEsiReq, $isPublic)) ) {
                 $extraHeaders[self::LSHEADER_CACHE_TAG] = $cacheTagHeader;
             }
         }
@@ -556,7 +592,7 @@ class Litespeed_Litemage_Helper_Esi
             // no need to use comment, will be removed by minify extensions
             // if response coming from backend, no need to send separate log request
             $tracker = '<' . $esiIncludeTag . ' src="' . $this->_getSubReqUrl('litemage/esi/log', $logOptions)
-                    . '" test="$(RESP_HEADER{X-LITESPEED-CACHE})!=\'\'" cache-control="no-cache" combine="sub"/>' ;
+                    . '" test="$(RESP_HEADER{X-LITESPEED-CACHE})!=\'hit,litemage\'" cache-control="no-cache" combine="sub"/>' ;
 			if ($this->_isDebug) {
 				$this->_config->debugMesg('Track recently viewed  as ' . $tracker);
 			}
@@ -593,9 +629,11 @@ class Litespeed_Litemage_Helper_Esi
 
     }
 
-    protected function _getCacheTagHeader($notEsiReq)
+    protected function _getCacheTagHeader($notEsiReq, $isPublic)
     {
         $tags = $this->_cacheVars['tag'] ;
+		$curStore = Mage::app()->getStore() ;
+		$curStoreId = $curStore->getId();
         if ($notEsiReq) {
             if ( count($tags) == 0 ) {
                 // set tag for product id, cid, and pageid
@@ -607,16 +645,18 @@ class Litespeed_Litemage_Helper_Esi
                 }
             }
 
-            $curStore = Mage::app()->getStore() ;
             if ($curStore->getCurrentCurrencyCode() != $curStore->getBaseCurrencyCode()) {
                 $tags[] = 'CURR'; // will be purged by currency rate update event
             }
 
-			$debugMesg = $this->_autoCollectUrls($curStore->getId(), $tags);
+			$debugMesg = $this->_autoCollectUrls($curStoreId, $tags);
 			if ($this->_isDebug && $debugMesg) {
 				$this->_config->debugMesg('_autoCollectUrls: ' . $debugMesg);
 			}
         }
+		if ($isPublic) {
+			$tags[] = 'S.' . $curStoreId;
+		}
 
         $tag = count($tags) ? implode(',', $tags) : '' ;
         return $tag ;
@@ -684,7 +724,10 @@ class Litespeed_Litemage_Helper_Esi
 		}
 
 		if (!$tag) {
-			$tag = $this->_cacheVars['internal']['route_info'];
+			if (isset($this->_cacheVars['wptag']))
+				$tag = $this->_cacheVars['wptag'];
+			else
+				$tag = $this->_cacheVars['internal']['route_info'];
 		}
 
 		$attr = 0; // BitMask 1: user, 2: robot, 4: cron_store, 8: cron_cust, 16: cron_auto, 32: is_ajax,
@@ -920,7 +963,9 @@ class Litespeed_Litemage_Helper_Esi
 
     protected function _getPurgeCacheTags()
     {
+		// only for LITEMAGE_CTRL=PURGE
         $tags = $this->_cacheVars['tag'] ;
+		
         if (empty($tags)) {
             // set tag for product id, cid, and pageid
             if ( ($curProduct = Mage::registry('current_product')) != null ) {
@@ -929,16 +974,15 @@ class Litespeed_Litemage_Helper_Esi
             elseif ( ($curCategory = Mage::registry('current_category')) != null ) {
                 $tags[] = self::TAG_PREFIX_CATEGORY . $curCategory->getId() ;
             }
-            else {
-                // go by url
-                $uri = str_replace('LITEMAGE_CTRL=PURGE', '', $_SERVER['REQUEST_URI']);
-                if (substr($uri, -1) == '?') {
-                    $uri = rtrim($uri, '?');
-                }
-                $tags[] = $uri;
-            }
-        }
-
+		}
+		if (empty($tags)) {
+			// go by url
+			$uri = str_replace('LITEMAGE_CTRL=PURGE', '', $_SERVER['REQUEST_URI']);
+			if (substr($uri, -1) == '?') {
+				$uri = rtrim($uri, '?');
+			}
+			return $uri;
+		}
 		$this->_addDeltaByTags($tags);
 
         $tag = count($tags) ? implode(',', $tags) : '' ;

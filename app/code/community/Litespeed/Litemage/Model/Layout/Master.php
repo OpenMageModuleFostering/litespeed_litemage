@@ -40,12 +40,20 @@ class Litespeed_Litemage_Model_Layout_Master
 			throw Mage::exception('Litespeed_Litemage_Model_Layout_Master should only be used for frontend') ;
 		}
 
-		$storeId = Mage::app()->getStore()->getId() ;
-
-		$this->_cachePrefix = 'LAYOUT_MASTER_' . $storeId . '_' . $design->getPackageName() . '_'
-				. $design->getTheme('layout') . '_' ;
-
 		$this->_cacheTags = array( Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG ) ;
+	}
+
+    public function getCachePrefix()
+	{
+		if (!$this->_cachePrefix) {
+			$design	 = Mage::getSingleton('core/design_package');
+			$storeId = Mage::app()->getStore()->getId();
+
+			//dp & dt may change dynamically, so only set when calling it
+			$this->_cachePrefix = 'LAYOUT_MASTER_' . $storeId . '_' . $design->getPackageName() . '_'
+					. $design->getTheme('layout') . '_';
+		}
+		return $this->_cachePrefix;
 	}
 
 	public function getHandleUpdates( $handle )
@@ -53,7 +61,7 @@ class Litespeed_Litemage_Model_Layout_Master
 		if ( ! isset($this->_handleUpdates[$handle]) ) {
 			$result = false ;
 			if ( Mage::app()->useCache('layout') ) {
-				$cacheId = $this->_cachePrefix . $handle ;
+				$cacheId = $this->getCachePrefix() . $handle ;
 				$result = Mage::app()->loadCache($cacheId) ;
 			}
 			$this->_handleUpdates[$handle] = $result ;

@@ -36,6 +36,8 @@ class Litespeed_Litemage_AdminController extends Mage_Core_Controller_Front_Acti
         $this->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_START_SESSION, 1) ; // Do not start standart session
         $this->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_PRE_DISPATCH, true) ;
         $this->setFlag('', Mage_Core_Controller_Varien_Action::FLAG_NO_POST_DISPATCH, true) ;
+        $this->_config = Mage::helper('litemage/data') ;
+        $this->_isDebug = $this->_config->isDebug() ;
     }
 
     /**
@@ -47,7 +49,7 @@ class Litespeed_Litemage_AdminController extends Mage_Core_Controller_Front_Acti
     public function indexAction()
     {
         Mage::log('Err: litemage/admin/ come to indexaction') ;
-        $this->getResponse()->setRedirect(Mage::getBaseUrl()) ;
+        //$this->getResponse()->setRedirect(Mage::getBaseUrl()) ;
     }
 
     protected function _errorExit($errorMesg)
@@ -76,11 +78,44 @@ class Litespeed_Litemage_AdminController extends Mage_Core_Controller_Front_Acti
         }
     }
 
+    public function shellAction()
+    {
+		if (Mage::helper('core/http')->getHttpUserAgent() !== 'litemage_walker'
+				|| ! $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_ENABLED)) {
+			$this->_errorExit('Access denied');
+		}
+		
+		$tags = array();
+		$req = $this->getRequest();
+		if ($req->getParam('all')) {
+			$tags[] = '*';
+		}
+		else {
+			if ($t = $req->getParam('tags')) {
+				$tags = explode(',', $t);
+			}
+			$types = array('P.' => 'products', 'C.' => 'cats', 'S.' => 'stores');
+			foreach ($types as $prefix => $type) {
+				if ($ids = $req->getParam($type)) {
+					$tids = explode(',', $ids);
+					foreach ($tids as $id) {
+						$tags[] = $prefix . $id;
+					}
+				}
+			}
+			$tags = array_unique($tags);
+		}
+		if (empty($tags)) {
+			$this->_errorExit('Invalid url');
+		}
+		else {
+			Mage::helper('litemage/esi')->setPurgeHeader($tags, 'litemage/shell/purge');
+			$this->getResponse()->setBody('purged tags ' . implode(',', $tags));
+		}
+    }
 
     protected function _accessAllowed()
     {
-        $this->_config = Mage::helper('litemage/data') ;
-        $this->_isDebug = $this->_config->isDebug() ;
         if ( $this->_config->moduleEnabledForUser() && $this->_config->isAdminIP() ) {
             $this->_helper = Mage::helper('litemage/esi') ;
             return true ;
@@ -98,7 +133,7 @@ class Litespeed_Litemage_AdminController extends Mage_Core_Controller_Front_Acti
         }
         $data = explode(',', $tags);
         foreach ($data as $d) {
-            if ( !preg_match("/^[GCP]\.\d+$/", $d)) {
+            if ( !preg_match("/^[GCPS]\.\d+$/", $d)) {
                 return 'Invalid Format';
             }
         }

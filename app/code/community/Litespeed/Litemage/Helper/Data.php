@@ -33,6 +33,8 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	const STOREXML_TRACKLASTVIEWED = 'litemage/general/track_viewed' ;
 	const STOREXML_DIFFCUSTGRP = 'litemage/general/diff_customergroup' ;
 	const STOREXML_WARMUP_ENABLED = 'litemage/warmup/enable_warmup' ;
+	const STOREXML_FPWP_ENABLED = 'litemage/fishpigwp/fpwp_cache';
+	const STOREXML_FPWP_TTL = 'litemage/fishpigwp/fpwp_ttl';
 	const CFG_ENABLED = 'enabled' ;
 	const CFG_DEBUGON = 'debug' ;
 	const CFG_WARMUP = 'warmup' ;
@@ -40,6 +42,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	const CFG_WARMUP_LOAD_LIMIT = 'load_limit' ;
 	const CFG_WARMUP_MAXTIME = 'max_time' ;
 	const CFG_WARMUP_THREAD_LIMIT = 'thread_limit' ;
+	const CFG_WARMUP_DELTA_LOG = 'delta_log';
 	const CFG_AUTOCOLLECT = 'collect' ;
 	const CFG_TRACKLASTVIEWED = 'track_viewed' ;
 	const CFG_DIFFCUSTGRP = 'diff_customergroup' ;
@@ -55,6 +58,9 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	const CFG_NOCACHE_URL = 'nocache_urls' ;
 	const CFG_ALLOWEDIPS = 'allow_ips' ;
 	const CFG_ADMINIPS = 'admin_ips' ;
+	const CFG_FPWP_ENABLED = 'fpwp_cache';
+	const CFG_FPWP_TTL = 'fpwp_ttl';
+	const CFG_FPWP_PREFIX = 'fpwp_prefix';
 	const CFG_FLUSH_PRODCAT = 'flush_prodcat' ;
 	const CFG_NEED_ADD_DELTA = 'add_delta' ;
 	const LITEMAGE_GENERAL_CACHE_TAG = 'LITESPEED_LITEMAGE' ;
@@ -63,19 +69,34 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	// config items
 	protected $_conf = array() ;
 	protected $_userModuleEnabled = -2 ; // -2: not set, true, false
+	protected $_moduleEnabled = -2 ; // -2: not set, true, false
 	protected $_esiTag ;
-	protected $_isDebug ;
+	protected $_isDebug = null;
 	protected $_translateParams = null ;
 	protected $_debugTag = 'LiteMage' ;
 
-	public function moduleEnabled()
+	public function licenseEnabled()
 	{
-		if ( isset($_SERVER['X-LITEMAGE']) && $_SERVER['X-LITEMAGE'] ) {
-			return $this->getConf(self::CFG_ENABLED) ;
+		if ( (isset($_SERVER['X-LITEMAGE']) && $_SERVER['X-LITEMAGE']) // for lsws
+				|| (isset($_SERVER['HTTP_X_LITEMAGE']) && $_SERVER['HTTP_X_LITEMAGE'])) { // lslb
+			return true;
 		}
 		else {
 			return false ;
 		}
+	}
+
+	public function moduleEnabled()
+	{
+		if ( $this->_moduleEnabled === -2 ) {
+			if ($this->licenseEnabled()) {
+				$this->_moduleEnabled = $this->getConf(self::CFG_ENABLED);
+			}
+			else {
+				$this->_moduleEnabled = false;
+			}
+		}
+		return $this->_moduleEnabled;
 	}
 
 	public function moduleEnabledForUser()
@@ -678,6 +699,9 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				if ( ! isset($cust['fullcache_routes']) ) {
 					$cust['fullcache_routes'] = '' ;
 				}
+				if ($this->_conf[self::CFG_FPWP_ENABLED]) {
+					$cust['cache_routes'] .= ' wordpress_' ;
+				}
 
 				$this->_conf[self::CFG_NOCACHE][self::CFG_CACHE_ROUTE] = array_merge(preg_split($pattern, $default['cache_routes'], null, PREG_SPLIT_NO_EMPTY), preg_split($pattern, $cust['cache_routes'], null, PREG_SPLIT_NO_EMPTY)) ;
 				$this->_conf[self::CFG_NOCACHE][self::CFG_NOCACHE_ROUTE] = array_merge(preg_split($pattern, $default['nocache_subroutes'], null, PREG_SPLIT_NO_EMPTY), preg_split($pattern, $default['nocache_subroutes'], null, PREG_SPLIT_NO_EMPTY)) ;
@@ -688,15 +712,17 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 
 			case self::CFG_WARMUP:
 				$warmup = $this->_conf['defaultlm']['warmup'] ;
-				$server_ip = $warmup[self::CFG_WARMUP_SERVER_IP] ;
-				if ( $server_ip && ! Mage::helper('core/http')->validateIpAddr($server_ip) ) {
-					$server_ip = '' ;
+				$server_ip = trim($warmup[self::CFG_WARMUP_SERVER_IP]) ;
+				if ( !$server_ip || ! Mage::helper('core/http')->validateIpAddr($server_ip) ) {
+					$server_ip = '127.0.0.1' ; //default
 				}
+				$delta_log = isset($this->_conf['defaultlm']['test']['delta_log']) && ($this->_conf['defaultlm']['test']['delta_log'] == 1);
 				$this->_conf[self::CFG_WARMUP] = array(
 					self::CFG_WARMUP_LOAD_LIMIT => $warmup[self::CFG_WARMUP_LOAD_LIMIT],
 					self::CFG_WARMUP_THREAD_LIMIT => $warmup[self::CFG_WARMUP_THREAD_LIMIT],
 					self::CFG_WARMUP_MAXTIME => $warmup[self::CFG_WARMUP_MAXTIME],
-					self::CFG_WARMUP_SERVER_IP => $server_ip ) ;
+					self::CFG_WARMUP_SERVER_IP => $server_ip,
+					self::CFG_WARMUP_DELTA_LOG => $delta_log) ;
 				break ;
 
 			default:
@@ -731,6 +757,16 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 				$allowedIps = trim($test[self::CFG_ALLOWEDIPS]) ;
 				$this->_conf[self::CFG_ALLOWEDIPS] = $allowedIps ? preg_split($pattern, $allowedIps, null, PREG_SPLIT_NO_EMPTY) : '' ;
 				$this->_conf[self::CFG_FLUSH_PRODCAT] = isset($general[self::CFG_FLUSH_PRODCAT]) ? $general[self::CFG_FLUSH_PRODCAT] : 0 ; // for upgrade, maynot save in config
+				
+				if (isset($this->_conf['defaultlm']['fishpigwp'])) {
+					$fpwp = $this->_conf['defaultlm']['fishpigwp'];
+					$this->_conf[self::CFG_FPWP_PREFIX] = $fpwp[self::CFG_FPWP_PREFIX];
+					$this->_conf[self::CFG_FPWP_TTL] = Mage::getStoreConfig(self::STOREXML_FPWP_TTL, $storeId) ;
+					$this->_conf[self::CFG_FPWP_ENABLED] = Mage::getStoreConfig(self::STOREXML_FPWP_ENABLED, $storeId) ;
+				}
+				else {
+					$this->_conf[self::CFG_FPWP_ENABLED] = 0;
+				}
 		}
 	}
 
@@ -758,6 +794,9 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 
 	public function debugMesg( $mesg )
 	{
+		if ($this->_isDebug === null) {
+			$this->_initConf();
+		}
 		if ( $this->_isDebug ) {
 			$mesg = str_replace("\n", ("\n" . $this->_debugTag . '  '), $mesg) ;
 			Mage::log($this->_debugTag . ' ' . $mesg) ;

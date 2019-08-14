@@ -183,11 +183,12 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 	{
 		$blockIndex = $esiData->getLayoutAttribute('bi') ;
 		$block = $this->_layout->getEsiBlock($blockIndex) ;
+		$out = '';
 		if ( ! $block ) {
 			if ( $this->_isDebug ) {
 				$this->_config->debugMesg('cannot get esi block ' . $blockIndex) ;
 			}
-			return '' ;
+			return $out ;
 		}
 		try {
 			$out = $block->toHtml() ;
@@ -209,8 +210,14 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		$origEsiUrl = $_SERVER['REQUEST_URI'] ;
 		$req = $this->getRequest() ;
 
+		// for lsws
+		$refererUrl = $req->getServer('ESI_REFERER');
+		if (!$refererUrl) {
+			//lslb
+			$refererUrl = $req->getServer('HTTP_ESI_REFERER');
+		}
 		//set original host url
-		if ( $refererUrl = $req->getServer('ESI_REFERER') ) {
+		if ( $refererUrl ) {
 			$_SERVER['REQUEST_URI'] = $refererUrl ;
 			$req->setRequestUri($refererUrl) ;
 			$req->setPathInfo() ;
@@ -244,10 +251,7 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 
 	protected function _processIncoming( $esiUrls )
 	{
-		if ( (Mage::getSingleton('core/session')->getData('_litemage_user') == null) && Mage::registry('LITEMAGE_NEWVISITOR') && (Mage::registry('current_customer') == null) ) {
-
-			$this->_env['shared'] = true ;
-
+		if ($this->_env['shared']) {
 			$list = array() ;
 			foreach ( $esiUrls as $url ) {
 				if ( $html = $this->_getShared($url) ) {
@@ -493,6 +497,25 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 
 	protected function _initEnv( $esiData )
 	{
+		$session = Mage::getSingleton('core/session');
+		if (($session->getData('_litemage_user') == 1) && (Mage::registry('current_customer') == null)) {
+			if (Mage::registry('LITEMAGE_NEWVISITOR')) {
+				$this->_env['shared'] = true ;
+			}
+			else {
+				$loghelper = Mage::helper('log');
+				if ( method_exists($loghelper, 'isLogDisabled') ) { // new for 1.9
+					if (Mage::helper('log')->isLogDisabled()) {
+						$this->_env['shared'] = true ;
+					}
+				}
+				else { // prior to 1.9
+					$this->_env['shared'] = true ;
+				}
+			}
+		}
+		$session->setData('_litemage_user', 3);
+		
 		$action = $esiData->getAction() ;
 		if ( $action == Litespeed_Litemage_Model_EsiData::ACTION_GET_FORMKEY ) {
 			return ;

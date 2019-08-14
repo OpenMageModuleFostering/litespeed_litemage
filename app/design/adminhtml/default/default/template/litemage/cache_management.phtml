@@ -101,14 +101,15 @@ if ($stats = $this->getCacheStatistics()) {
             <select name="tag_types" class="required-entry select local-validation">
                 <option value="P"><?php echo $lmhelper->__('Product IDs')?></option>
                 <option value="C"><?php echo $lmhelper->__('Category IDs')?></option>
-                <option value="G"><?php echo $lmhelper->__('CMS IDs')?></option>
+                <option value="G"><?php echo $lmhelper->__('CMS Page IDs')?></option>
+				<option value="S"><?php echo $lmhelper->__('Store IDs')?></option>
             </select>
         </td>
         <td class="scope-label">
             <input type="text" name="purge_tag" class="input-text required-entry" style="width:150px"/>
         </td>
         <td class="scope-label">
-            <?php echo $lmhelper->__('Specify one or more IDs separated by spaces. (Under normal operation, related pages will automatically be purged when saving changes to an item through the Admin Panel.)')?>
+            <?php echo $lmhelper->__('Specify one or more IDs (integer numbers) separated by spaces. (Under normal operation, related pages will automatically be purged when saving changes to an item through the Admin Panel.)')?>
         </td>
     </tr>
 </table>

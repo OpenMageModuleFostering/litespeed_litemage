@@ -26,10 +26,14 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.2.0</version>
+            <version>1.2.1</version>
         </Litespeed_Litemage>
     </modules>
     <global>
+        <ignore_user_agents>
+            <litemage1>litemage_walker</litemage1>
+            <litemage2>litemage_runner</litemage2>
+        </ignore_user_agents>
         <blocks>
             <litemage>
                 <class>Litespeed_Litemage_Block</class>
@@ -52,7 +56,6 @@
             </core>
         </models>
         <events>
-            <!-- purge product cache after stock update -->
             <cataloginventory_stock_item_save_after>
                 <observers>
                     <litemage_purge>
@@ -61,6 +64,15 @@
                     </litemage_purge>
                 </observers>
             </cataloginventory_stock_item_save_after>
+            <!-- litemage own events -->
+            <litemage_purge_trigger>
+                <observers>
+                    <litemage_purge>
+                        <class>litemage/observer_purge</class>
+                        <method>purgeTrigger</method>
+                    </litemage_purge>
+                </observers>
+            </litemage_purge_trigger>
         </events>
     </global>
     <admin>
@@ -456,10 +468,11 @@
                 <diff_customergroup>0</diff_customergroup>
                 <flush_prodcat>0</flush_prodcat>
                 <alt_esi_syntax>0</alt_esi_syntax>
+                <cache_tag_prefix>M</cache_tag_prefix>
             </general>
             <warmup>
                 <enable_warmup>0</enable_warmup>
-                <server_ip/>
+                <server_ip>127.0.0.1</server_ip>
                 <load_limit>5</load_limit>
                 <thread_limit>6</thread_limit>
                 <max_time>360</max_time>
@@ -479,7 +492,7 @@
             </warmup>
             <default>
                 <!-- Full or partial match on controller full action name for cacheable routes. Space, return, and comma separated -->
-                <cache_routes><![CDATA[catalog cms contacts_index_index]]></cache_routes>
+                <cache_routes><![CDATA[catalog cms]]></cache_routes>
                 <!-- Full or partial match on controller full action name for non-cacheable routes within cacheable routes. Space, return, and comma separated -->
                 <nocache_subroutes><![CDATA[catalog_product_compare catalogsearch]]></nocache_subroutes>
             </default>
@@ -496,9 +509,15 @@
                 <toplinkstag/>
                 <messages/>
             </donotcache>
+            <fishpigwp>
+                <fpwp_cache>0</fpwp_cache>
+                <fpwp_ttl>28800</fpwp_ttl>
+                <fpwp_prefix/>
+            </fishpigwp>
             <test>
-                <debug>0</debug>
                 <allow_ips/>
+                <debug>0</debug>
+                <delta_log>0</delta_log>
             </test>
         </litemage>
     </default>

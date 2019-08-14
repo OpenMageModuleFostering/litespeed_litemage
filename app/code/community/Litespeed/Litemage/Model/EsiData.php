@@ -174,10 +174,10 @@ class Litespeed_Litemage_Model_EsiData
 			$buf .= $this->_cacheAttr['access'] . ',max-age=' . $ttl . ',no-vary' ;
 			if ( $this->_cacheAttr['cacheIfEmpty'] )
 				$buf .= ',set-blank' ;
-			elseif ( $shared ) {
+			elseif ( $shared && ($this->_action != self::ACTION_GET_FORMKEY) ) {
 				$buf .= ',shared' ;
 			}
-
+			
 			$buf .= '" cache-tag="' . $this->_cacheAttr['tag'] ;
 		}
 

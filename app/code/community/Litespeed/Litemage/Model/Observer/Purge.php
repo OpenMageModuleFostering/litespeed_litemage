@@ -64,7 +64,7 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
             if ($ids == '') {
                 $adminSession->addError($config->__('Missing input value.'));
             }
-            elseif (in_array($type, array('P','C','G'))) {
+            elseif (in_array($type, array('P','C','G','S'))) {
                 $tags = preg_split("/[\s,]+/", $ids, null, PREG_SPLIT_NO_EMPTY);
                 if (count($tags) == 0) {
                     $adminSession->addError($config->__('Missing ID values.'));
@@ -101,17 +101,18 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
     {
         $config = Mage::helper('litemage/data') ;
         $moduleEnabled = $config->getConf(Litespeed_Litemage_Helper_Data::CFG_ENABLED) ;
-        $serverEnabled = isset($_SERVER['X-LITEMAGE']) && $_SERVER['X-LITEMAGE'] ;
+        $serverEnabled = $config->licenseEnabled();
         $adminSession = $this->_getAdminSession() ;
         if ( ! $serverEnabled ) {
-            $adminSession->addError($config->__('Your installation of LiteSpeed Web Server does not have LiteMage Cache enabled.')) ;
-        }
+			$adminSession()->addError($config->__('Your installation of LiteSpeed Web Server does not have LiteMage Cache enabled. Please make sure your LiteSpeed license includes the LiteMage cache module, and LiteMage is turned on in  the .htaccess file in the root directory of your Magento installation.')) ;
+		}
         if ( $moduleEnabled ) {
             if ( $serverEnabled ) {
                 $adminSession->addNotice($config->__('To make your changes take effect immediately, purge LiteSpeed Cache (System -> Cache Management).')) ;
             }
         }
         else {
+			// when litemage disabled, purge all.
             $this->_purgeAllByAdmin($adminSession, $config) ;
         }
     }
@@ -120,13 +121,43 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
     {
         $sectionCode = Mage::app()->getRequest()->getParam('section') ;
         if ( $sectionCode == 'litemage' ) {
-            $serverEnabled = isset($_SERVER['X-LITEMAGE']) && $_SERVER['X-LITEMAGE'] ;
-            if ( ! $serverEnabled ) {
-                $config = Mage::helper('litemage/data') ;
-                $this->_getAdminSession()->addError($config->__('Your installation of LiteSpeed Web Server does not have LiteMage Cache enabled.')) ;
+			$config = Mage::helper('litemage/data') ;
+            if (!$config->licenseEnabled()) {
+                $this->_getAdminSession()->addError($config->__('Your installation of LiteSpeed Web Server does not have LiteMage Cache enabled. Please make sure your LiteSpeed license includes the LiteMage cache module, and LiteMage is turned on in  the .htaccess file in the root directory of your Magento installation.')) ;
             }
         }
     }
+	
+	public function purgeTrigger($eventObj)
+	{
+		// array('action'=>'admin_prod_save', 'option'=>$curOption, 'id'=>$id)
+		$action = $eventObj->getAction();
+		$option = $eventObj->getOption();
+		$id = $eventObj->getId();
+		$tags = array();
+		$reason = 'litemage_purge_trigger - ' . $action . ' opt=' . $option . ' id=' . $id;
+		
+		if ($action == 'admin_prod_save') {
+			$message = 'product ' . $id;
+			if ($option != 'c') {
+				$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_PRODUCT . $id ;
+			}
+			else {
+				$product = Mage::getModel('catalog/product')->load($id);
+				if ($product) {
+					 $tags = $this->_getPurgeProductTags($product, true);
+					 $message .= ' and its parent categories';
+				}
+				
+			}
+			$this->_getAdminSession()->addSuccess(Mage::helper('litemage/data')->__('Notified LiteSpeed web server to purge ' . $message)) ;
+		}
+
+		Mage::helper('litemage/data')->debugMesg($reason);
+		if (!empty($tags)) {
+			Mage::helper('litemage/esi')->setPurgeHeader($tags, $reason) ;
+		}
+	}
 
     protected function _purgeAllByAdmin( $adminSession, $config )
     {
@@ -181,10 +212,26 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
 	{
 		try {
 			if ( Mage::helper('litemage/data')->moduleEnabled() ) {
+				$curOption = Mage::getSingleton('admin/session')->getData(Litespeed_Litemage_Block_Adminhtml_ItemSave::SAVE_PROD_SESSION_KEY);
+				if ($curOption == 'n') { // no purge
+					return;
+				}
+
 				$product = $eventObj->getEvent()->getProduct() ;
-				if ( ($product != null) &&
-						( $tags = $this->_getPurgeProductTags($product, true)) ) {
-					$this->_purgeTagByAdmin($tags, $product->getName(), 'adminPurgeCatalogProduct - catalog_product_save_commit_after') ;
+				if ($product == null)
+					return;
+				
+				$tags = array();
+				$mesg = $product->getName();
+				if ($curOption == 'p') {
+					$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_PRODUCT . $product->getId() ;
+				}
+				else { // default 'c'
+					$tags = $this->_getPurgeProductTags($product, true);
+					$mesg .= ' and related parent categories';
+				}
+				if (!empty($tags)) {
+					$this->_purgeTagByAdmin($tags, $mesg, 'adminPurgeCatalogProduct - catalog_product_save_commit_after') ;
 				}
 			}
 		} catch ( Exception $e ) {
@@ -313,9 +360,11 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
 
 			$pcids = array_diff(array_unique($pcids), $cids) ;
 			foreach ( $pcids as $cid ) {
+				if ($cid == Mage_Catalog_Model_Category::TREE_ROOT_ID)
+					continue;
 				$cat = Mage::getModel('catalog/category')->load($cid) ;
-				$dispmode = $cat->getDisplayMode() ;
-				if ( $dispmode == Mage_Catalog_Model_Category::DM_PRODUCT || $dispmode == Mage_Catalog_Model_Category::DM_MIXED )
+				$dispmode = $cat->getDisplayMode() ; // maybe empty, not saved in db
+				if ( $dispmode != Mage_Catalog_Model_Category::DM_PAGE) // is DM_PRODUCT or DM_MIXED, maybe empty, so use !=
 					$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $cid ;
 			}
 		}

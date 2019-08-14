@@ -30,4 +30,16 @@
             <block type="litemage/adminhtml_cache_management" name="litemage.cache.management" template="litemage/cache_management.phtml" after="cache.additional" />
         </reference>
     </adminhtml_cache_index>
+    <adminhtml_catalog_product_edit>
+        <reference name="content">
+            <block type="litemage/adminhtml_itemSave" name="litemage_prodsave" template="litemage/product_save.phtml"  before="-"></block>
+        </reference>
+    </adminhtml_catalog_product_edit>
+    <adminhtml_catalog_category_edit>
+        <reference name="content">
+            <block type="litemage/adminhtml_itemSave" name="litemage_catsave" template="litemage/category_save.phtml"  before="-"></block>
+        </reference>
+    </adminhtml_catalog_category_edit>
+    
+    
 </layout>

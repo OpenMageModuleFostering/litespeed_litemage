@@ -50,6 +50,12 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 	{
 		$this->_helper = Mage::helper('litemage/data') ;
 		$this->_isDebug = $this->_helper->isDebug() ;
+		$this->_listDir = $this->_helper->getCrawlerListDir() ;
+
+		$this->_conf = $this->_helper->getWarmUpConf() ;
+		if ($this->_conf[Litespeed_Litemage_Helper_Data::CFG_WARMUP_DELTA_LOG]) {
+			$this->_isDebug |= 2;
+		}
 		if ( $this->_isDebug ) {
 			$this->_debugTag = 'LiteMage [cron:' ;
 			if ( isset($_SERVER['USER']) )
@@ -58,9 +64,6 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 				$this->_debugTag .= $_SERVER['HTTP_X_FORWARDED_FOR'] ;
 			$this->_debugTag .= ':' . $_SERVER['REQUEST_TIME'] . '] ' ;
 		}
-		$this->_listDir = $this->_helper->getCrawlerListDir() ;
-
-		$this->_conf = $this->_helper->getWarmUpConf() ;
 	}
 
 	public function resetCrawlerList( $listId )
@@ -196,13 +199,11 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		) ;
 
 		$server_ip = $this->_conf[Litespeed_Litemage_Helper_Data::CFG_WARMUP_SERVER_IP] ;
-		if ($server_ip) {
-			$options[CURLOPT_INTERFACE] = $server_ip;
-		}
 
 		$client = new Varien_Http_Adapter_Curl() ;
 		$curCookie = '' ;
 		$endReason = '' ;
+		$pattern = "/:\/\/([^\/^:]+)(\/|:)?/";
 
 		while ( $urls = $this->_getNextUrls($curCookie) ) {
 			$curlOptions = $options ;
@@ -220,10 +221,24 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			$regular = array();
 			$ajax = array();
 			foreach ($urls as $url) {
-				if ($url{0} == ':')
-					$ajax[] = substr($url, 1);
+				// replace domain with direct IP
+				if (preg_match($pattern, $url, $m)) {
+					$domain = $m[1];
+					$pos = strpos($url, $domain);
+					$url2 = substr($url, 0, $pos) . $server_ip . substr($url, $pos + strlen($domain));
+					$curlOptions[CURLOPT_HTTPHEADER] = array("Host: $domain");
+				}
+				else {
+					if ( $this->_isDebug ) {
+						$this->_debugLog('invalid url ' . $url);
+					}
+					continue;
+				}
+				
+				if ($url2{0} == ':')
+					$ajax[] = substr($url2, 1);
 				else
-					$regular[] = $url;
+					$regular[] = $url2;
 			}
 
 			try {
@@ -231,7 +246,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 					$client->multiRequest($regular, $curlOptions) ;
 				}
 				if (count($ajax)) {
-					$curlOptions[CURLOPT_HTTPHEADER] = array('X-Requested-With: XMLHttpRequest');
+					$curlOptions[CURLOPT_HTTPHEADER][] = 'X-Requested-With: XMLHttpRequest';
 					$client->multiRequest($ajax, $curlOptions) ;
 				}
 			} catch ( Exception $e ) {
@@ -253,7 +268,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 					break ;
 				}
 			}
-			sleep(1) ;
+			usleep(500) ;
 		}
 		$this->_meta['endreason'] = $endReason ;
 
@@ -404,11 +419,19 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			array_shift($this->_curDelta['ids']) ;
 		}
 
-		$urls = array();
-		$depth = $this->_meta['deltaDepth'][$m['curlist']];
+		$urls	 = array();
+		$depth	 = $this->_meta['deltaDepth'][$m['curlist']];
 		foreach ($this->_curDelta['storeurls'][$m['curlist']] as $level => $ud) {
 			if (is_int($level) && $level <= $depth) {
-				$urls = array_merge($urls, array_keys($ud));
+				$u = array();
+				foreach ($ud as $url => $data) {
+					if (($level == 0 && count($u) == 0) // always include first one
+							|| (($data[1] & 28) > 0 ) // auto+cust+store = 16+8+4 = 28, from crawler list
+							|| ($data[0] > 1)) { // or visitor count > 1
+						$u[] = $url;
+					}
+				}
+				$urls = array_merge($urls, $u);
 			}
 		}
 
@@ -910,18 +933,22 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 
 		$this->_priority = $this->_isDelta ? $this->_initDeltaMeta() : $this->_initMeta() ;
 		if ( empty($this->_priority) ) {
-			return 'no url list available for warm up' ;
+			return 'no URL list scheduled for warm up' ;
 		}
 
 		$maxTime = (int) ini_get('max_execution_time') ;
 		if ( $maxTime == 0 )
-			$maxTime = 300 ; // hardlimit
+			$maxTime = 300 ; // hardlimit 
 		else
 			$maxTime -= 5 ;
 
 		$configed = $this->_conf[Litespeed_Litemage_Helper_Data::CFG_WARMUP_MAXTIME] ;
-		if ( $maxTime > $configed )
+		if ( $maxTime >= $configed ) {
 			$maxTime = $configed ;
+		}
+		else if (ini_set('max_execution_time', $configed + 15 ) !== false) {
+			$maxTime = $configed;
+		}
 		$this->_maxRunTime = $maxTime + time() ;
 
 		$this->_adjustCurThreads() ;
@@ -1265,8 +1292,14 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 	protected function _debugLog( $message, $level = 0 )
 	{
 		if ( $this->_isDebug ) {
-			$message = str_replace("\n", ("\n" . $this->_debugTag . '  '), $message) ;
-			Mage::log($this->_debugTag . ' ' . $message) ;
+			$message = $this->_debugTag . ' ' . str_replace("\n", ("\n" . $this->_debugTag . '  '), $message) ;
+			if (($this->_isDebug & 1) == 1) {
+				Mage::log($message) ;
+			}
+			if ($this->_isDelta && (($this->_isDebug & 2) == 2)) {
+				//($message, $level = null, $file = '', $forceLog = false)
+				Mage::log($message, null, 'lmdelta.log', true) ;
+			}
 		}
 	}
 

@@ -27,7 +27,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.2.0</label>
+            <label>LiteMage Cache 1.2.1</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -279,7 +279,7 @@
                     <fields>
                         <enable_warmup translate="label,comment">
                             <label>Enable Cache Warm Up</label>
-                            <comment>Allow LiteMage to automatically warm up the cache. Magento cron job must be enabled.</comment>
+                            <comment>Allow LiteMage to automatically warm the cache. Select all that apply. It is always recommended that you enable the Store site map, Auto collected (deep crawling) URL list, and Delta list after tag purge options. Magento cron job must be enabled to use this setting.</comment>
                             <frontend_type>multiselect</frontend_type>
                             <source_model>litemage/config_source_enableWarmUp</source_model>
                             <sort_order>10</sort_order>
@@ -488,12 +488,51 @@ Each file listed should contain a list of custom-defined URLs (one per line). Th
                     </fields>
                 </warmup>
 
+                <fishpigwp translate="label" module="litemage">
+                    <label>FishPig WordPress Integration</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <sort_order>50</sort_order>
+                    <fields>
+                        <fpwp_cache translate="label,comment">
+                            <label>Enable Cache for FishPig WP Integration</label>
+                            <comment>Enable LiteMage Cache for FishPig WP integration. WP pages will be served from Magento and purged by WP backend edits. The LiteSpeed Cache plugin for WP needs to be installed from the WP backend and "Auto Purge All pages on Update" box needs to be checked in the LiteSpeed Cache > Settings > Purge Rules page in the LiteSpeed Cache for WordPress plugin backend.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </fpwp_cache>
+                        <fpwp_ttl translate="label,comment">
+                            <label>WP Pages Public Cache TTL (seconds)</label>
+                            <comment>Timeout for publicly cached WordPress pages. Recommended value is 28800. This value will override the Public Cache TTL setting in the LiteSpeed Cache for WordPress plugin.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-digits-range digits-range-600-</validate>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </fpwp_ttl>
+                        <fpwp_prefix translate="label,comment">
+                            <label>Cache Tag Prefix for WP LiteSpeed Cache Plugin</label>
+                            <comment>If you set the cache tag prefix in the LiteSpeed cache plugin for WP, please copy the same value into this setting in order for cache purging to work properly.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </fpwp_prefix>
+                    </fields>
+                </fishpigwp>
+
                 <test translate="label" module="litemage">
                     <label>Developer Testing</label>
                     <show_in_default>1</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
-                    <sort_order>50</sort_order>
+                    <sort_order>60</sort_order>
                     <fields>
                         <allow_ips translate="label,comment">
                             <label>Enable LiteMage Cache Only for Listed IPs</label>
@@ -506,7 +545,7 @@ Each file listed should contain a list of custom-defined URLs (one per line). Th
                         </allow_ips>
                         <debug translate="label,comment">
                             <label>Enable Debug Log</label>
-                            <comment>Prints additional information to /var/log/system.log for debugging purposes. (Ensure developer log is enabled.) 
+                            <comment>Prints additional information to var/log/system.log for debugging purposes. (Ensure developer log is enabled.) 
                              <![CDATA[<span class="notice">Turn off for production use.</span>]]></comment>
                             <frontend_type>select</frontend_type>
                             <source_model>litemage/config_source_enableDebugLog</source_model>
@@ -515,6 +554,17 @@ Each file listed should contain a list of custom-defined URLs (one per line). Th
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </debug>
+                        <delta_log translate="label,comment">
+                            <label>Enable Log for Delta crawler</label>
+                            <comment>Prints delta crawler activities to var/log/lmdelta.log.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </delta_log>
+                        
                     </fields>
                 </test>
 

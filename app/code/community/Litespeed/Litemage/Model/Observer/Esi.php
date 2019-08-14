@@ -106,6 +106,14 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
         $controller = $eventObj->getControllerAction();
         $curActionName = $controller->getFullActionName() ;
         $reqUrl = $req->getRequestString() ;
+		$session = Mage::getSingleton('core/session');
+		$lmuser = $session->getData('_litemage_user');
+		if ($lmuser == null) {
+			$session->setData('_litemage_user', 1); // new visitor
+		}
+		else if ($lmuser == 1) {
+			$session->setData('_litemage_user', 2); // existing visitor
+		}
 
 		$this->_helper->setInternal(array('route_info' => $curActionName,
 			'is_ajax' => $req->isXmlHttpRequest())); // here do not use isAjax()
@@ -412,7 +420,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
             $this->_helper->addCacheEntryTag(Litespeed_Litemage_Helper_Esi::TAG_PREFIX_PRODUCT . $productId) ;
 
             if ( $this->_config->trackLastViewed() ) {
-                $this->_helper->addPrivatePurgeEvent($eventObj->getEvent()->getName()) ;
+                $this->_helper->addPrivatePurgeEvent($eventObj->getEvent()->getName()) ;// for T:Mage_Reports_Block_Product_Viewed
                 $this->_helper->trackProduct($productId) ;
             }
         }
