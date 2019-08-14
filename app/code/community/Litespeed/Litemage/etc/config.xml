@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.16</version>
+            <version>1.0.17</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -335,7 +335,7 @@
                 <welcome>
                     <!-- blocks only purged by login/logout events, no purge_events configuration is required as login/logout will auto purge all private blocks -->
                     <access>private</access>
-                    <blocks>welcome, litemage.jsvar,nickname$v</blocks>
+                    <blocks>T:Mage_Page_Block_Html_Welcome,welcome,litemage.jsvar,nickname$v</blocks>
                     <!-- Marking a block as valueonly, denoted by the suffix “$v”, will only output 
                     the blocks html value without the added html tags and comments when in debug mode. 
                     The block will also not be highlighted when using the LITEMAGE_DEBUG=SHOWHOLES parameter -->
@@ -434,8 +434,8 @@
                 <enable_warmup>0</enable_warmup>
                 <load_limit>5</load_limit>
                 <thread_limit>6</thread_limit>
-                <max_time>300</max_time>
-                <interval>28800</interval>
+                <max_time>360</max_time>
+                <interval>21600</interval>
                 <priority>100</priority>
                 <multi_currency/>
                 <custlist/>

@@ -15,7 +15,7 @@ class Litespeed_Litemage_Model_Translate extends Mage_Core_Model_Translate
 
     public function init($area, $forceReload = false)
     {
-        $this->_cacheId = NULL;
+        $this->_cacheId = null;
         parent::init($area, $forceReload);
     }
 }

@@ -11,7 +11,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.0.16</label>
+            <label>LiteMage Cache 1.0.17</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
