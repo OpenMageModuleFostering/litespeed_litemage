@@ -1,66 +1,33 @@
-<?php
-/**
- * LiteMage
- *
- * NOTICE OF LICENSE
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
- *
- * @package   LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
- * @license     https://opensource.org/licenses/GPL-3.0
- */
-
-class Litespeed_Litemage_Model_Session extends Mage_Core_Model_Session_Abstract
-{
-    protected $_isDebug;
-
-    public function __construct()
-    {
-        $this->init('litemage');
-        $this->_isDebug = Mage::helper('litemage/data')->isDebug();
-    }
-
-    /**
-     * Save the messages for a given block to the session
-     *
-     * @param  string $blockName
-     * @param  array $messages
-     * @return null
-     */
-    public function saveMessages( $blockName, $messages )
-    {
-        $stored = $this->getData($blockName);
-        if ($stored != null) {
-            $messages = array_merge($stored, $messages);
-        }
-        $this->setData($blockName, $messages);
-        if ($this->_isDebug)
-            Mage::helper('litemage/data')->debugMesg("saveMessages for $blockName " . print_r($messages, true));
-    }
-
-    /**
-     * Retrieve the messages for a given messages block
-     *
-     * @param  string $blockName
-     * @return array
-     */
-    public function loadMessages( $blockName )
-    {
-        $messages = $this->getData($blockName);
-        $this->unsetData($blockName);
-        return $messages;
-    }
-
-}
+<?php //0046a
+if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
+?>
+HR+cPqNiLP7IDwwclrl0iaOvDfKRf5gwOX02IVGAfVFhXQaZ4QzyDyK0WQ3frswRCocJG/7skZDV
+RJEh+jO1340cb8PuWlW/vr5KlzjPU9VT1WMhhvzIDUPub5MXdCchpF66WIW+/tbub7CByJXIqMGq
++qbHUUIdmnP2t9xZqiu6UUCL1eMxjRhuI/4iqSNbLZxl+dJAYhjrqdMiX40BKzuHz27a5Z6BZu4r
+Edbzg+duIy4SBT+mQWMjztMkS8BUF/DsRkrCn/i5NZ8Cj6SWAK6JCbCF7EXTjPSmrsbUvq+oAk7U
+XmpwiKl50m69GLgZuUvTDZyW0jPzNi8qBoTJDChT8YW1ojGaIXLQ0uYxp4OkBKQcP1eSGLSxqQ38
+YLdC1QXVNF+rhXYGnVg8U1iHt/WKnjGLXBpNIf6UOudTEw1Qpw/DLD2QXnKTCFjEihGPcpNkjr3Z
+B2t6gnvR2vw/is/qg+tt69EkjSzu+Tm9lUvtNuYErOzy8tNCGkmC3JJPxMPdPTyZ913Vylb/aGNu
+roVkudlqjskRvc7mg3PEC3crg6txbeeXJWL88wZPr4Dy5FbnXh6B+9U0v/mkM51IJFI5M+k9IpSc
++ZF5Uh3tlbgzRspJwz8NMnC/LkWJHUNQ7ITFTkS1Ct0vs+6KKEn0gwmqlJ2zZTkGBjlajkPa9I1G
+31xVDimlOKETJcm+PM1ij0+wv5zpYok1xXRmx0o3VJw4bOdS4kyoaXxH1Z1BukgZyypt15s3lc4d
+tov2n1osHyDHyFVgyxpVJdoCCrwOcg6f/WBkJwo7mleAL5iM1QPXPbz0HA7T5YAAUNS7ClX2M37v
+Bsn+graN4HghdXkYNv9NCwe+GO6W8gcA9zloG93Ik39KCKic3jam//auUfLSqTDitwpZ2n2PUWbG
+nMDIT4exoIi8eBj9V0NH2lHLFGNxyT0Usi2N2VTZn8KJpzka7kXqPEz6KnDjeK/7BTvqbts/TTLr
+tsmj34ErwNM9zp+w93gOE8teU2y/24vD/Q7cO/shq6OrlDXUtCpGkLKj9EmoZ/5BkA4ZjqAusHY5
+yDoPioPbxu0VYPZiURP9otW9djDXYPe7lYMxGo3n8HS+en5qAAYZuOJShahmk8D/hpxK5WsM5ZaM
+OsXgfh4Cy4vfDF4/PeqSsG3hAbVTutUvTavfxGga9/s+T4ifvbYbnoDPn9r2wAvGI3+TY8oxwGRx
+2btyKgE1AA5QEy1zDU7qY8WLACf0DP+R27kFsXzsQVTYSkl/SR+JZ2Uv1bLI14cRS6lq8Tq/EOx6
+2GnfFvvm9hAMOcPMbYQLvWDWpYZ6VT3b09dDQGkUkFhkCvW4Mh1cu4qGmrDyAYUMcsOIln+2oOAQ
+bus2PSFDEaHqP9k2qYbeMU38PrkOYZV4XrU5OXcTn0i9GoT3VSAE4Cngqgx0BOa7v2cipzS/tRq9
+rds7vVJE/lYMS3tCFM0NxAcOomF4Bqp56BP9wWrulO6HFcyWND1RIlIpG0v5T9n+1hUWywugKrhN
+ce9cE9FUPrwJgVx3M1W7KYZQrxt/y3ar5gW+tzmA6wXc6D0UYk+jqLXHC5ts137BsZTq7JhuHgsU
+IDUQJt6yokcyS7dpgErKcCdeqVaZLXot1a70pYU5eYeciqpLXG1RLLM17QIUslcl5Fkm7N3gMz2m
+5umDLK2uxeoxhgKjyXkAfHq3jv4p7Lstz+3TOEGVmTMxGMjUolJLvOYITs8QiUTBmMNG2tdu9pD+
+3YwthsaRZPAXBawmjrgenX3JjvV0YAlxqFgbOyOOTRPSyn6TAe9izz38snxoVri3CPNQ1OB0zP8m
+4xcTX7O5cx12wrcM52+RfAXJ66XxzEUUOZNynntDR5qFg9T0qtblNA1uInIi3qardB8koitIlYY2
+LaVLNmgaaOWONJFHPrTjEOfgVzAZyIngxT9PyMNy78tLmMaQVRhgLnTXmsDbtlyHz8gDclZUSnVM
+xzhaToCmhm1szi0AMNhrT+vfX8SsbsGMDiYtD3z62pVAmGGz/twp7RSdFcPtN0vw7yLi97Nxronn
+ZCA9bpHrD5ZZCX/KFuLXrT5j6Tzl0L6dbsiSXyyjsv2aJ5r/sq4ManRnR3VANmI7dKTGwa8lGYE1
+r8KGHX6Fgk1AGFFii5YxFeFYPNXz4ndPeJx4DBcUoKwq1w6uv61xVPKmT0Qw+HqWA7xgOFz80uOt
+vyU/+gSNTFd8KOVEQu/OQZxGRUClvtQ2qJKVhuFPknu=

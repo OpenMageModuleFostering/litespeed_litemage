@@ -1,109 +1,46 @@
-<?php
-/**
- * LiteMage
- *
- * NOTICE OF LICENSE
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
- *
- * @package   LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
- * @license     https://opensource.org/licenses/GPL-3.0
- */
-
-
-class Litespeed_Litemage_Helper_Viewvary
-{
-
-    protected $_vary = array( 'toolbar' => '_adjustToolbar', 'env' => '_setEnv' ) ;
-
-    public function persistViewVary( $tags )
-    {
-        foreach ( $tags as $tag ) {
-            $func = $this->_vary[$tag] ;
-            $this->$func(true) ;
-        }
-    }
-
-    public function restoreViewVary( $tags )
-    {
-        foreach ( $tags as $tag ) {
-            $func = $this->_vary[$tag] ;
-            $this->$func(false) ;
-        }
-    }
-
-    protected function _setEnv( $isSave )
-    {
-        if ($isSave) {
-            // run before exit, as value maybe changed during process.
-            Mage::helper('litemage/esi')->setDefaultEnvCookie();
-        }
-    }
-
-    protected function _adjustToolbar( $isSave )
-    {
-        // for Mage_Catalog_Block_Product_List
-        $helper = Mage::helper('litemage/esi') ;
-        $isDebug = $helper->isDebug() ;
-        $session = Mage::getSingleton('catalog/session') ;
-        $cookieName = '_lscache_vary_toolbar' ;
-        $keys = array( 'sort_order', 'sort_direction', 'display_mode', 'limit_page' ) ;
-        // limit_page is linked to display_mode, sort_direction is linked to sort_order
-        $cookieVars = $helper->getCookieEnvVars($cookieName) ;
-
-        if ( $isSave ) {
-            $saved = false ;
-            $mesg = 'addEnv ' . $cookieName;
-            foreach ( $keys as $key ) {
-                if ( $value = $session->getData($key) ) {
-                    // only save limit_page if mode is same
-                    if ( $key == 'limit_page' ) {
-                        $old_mode = ( $cookieVars != null && isset($cookieVars['display_mode']) ) ? $cookieVars['display_mode'] : '' ;
-                        $cur_mode = $session->getData('display_mode') ;
-                        if ( $old_mode != $cur_mode )
-                            continue ;
-                    }
-
-                    $helper->addEnvVars($cookieName, $key, $value) ;
-                    if ($isDebug) {
-                        $mesg .= ' ' . $key . '=' . $value ;
-                    }
-                    $saved = true ;
-                }
-            }
-
-            if ( ! $saved ) {
-                $helper->addEnvVars($cookieName) ;
-            }
-
-            if ( $isDebug ) {
-                Mage::helper('litemage/data')->debugMesg($mesg) ;
-            }
-
-        }
-        else {
-            // restore
-            if ( $cookieVars != null ) {
-                foreach ( $keys as $key ) {
-                    if ( isset($cookieVars[$key]) )
-                        $session->setData($key, $cookieVars[$key]) ;
-                    else
-                        $session->unsetData($key) ;
-                }
-            }
-        }
-    }
-
-}
+<?php //0046a
+if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
+?>
+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
+8HtiLphKRzh9iAGoPp4=

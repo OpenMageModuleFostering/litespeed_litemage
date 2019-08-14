@@ -1,74 +1,42 @@
-<?php
-/**
- * LiteMage
- *
- * NOTICE OF LICENSE
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
- *
- * @package   LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
- * @license     https://opensource.org/licenses/GPL-3.0
- */
-
-
-class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
-{
-    public function initByPeer( $peer, $esiHtml )
-    {
-        $this->setData('esiHtml', $esiHtml) ;
-        $peer->setData('litemageInjected', 1);
-
-        $this->_layout = $peer->_layout;
-        $this->_nameInLayout = $peer->_nameInLayout ;
-        $this->_alias = $peer->_alias;
-        $parent = $peer->getParentBlock();
-        if ($parent != null) {
-            $parent->setChild($peer->_alias, $this) ;
-        }
-        $this->_layout->setBlock($this->_nameInLayout, $this) ;
-
-        if (!$this->hasData('valueonly') && Mage::registry('LITEMAGE_SHOWHOLES')) {
-            $tip = 'LiteMage ESI block ' . $this->_nameInLayout;
-            $wrapperBegin = '<div style="position:relative;border:1px dotted red;background-color:rgba(198,245,174,0.3);margin:2px;padding:18px 2px 2px 2px;zoom:1;" title="' . $tip
-                    . '"><div style="position: absolute; left: 0px; top: 0px; padding: 2px 5px; color: white; font-style: normal; font-variant: normal; font-weight: normal; font-size: 11px; line-height: normal; font-family: Arial; z-index: 998; text-align: left !important; background: rgba(0,100,0,0.5);">' . $tip . '</div>';
-            $this->setData('lmwrapperBegin', $wrapperBegin);
-            $this->setData('lmwrapperEnd', '</div>');
-        }
-
-    }
-
-    protected function _loadCache()
-    {
-        if ($this->hasData('esiHtml')) {
-            $esiHtml = $this->getData('esiHtml');
-            Mage::helper('litemage/data')->debugMesg('Injected ESI block ' . $this->_nameInLayout . ' ' . $esiHtml) ;
-
-            if (!$this->hasData('valueonly') && Mage::registry('LITEMAGE_SHOWHOLES'))
-                return $this->getData('lmwrapperBegin') . $esiHtml . $this->getData('lmwrapperEnd') ;
-            else {
-                return $esiHtml;
-            }
-        }
-        else {
-            return false;
-        }
-    }
-
-    protected function _saveCache($data)
-    {
-        return false;
-    }
-
-}
+<?php //0046a
+if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
+?>
+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

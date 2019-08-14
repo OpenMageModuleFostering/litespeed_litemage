@@ -1,786 +1,201 @@
-<?php
-/**
- * LiteMage
- *
- * NOTICE OF LICENSE
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
- *
- * @package   LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
- * @license     https://opensource.org/licenses/GPL-3.0
- */
-
-class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
-{
-
-    const WARMUP_MAP_FILE = 'litemage_warmup_urlmap' ;
-    const WARMUP_META_CACHE_ID = 'litemage_warmup_meta' ;
-    const USER_AGENT = 'litemage_walker' ;
-    const ENV_COOKIE_NAME = '_lscache_vary' ;
-
-    protected $_meta ; // time, curfileline
-	protected $_metaUpdated = false;
-	protected $_conf;
-    protected $_isDebug ;
-	protected $_debugTag;
-	protected $_maxRunTime;
-	protected $_curThreads = -1;
-	protected $_curThreadTime ;
-    protected $_curList ;
-	protected $_listDir;
-	protected $_priority;
-
-
-    protected function _construct()
-    {
-        $helper = Mage::helper('litemage/data') ;
-        $this->_isDebug = $helper->isDebug() ;
-		if ($this->_isDebug) {
-			$this->_debugTag = 'LiteMage [' . self::USER_AGENT . ':';
-			if (isset($_SERVER['USER']))
-				$this->_debugTag .= $_SERVER['USER'];
-			elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-				$this->_debugTag .= $_SERVER['HTTP_X_FORWARDED_FOR'];
-			$this->_debugTag .= ':'. $_SERVER['REQUEST_TIME'] . '] ' ;
-		}
-		$this->_listDir = Mage::getBaseDir('var') . DS . 'litemage';
-
-		if (!is_dir($this->_listDir)) {
-			mkdir($this->_listDir);
-			chmod($this->_listDir, 0777);
-		}
-
-		$this->_conf = $helper->getWarmUpConf();
-    }
-
-	public function resetCrawlerList($listId)
-	{
-		$adminSession = Mage::getSingleton('adminhtml/session') ;
-		$meta = Mage::app()->loadCache(self::WARMUP_META_CACHE_ID);
-		$updated = false;
-
-		if ($listId) {
-			$id = strtolower($listId);
-			if ( $meta ) {
-				$meta = unserialize($meta) ;
-				if (isset($meta[$id])) {
-					unset($meta[$id]);
-					$updated = true;
-					$adminSession->addSuccess($listId . ' ' . Mage::helper('litemage/data')->__('List has been reset and will be regenerated in next run.')) ;
-				}
-				else {
-					$adminSession->addError($listId . ' ' . Mage::helper('litemage/data')->__('List has been reset already. It will be regenerated in next run.')) ;
-				}
-			}
-		}
-		else {
-			if ($meta) {
-				Mage::app()->removeCache(self::WARMUP_META_CACHE_ID);
-				$updated = true;
-				$adminSession->addSuccess(Mage::helper('litemage/data')->__('All lists have been reset and will be regenerated in next run.')) ;
-			}
-			else {
-				$adminSession->addError(Mage::helper('litemage/data')->__('All lists have been reset already. It will be regenerated in next run.')) ;
-			}
-		}
-
-		if ($updated) {
-			$this->_saveMeta($meta);
-		}
-	}
-
-	public function getCrawlerList($listId)
-	{
-		$output = '<h3>Generated URL List ' . $listId . '</h3>';
-		if ( ($urls = $this->_getCrawlListFileData($listId)) != null ) {
-			$output .= '<pre>' . $urls . '</pre>';
-		}
-		else {
-			$output .= '<p>Cannot find generated URL list. It will be regenerated in next run.</p>';
-		}
-		return $output;
-	}
-
-    public function getCrawlerStatus()
-    {
-		$priority = $this->_initMeta();
-		$saved = $this->_meta;
-		$timefmt = 'Y-m-d H:i:s';
-		$status = array('lastupdate' => '', 'endreason' => '',
-			'stores' => array());
-
-		if (isset($saved['lastupdate'])) {
-			$status['lastupdate'] = date($timefmt, $saved['lastupdate']);
-		}
-
-		if (isset($saved['endreason'])) {
-			$status['endreason'] = $saved['endreason'];
-		}
-
-		foreach ($priority as $listId => $pri ) {
-			$store_stat = $saved[$listId];
-			$disp = array();
-			$disp['priority'] = intval($pri + 0.5);
-			$disp['id'] = strtoupper($listId);
-			$disp['baseurl'] = $store_stat['baseurl'];
-			$disp['file'] = (isset($store_stat['file']) ? $store_stat['file'] : '');
-			$disp['ttl'] = $store_stat['ttl'];
-			$disp['interval'] = $store_stat['interval'];
-			if ($store_stat['gentime'] > 0) {
-				$disp['gentime'] = date($timefmt, $store_stat['gentime']);
-			}
-			else {
-				$disp['gentime'] = isset($store_stat['tmpmsg']) ? $store_stat['tmpmsg'] : '';
-			}
-			$disp['lastquerytime'] = ($store_stat['lastquerytime'] > 0) ? date($timefmt, $store_stat['lastquerytime']) : '';
-			$disp['endtime'] = ($store_stat['endtime'] > 0) ? date($timefmt, $store_stat['endtime']) : '';
-			$disp['listsize'] = ($store_stat['listsize'] > 0) ? $store_stat['listsize'] : '';
-			$disp['curpos'] = $store_stat['curpos'];
-			$disp['env'] = $store_stat['env'];
-			$disp['curvary'] = preg_replace("/_lscache_vary=.+;/", '', $store_stat['curvary']);
-			$disp['queried'] = $store_stat['queried'];
-			$status['stores'][] = $disp;
-		}
-
-		return $status;
-    }
-
-    /**
-     * called by cron job
-     */
-
-    public function warmCache()
-    {
-		if ( $this->_isDebug ) {
-			$this->_debugLog("cron warmCache envoked") ;
-		}
-
-        $curRunTime = time() ;
-
-		if (!$this->_init()) {
-			$this->_debugLog('skip this round');
-			return;
-		}
-
-        $options = array(
-            CURLOPT_USERAGENT      => self::USER_AGENT,
-            CURLOPT_SSL_VERIFYPEER => 0,
-			CURLOPT_TIMEOUT		=> 180
-        );
-
-        $client = new Varien_Http_Adapter_Curl();
-		$curCookie = '';
-		$endReason = '';
-
-		while ($urls = $this->_getNextUrls($curCookie)) {
-			$curlOptions = $options;
-			if ($curCookie) {
-				$curlOptions[CURLOPT_COOKIE] = $curCookie;
-			}
-
-			if ($this->_isDebug) {
-				$id = $this->_curList['id'];
-				$this->_debugLog('crawling ' . $id . ' urls (cur_pos:' . $this->_meta[$id]['curpos'] . ') with cookie ' . $curCookie . ' ' . print_r($urls, true));
-			}
-
-			try {
-				$client->multiRequest($urls, $curlOptions);
-	          } catch ( Exception $e ) {
-				  $endReason = 'Error when crawling url ' . implode(' ', $urls) . ' : ' . $e->getMessage();
-				  break ;
-            }
-
-
-			$this->_finishCurPosition() ;
-
-			if ($this->_meta['lastupdate'] > $this->_maxRunTime) {
-				$endReason = Mage::helper('litemage/data')->__('Stopped due to exceeding defined Maximum Run Time.');
-				break;
-			}
-
-			if ($this->_meta['lastupdate'] - 60 > $this->_curThreadTime) {
-				$this->_adjustCurThreads();
-				if ($this->_curThreads == 0) {
-					$endReason = Mage::helper('litemage/data')->__('Stopped due to current system load exceeding defined load limit.');
-					break;
-				}
-			}
-		}
-		$this->_meta['endreason'] = $endReason;
-
-        $this->_saveMeta() ;
-		if ( $this->_isDebug ) {
-			$this->_debugLog($endReason . ' cron meta end = ' . print_r($this->_meta, true)) ;
-		}
-	}
-
-	protected function _getCrawlListFileData($listId)
-	{
-		$filename = $this->_listDir . DS . self::WARMUP_MAP_FILE . '_' . strtolower($listId);
-		if (!file_exists($filename))
-			return null;
-		else
-			return file_get_contents($filename);
-	}
-
-	protected function _saveCrawlListFileData($listId, $data)
-	{
-		$filename = $this->_listDir . DS . self::WARMUP_MAP_FILE . '_' . strtolower($listId);
-		if (!file_put_contents($filename, $data)) {
-			$this->_debugLog('Failed to save url map file ' . $filename);
-		}
-		else {
-			chmod($filename, 0644);
-		}
-	}
-
-	protected function _prepareCurList()
-	{
-		$id = array_shift($this->_priority);
-		if ($id == null) {
-			return false;
-		}
-
-		$m = $this->_meta[$id];
-		// parse env & get all possible varies
-		$vary = array();
-		$fixed = $this->_parseEnvCookies($m['env'], $vary);
-		if (!in_array($m['curvary'], $vary) || $m['curpos'] > $m['listsize']) {
-			// reset current pointer
-			$this->_meta[$id]['curvary'] = $vary[0];
-			$this->_meta[$id]['curpos'] = 0;
-			if ( $this->_isDebug ) {
-				$this->_debugLog('Reset current position pointer to 0. curvary is ' . $m['curvary']);
-			}
-		}
-
-		while ($this->_meta[$id]['curvary'] != $vary[0]) {
-			array_shift($vary);
-		}
-
-		$this->_curList = array(
-			'id' => $id,
-			'fixed' => $fixed,
-			'vary' => $vary,
-			'working' => 0);
-		if ( ($urls = $this->_getCrawlListFileData($id)) != null ) {
-			$allurls = explode("\n", $urls) ;
-			// verify data
-			$header = explode("\t", array_shift($allurls));
-			if (($m['gentime'] == $header[0])
-					&& ($m['listsize'] == $header[1])
-					&& ($m['env'] == $header[2])
-					&& count($allurls) == $m['listsize']) {
-				$this->_curList['urls'] = $allurls;
-			}
-			else if ( $this->_isDebug ) {
-				$this->_debugLog('load saved url list, header does not match, will regenerate') ;
-			}
-		}
-		else if ($this->_isDebug) {
-			$this->_debugLog('load saved url list failed, will regenerate');
-		}
-
-		if (!isset($this->_curList['urls'])) {
-			// regenerate
-			$this->_curList['urls'] = $this->_generateUrlList($id);
-		}
-
-		if ($this->_meta[$id]['listsize'] > 0) {
-			return true;
-		}
-		else {
-			// get next list
-			return $this->_prepareCurList();
-		}
-	}
-
-    protected function _parseEnvCookies( $env, &$vary )
-    {
-		$fixed = 'litemage_cron=' . self::USER_AGENT .';';
-        if ( $env ) {
-			$lsvary = array();
-			$multiCurr = array('-') ; // default currency
-			$multiCgrp = array('-') ; // default user group
-
-			$env = trim($env, '/');
-			$envs = explode('/', $env) ;
-            $envVars = array() ;
-            $cnt = count($envs) ;
-            for ( $i = 0 ; ($i + 1) < $cnt ; $i+=2 ) {
-                $envVars[$envs[$i]] = $envs[$i + 1] ;
-            }
-            if ( isset($envVars['vary_dev']) ) {
-                $lsvary['dev'] = 1 ;
-            }
-
-            if ( isset($envVars['store']) ) {
-                $fixed .= Mage_Core_Model_Store::COOKIE_NAME . '=' . $envVars['store'] . ';';
-                $lsvary['st'] = $envVars['storeId'] ;
-            }
-
-            if ( isset($envVars['vary_cgrp']) ) {
-                $multiCgrp = explode(',', $envVars['vary_cgrp']) ;
-            }
-
-            if ( isset($envVars['vary_curr']) ) {
-                $multiCurr = explode(',', $envVars['vary_curr']) ;
-            }
-
-            foreach ( $multiCurr as $currency ) {
-                $cookie_vary = '';
-				$lsvary1 = $lsvary;
-
-                if ( $currency != '-' ) {
-                    $lsvary1['curr'] = $currency ;
-                    $cookie_vary .= Mage_Core_Model_Store::COOKIE_CURRENCY . '=' . $currency . ';' ;
-                }
-
-                foreach ( $multiCgrp as $cgrp ) {
-                    if ( $cgrp != '-' ) {
-                        // need to set user id
-                        $lsvary1['cgrp'] = $cgrp ;
-                    }
-
-					if (!empty($lsvary1)) {
-	                    ksort($lsvary1) ;
-		                $lsvary1_val = '';
-						foreach ($lsvary1 as $k => $v) {
-							$lsvary1_val .= $k . '%7E' . urlencode($v) . '%7E'; // %7E is "~"
-						}
-						$cookie_vary .= self::ENV_COOKIE_NAME . '=' . $lsvary1_val . ';';
-					}
-					$vary[] = $cookie_vary; // can be empty string for default no vary
-                }
-            }
-
-        }
-		else {
-			$vary[] = ''; // no vary
-		}
-
-        return $fixed;
-    }
-
-    protected function _getNextUrls(&$curCookie)
-    {
-		$id = $this->_curList['id'];
-		if ($this->_meta[$id]['endtime'] > 0) {
-			if ($this->_prepareCurList()) {
-				return $this->_getNextUrls($curCookie);
-			}
-			else {
-				return null;
-			}
-		}
-
-		$curpos = $this->_meta[$id]['curpos'];
-		$curCookie = $this->_curList['fixed'] . $this->_meta[$id]['curvary'];
-		$urls = array_slice($this->_curList['urls'],
-				$this->_meta[$id]['curpos'],
-				$this->_curThreads);
-		$this->_curList['working'] = count($urls);
-
-		if (empty($urls)) {
-			return null;
-		}
-		else {
-			$baseurl = $this->_meta[$id]['baseurl'];
-			foreach ($urls as $key => $val) {
-				$urls[$key] = $baseurl . $val;
-			}
-			return $urls ;
-		}
-    }
-
-    protected function _finishCurPosition()
-    {
-		$now = time();
-		$id = $this->_curList['id'];
-		if (($this->_meta[$id]['curpos'] + $this->_curList['working']) < $this->_meta[$id]['listsize']) {
-			$this->_meta[$id]['curpos'] += $this->_curList['working'];
-		}
-		else {
-			if (count($this->_curList['vary']) > 1) {
-				array_shift($this->_curList['vary']);
-				$this->_meta[$id]['curvary'] = $this->_curList['vary'][0];
-				$this->_meta[$id]['curpos'] = 0;
-			}
-			else {
-				$this->_meta[$id]['endtime'] = $now;
-				$this->_meta[$id]['curpos'] = $this->_meta[$id]['listsize'];
-			}
-		}
-		$this->_meta[$id]['queried'] += $this->_curList['working'];
-		$this->_meta[$id]['lastquerytime'] = $now;
-		$this->_meta['lastupdate'] = $now;
-		$this->_metaUpdated = true;
-		$this->_curList['working'] = 0;
-    }
-
-	protected function _newStoreMeta($storeInfo, $tmpmsg)
-	{
-		$meta = array(
-			'id' => $storeInfo['id'], // store1, custom1, delta
-			'storeid' => $storeInfo['storeid'],
-			'baseurl' => $storeInfo['baseurl'],
-			'ttl' => $storeInfo['ttl'],
-			'interval' => $storeInfo['interval'],
-			'priority' => $storeInfo['priority'],
-			'gentime' => 0,
-			'listsize' => 0,
-			'env' => $storeInfo['env'],
-			'curpos' => 0,
-			'curvary' => '',
-			'queried' => 0,
-			'lastquerytime' => 0,
-			'endtime' => 0);
-		if (isset($storeInfo['file'])) {
-			$meta['file'] = $storeInfo['file'];
-		}
-		if ($tmpmsg) {
-			$meta['tmpmsg'] = $tmpmsg;
-			if ( $this->_isDebug ) {
-				$this->_debugLog($tmpmsg) ;
-			}
-		}
-
-		return $meta;
-	}
-
-    protected function _saveMeta($meta=null)
-    {
-		if ($meta == null) {
-			$meta = $this->_meta ;
-		}
-        $tags = array( Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG, self::WARMUP_META_CACHE_ID ) ;
-        Mage::app()->saveCache(serialize($meta), self::WARMUP_META_CACHE_ID, $tags) ;
-    }
-
-	protected function _initMeta()
-	{
-		$priority = array();
-		$curtime = time();
-		$this->_meta = array();
-
-		$saved = array();
-        if ( $meta = Mage::app()->loadCache(self::WARMUP_META_CACHE_ID) ) {
-            $saved = unserialize($meta) ;
-			if (isset($saved['lastupdate'])) {
-				$this->_meta['lastupdate'] = $saved['lastupdate'];
-			}
-			if (isset($saved['endreason'])) {
-				$this->_meta['endreason'] = $saved['endreason'];
-			}
-        }
-
-		if (empty($this->_conf['store']))  {
-			return $priority;
-		}
-
-		foreach( $this->_conf['store'] as $listId => $info) {
-			$tmpmsg = '';
-			if (isset($saved[$listId])) {
-				// validate saved
-				$m = $saved[$listId];
-				if (isset($m['storeid']) && ($m['storeid'] == $info['storeid'])
-						&& isset($m['env']) && ($m['env'] == $info['env'])
-						&& isset($m['interval']) && ($m['interval'] == $info['interval'])
-						&& isset($m['priority']) && ($m['priority'] == $info['priority'])
-						&& isset($m['baseurl']) && ($m['baseurl'] == $info['baseurl'])) {
-
-					if (($m['endtime'] == 0) // not finished
-						|| ($m['endtime'] + $m['interval'] > $curtime)) { // not timedout
-						$this->_meta[$listId] = $m;
-					}
-					else {
-						$tmpmsg = strtoupper($listId) . ' - ' . Mage::helper('litemage/data')->__('Maximum Run Time exceeded. List will be regenerated.');
-					}
-				}
-				else  {
-					$tmpmsg = strtoupper($listId) . ' - ' . Mage::helper('litemage/data')->__('Saved configuration does not match current configuration. List will be regenerated.');
-				}
-			}
-			if (!isset($this->_meta[$listId])) {
-				$this->_meta[$listId] = $this->_newStoreMeta($info, $tmpmsg);
-			}
-			$priority[$listId] = $this->_meta[$listId]['priority'];
-		}
-
-		asort($priority, SORT_NUMERIC);
-
-		return $priority;
-	}
-
-    protected function _init()
-    {
-		if (empty($this->_conf['store'])) {
-			return false;
-		}
-		if ( $this->_isDebug ) {
-			$this->_debugLog('cron config is = ' . print_r($this->_conf, true)) ;
-		}
-
-		$priority = $this->_initMeta();
-		$this->_priority = array();
-		foreach ($priority as $listId => $pri ) {
-
-			if ($this->_meta[$listId]['gentime'] == 0) {
-				$this->_generateUrlList($listId);
-			}
-			if ($this->_meta[$listId]['listsize'] > 0 && $this->_meta[$listId]['endtime'] == 0) {
-				// need crawl
-				$this->_priority[] = $listId;
-			}
-		}
-
-		if ($this->_metaUpdated) {
-			$this->_saveMeta();
-		}
-
-		if ( $this->_isDebug ) {
-			$this->_debugLog('cron meta starting = ' . print_r($this->_meta, true)) ;
-		}
-
-        if ( empty($this->_priority) ) {
-            if ( $this->_isDebug )
-                $this->_debugLog("no url list available for warm up") ;
-            return false;
-        }
-		else {
-
-			$maxTime = (int) ini_get('max_execution_time') ;
-			if ( $maxTime == 0 )
-				$maxTime = 300 ; // hardlimit
-			else
-				$maxTime -= 5 ;
-
-			$configed = $this->_conf[Litespeed_Litemage_Helper_Data::CFG_WARMUP_MAXTIME];
-			if ( $maxTime > $configed )
-				$maxTime = $configed ;
-			$this->_maxRunTime = $maxTime + time();
-
-			$this->_adjustCurThreads();
-
-			return $this->_prepareCurList();
-		}
-    }
-
-	protected function _adjustCurThreads()
-	{
-		$max = $this->_conf[Litespeed_Litemage_Helper_Data::CFG_WARMUP_THREAD_LIMIT];
-		$limit = $this->_conf[Litespeed_Litemage_Helper_Data::CFG_WARMUP_LOAD_LIMIT] ;
-
-		$load = sys_getloadavg() ;
-		$curload = $load[0];
-		$curthreads = $this->_curThreads;
-
-		if ($this->_curThreads == -1) {
-			// init
-			if ($curload >= ($limit - 1)) {
-				$curthreads = 1;
-			}
-			else {
-				$curthreads = intval($limit - $curload);
-				if ($curthreads > $max) {
-					$curthreads = $max;
-				}
-			}
-		}
-		else {
-			// adjust
-			if ($curload >= $limit + 1 ) {
-				sleep(5);  // sleep 5 secs
-				$curthreads --;
-			}
-			elseif ($curload >= $limit) {
-				if ($curthreads > 1)	// if already 1, keep
-					$curthreads --;
-			}
-			elseif ( ($curload + 1) < $limit ) {
-				if ($curthreads < $max)
-					$curthreads ++;
-			}
-		}
-
-		if ($curthreads <= 0)
-			$curthreads = 0;
-
-		if ($this->_isDebug) {
-			$this->_debugLog('set current threads = ' . $curthreads . ' previous=' . $this->_curThreads
-					. ' max_allowed=' . $max . ' load_limit=' . $limit . ' current_load=' . $curload);
-		}
-
-		$this->_curThreads = $curthreads;
-		$this->_curThreadTime = time();
-
-	}
-
-	protected function _generateUrlList($listId)
-	{
-		if ($listId{0} == 's') {
-			// store
-			return $this->_generateStoreUrlList($listId);
-		}
-		else {
-			return $this->_generateCustUrlList($listId);
-		}
-	}
-
-    protected function _generateStoreUrlList($listId)
-    {
-        $app = Mage::app() ;
-		$storeId = $this->_meta[$listId]['storeid'];
-		$store = $app->getStore($storeId);
-		$app->setCurrentStore($store) ;
-
-		$baseUrl = $this->_meta[$listId]['baseurl'];
-		$basen = strlen($baseUrl);
-
-		$urls = array(''); // first line is empty for base url
-
-        $visibility = array(
-            Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH,
-            Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG,
-        ) ;
-        $catModel = Mage::getModel('catalog/category') ;
-
-		$activeCat = $catModel->getCollection($storeId)->addIsActiveFilter() ;
-
-		$produrls = array();
-
-		// url with cat in path
-		foreach ( $activeCat as $cat ) {
-			$caturl = $cat->getUrl() ;
-			if (strncasecmp($baseUrl, $caturl, $basen) == 0) {
-				$urls[] = substr($caturl, $basen);
-			}
-			foreach ( $cat->getProductCollection($storeId)
-					->addUrlRewrite($cat->getId())
-					->addAttributeToFilter('visibility', $visibility)
-			as $prod ) {
-				$produrl = $prod->getProductUrl() ;
-				if (strncasecmp($baseUrl, $produrl, $basen) == 0) {
-					$produrls[] = substr($produrl, $basen);
-				}
-			}
-		}
-
-		// url with no cat info
-		foreach ( $activeCat as $cat ) {
-			foreach ( $cat->getProductCollection($storeId)
-					->addAttributeToFilter('visibility', $visibility)
-			as $prod ) {
-				$produrl = $prod->getProductUrl() ;
-				if (strncasecmp($baseUrl, $produrl, $basen) == 0) {
-					$produrls[] = substr($produrl, $basen);
-				}
-			}
-		}
-
-		$sitemap = 'sitemap/cms_page' ;
-		$sitemap = (Mage::getConfig()->getNode('modules/MageWorx_XSitemap') !== false) ?
-                    'xsitemap/cms_page' : 'sitemap/cms_page' ;
-
-		$sitemodel = Mage::getResourceModel($sitemap);
-		if ($sitemodel != null) {
-			foreach ( $sitemodel->getCollection($storeId) as $item ) {
-				$sitemapurl = $item->getUrl();
-				$urls[] = $sitemapurl;
-			}
-		}
-
-		$produrls = array_unique($produrls);
-		$urls = array_merge($urls, $produrls);
-
-		$this->_meta[$listId]['listsize'] = count($urls);
-		$this->_meta[$listId]['gentime'] = time();
-		$this->_meta[$listId]['curpos'] = 0;
-		//$this->_meta[$listId]['queried'] = 0;
-		$this->_meta['lastupdate'] = $this->_meta[$listId]['gentime'];
-		$this->_metaUpdated = true;
-		$header = $this->_meta[$listId]['gentime'] . "\t"
-				. $this->_meta[$listId]['listsize'] . "\t"
-				. $this->_meta[$listId]['env'] . "\n";
-
-		if ( $this->_isDebug ) {
-			$this->_debugLog('Generate url map for ' . $listId . ' url count =' . $this->_meta[$listId]['listsize']);
-		}
-
-		$buf = $header . implode("\n", $urls);
-
-		$this->_saveCrawlListFileData($listId, $buf);
-
-		return $urls;
-    }
-
-    protected function _generateCustUrlList($listId)
-    {
-		$baseUrl = $this->_meta[$listId]['baseurl'];
-		$basen = strlen($baseUrl);
-		$custlist = $this->_meta[$listId]['file'];
-		$lines = file($custlist, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-		$urls = array();
-		if ($lines === false) {
-			if ( $this->_isDebug ) {
-				$this->_debugLog('Fail to read custom URL list file ' . $custlist);
-			}
-		}
-		else if (!empty($lines)) {
-			$urls[] = ''; // always add home page
-			foreach ($lines as $line) {
-				$line = ltrim(trim($line), '/');
-				if ($line != '') {
-					if (strpos($line, 'http') !== false) {
-						if (strncasecmp($baseUrl, $line, $basen) == 0) {
-							$urls[] = substr($line, $basen);
-						}
-					}
-					else {
-						$urls[] = $line;
-					}
-				}
-			}
-			$urls = array_unique($urls);
-		}
-
-		$this->_meta[$listId]['listsize'] = count($urls);
-		$this->_meta[$listId]['gentime'] = time();
-		$this->_meta['lastupdate'] = $this->_meta[$listId]['gentime'];
-		$this->_metaUpdated = true;
-		$header = $this->_meta[$listId]['gentime'] . "\t"
-				. $this->_meta[$listId]['listsize'] . "\t"
-				. $this->_meta[$listId]['env'] . "\n";
-
-		if ( $this->_isDebug ) {
-			$this->_debugLog('Generate url map for ' . $listId . ' url count =' . $this->_meta[$listId]['listsize']);
-		}
-
-		$buf = $header . implode("\n", $urls);
-		$this->_saveCrawlListFileData($listId, $buf);
-
-		return $urls;
-    }
-
-    protected function _debugLog( $message, $level = 0 )
-    {
-        if ( $this->_isDebug ) {
-            $message = str_replace("\n", ("\n" . $this->_debugTag . '  '), $message);
-            Mage::log($this->_debugTag . ' '. $message ) ;
-        }
-
-    }
-
-}
+<?php //0046a
+if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
+?>
+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

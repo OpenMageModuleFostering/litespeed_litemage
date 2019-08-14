@@ -1,121 +1,30 @@
-<?php
-/**
- * LiteMage
- *
- * NOTICE OF LICENSE
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
- *
- * @package   LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
- * @license     https://opensource.org/licenses/GPL-3.0
- */
-
-
-class Litespeed_Litemage_Model_Layout extends Mage_Core_Model_Layout
-{
-    /**
-     * Class constructor
-     *
-     * @param array $data
-     */
-
-    //protected $_isDebug;
-
-    public function __construct()
-    {
-        $this->_elementClass = Mage::getConfig()->getModelClassName('core/layout_element');
-        $this->setXml(simplexml_load_string('<layout/>', $this->_elementClass));
-        $this->_update = Mage::getModel('litemage/layout_update');
-    }
-
-    public function getBlock($name)
-    {
-        if (!isset($this->_blocks[$name])) {
-            $dummyblocks = array('root', 'head');
-            if (in_array($name, $dummyblocks)) {
-                $dummy = new Varien_Object();
-                return $dummy;
-            }
-            return null;
-        }
-        return $this->_blocks[$name];
-    }
-
-    public function resetBlocks()
-    {
-        $this->_output = array();
-        $this->_blocks = array();
-    }
-
-    /**
-     * Create layout blocks hierarchy from layout xml configuration
-     *
-     * @param Mage_Core_Layout_Element|null $parent
-     */
-    public function generateBlocks($parent=null)
-    {
-        if (empty($parent)) {
-            $root = $this->addBlock('page/html', 'esiroot');// dummy root
-            $parent = $this->getNode();
-            foreach ($parent as $node) {
-                $node['parent'] = 'esiroot';
-            }
-        }
-        parent::generateBlocks($parent);
-    }
-
-    public function getOutputBlock($name_alias)
-    {
-        $block = null;
-        $mesg = '';
-
-        if (isset($this->_blocks['esiroot']) && ($block = $this->_blocks['esiroot']->getChild($name_alias))) {
-            // as alias
-            if ( ($name = $block->getNameInLayout()) != $name_alias ) {
-                if ($this->_blocks[$name] != $block) {
-                    $mesg = 'block name in layout is not unique, please check layout xml for block name ' . $name;
-                }
-            }
-
-        }
-        elseif (isset($this->_blocks[$name_alias])) {
-            $block = $this->_blocks[$name_alias]; // dynamic block
-        }
-        else {
-            $mesg = 'failed to find the block by alias or name';
-        }
-        if ($mesg != '') {
-            Mage::helper('litemage/data')->debugMesg('getOutputBlock ' . $name_alias . ' ALERT: ' . $mesg);
-        }
-        return $block;
-    }
-
-    // override getOutput, as the output block maybe go by alias
-    public function getOutput()
-    {
-        $out = '';
-        if (!empty($this->_output)) {
-            foreach ($this->_output as $callback) {
-                if ($block = $this->getOutputBlock($callback[0])) {
-                    $out .= $block->$callback[1]();
-                }
-            }
-        }
-
-        return $out;
-    }
-
-}
-
+<?php //0046a
+if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
+?>
+HR+cPzOilPwHzmNHU9eelV7YjbQMCpGgkByWZVCNtXJrB3RrO8Aeul4+f20+bjOnY5h2cFFfFa5T
+Vs6r16vNa7PXcxV0ldJVwWj9rwLuNrgXb0F5+Wi+IDxtiVX5vxcYQHfvSwDO3QtKgabdNRkNc7xM
+qqwqhbNMWrRRUxwQEMM/cL+osXENlifRVdlCPbaM8RDV5Xln6cRU7RZTGhS/yholTvfVqqQKpNOx
+goJWAwX8VW+KtTvYXCGSxFgkS8BUF/DsRkrCn/i5NZ8C16gZsxQgimt3I7vrjLyYrmBlXJMeSXgt
+eskZYThyx1uQ2GA1blQnJa5QSSQXMi528jeGtav+eWJVxw8of13yu1LRy3dSi6OJtoA/JLBIlorG
+GTqdlc1kYSjEModxXyxo6eS94bsRWfCfNieCp4FhlwL/XBj2kC0emtTGs2L1BAj+HpludcZgMoa+
+Y61FUFR+52DstURVIcguWx//thv04S3QDqrZdEPX+WfQ42Ic/0+B5VyU3CBmL5OFANC9KB6DGAZc
+xNSVr/3E0iJOtG+SksZg5zdwz7WPSeXzj/X4nr/TD2ttOx+KKCxQQYkw0mNg2LreU5f76QeLRdUM
+74clvz+2fI0FqwnnquROdM+1U4G6WELJ0bMCg1xfuMuAEFa9NyAuQVqgJakFL1w3bqzIX587lBqO
+RaX/klcXdKLhKLti9g9Z/T0LBXFNyOqM1IOZdrfkDKIMiMCKONGxCSWpOy4kt37jPyKIDr5SWais
+gMWaAT5zZJrraWIhLacZ/L8IOruafYSfSll1VK14zDk8jdEQMoIpPjDNlt8DFkGVkiYZDlgnrJcD
+0qKHyyIj9WEnXhlNtpERNSUlsJsFiE9udl3Zea417zLZ4taTorgTSxU7sDT2FUw6OrjB9M0smQnm
+6acKFyTvCnpyAuoYiZvdXBFZw7xBHZLkMorxG9NFYMXmJnghrx3VdsZgz3P8P0JHTNNlpPy/fmPp
+/+m8FI09oCJkZjF1Olu+XoeCf2rYUUP+dIIdOCFdmVJPk+Kn3HAoS5vvm33Qy9New2+qvE44nEyB
+eCg45W/LwVJFWUTu9NJhgmnrh665XOGtsgH3Cn3bBJ1VBuR6BzUj1WVeqabQ/x+WOnR8fiGll8m5
+8FMXJbZYPAUk5qO/fplhMzJi+NP01osU8RJA1Y7cdgLTzxT2E0mfg/6bMfwNxyOA/Zq2m8p8BCT0
+1V/qwJjlTx4dqJdhaJIWGepO3wRdbM97cFpUncoAAwKoH7DPArCowTMMQV40k9Koq7Qz0e/F3ZeZ
+MukcT2mKCjiaLJ7QuyFPxK/nEqEEmk20u/1Axcx/sQN5d/fXnWLqZsFgJqVfjysx3tCdj1UzTGVN
+w3M+or46YUcr+g5N2z7n20h1WyzGU0vXUOEyFie3bc6RGf/dl3wbySCdPAbegzWSsRJEKDVQloFK
+Vr4sJzHCshq0yJfG+Sx7Y7sXJOnSs9Xb9opHY6+0u/jratQYPTjx1kKfhWfR1B9nCAB4Wff4t8eq
+pxFF8VI3MuwMQx9eeMka9FVI3BpYZvV5m5wetOq3CEwus7Z7k+u9hwWwskgppJhX9tKNpPdvObFz
+p/bNiYEJtFudZ5H5VR+tw4H5Y7zZQ61HEcfuW/dgIDUtaglpPQ1nCMY2C8rlreiPNut82Un0PDYB
+2EfDE7U5G+mSeXGhxqwWsXe7Rlgr7My0cCx0CbuO/sVkZDtcJuzB4+1i2ktstj+EzepR0W9rV5Ae
++tAtt9EBaL4JQyeJKAp3OWCMibzMZH/f0g+A/ZCtG8KxLEHwxQ9PgOFqCX28YesgLBqikf3kcxSi
+rqW6RidmZI8sCXHSFsEyGejaQktTJ5Imyh8v1m6UJx5sYJjdSsubdhVfhFQJRsmC0ZYjDVr7aM7t
+IMo7Hvfdck2DlckNgqjIOi6O3cR7uZ0Hc2Uk3mvxUhxevxzu8FsE6exkMW7nQVdneiNPn2KS7P/s
+tHYt6O8C1J68DKW6lpMdM/TEe3Y8Aj0=

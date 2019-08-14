@@ -1,7 +1,7 @@
 {
     "name": "OpenMageModuleFostering/LiteSpeed_LiteMage",
     "type": "magento-module",
-    "license": "GPL-v3",
+    "license": "LiteSpeed-proprietary-license-",
     "homepage": "",
     "description": "LiteMage Cache speeds up Magento by automatically integrating Magento with LiteSpeed's superior ESI implementation.",
     "authors": [

@@ -1,290 +1,133 @@
-<?php
-/**
- * LiteMage
- *
- * NOTICE OF LICENSE
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
- *
- * @package   LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
- * @license     https://opensource.org/licenses/GPL-3.0
- */
-
-
-class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
-{
-
-    const WARMUP_DELTA_CACHE_ID = 'litemage_warmup_delta' ;
-
-    protected $_curProductId ;
-
-    /**
-     * Clear LiteSpeed Cache cache by admin actions
-     *
-     * Events:
-     *     controller_action_postdispatch_adminhtml_cache_flushAll
-     *     controller_action_postdispatch_adminhtml_cache_flushSystem
-     *
-     * @param  Varien_Object $eventObj
-     * @return null
-     */
-    public function adminPurgeCache( $eventObj )
-    {
-        $config = Mage::helper('litemage/data') ;
-        if ( $config->moduleEnabled() ) {
-            $this->_purgeAllByAdmin($this->_getAdminSession(), $config) ;
-        }
-    }
-
-    public function adminPurgeCurrency($eventObj)
-    {
-        $config = Mage::helper('litemage/data') ;
-        if ( $config->moduleEnabled() ) {
-            Mage::helper('litemage/esi')->setPurgeHeader(array( 'CURR' ), 'adminPurgeCurrency') ;
-            $this->_getAdminSession()->addSuccess($config->__('Notified LiteSpeed web server to purge all cached pages which have currency rates.')) ;
-        }
-    }
-
-    public function adminPurgeCacheBy($type, $ids )
-    {
-        $config = Mage::helper('litemage/data') ;
-        if ( $config->moduleEnabled() ) {
-            // validate
-            $adminSession = $this->_getAdminSession() ;
-            if ($ids == '') {
-                $adminSession->addError($config->__('Missing input value.'));
-            }
-            elseif (in_array($type, array('P','C','G'))) {
-                $tags = preg_split("/[\s,]+/", $ids, null, PREG_SPLIT_NO_EMPTY);
-                if (count($tags) == 0) {
-                    $adminSession->addError($config->__('Missing ID values.'));
-                }
-                else {
-                    $cacheTags = array();
-                    foreach ($tags as $tag) {
-                        if (strval(intval($tag)) != $tag) {
-                            $adminSession->addError($config->__('Invalid ID values ' . $tag));
-                            break;
-                        }
-                        $cacheTags[] = $type . '.' . $tag;
-                    }
-                    if (count($cacheTags)) {
-                        $this->_purgeTagByAdmin($cacheTags, 'by ID ' . $ids . ' (from cache management)');
-                    }
-                }
-            }
-            elseif ($type == 'U') {
-                if ($ids[0] != '/') {
-                    $adminSession->addError($config->__('Invalid URL value, requires relative URL starting with /'));
-                }
-                else {
-                    $this->_purgeUrlByAdmin($ids);
-                }
-            }
-            else {
-                $adminSession->addError($config->__('Invalid input type'));
-            }
-        }
-    }
-
-    public function adminConfigChangedSection( $eventObj )
-    {
-        $config = Mage::helper('litemage/data') ;
-        $moduleEnabled = $config->getConf(Litespeed_Litemage_Helper_Data::CFG_ENABLED) ;
-        $serverEnabled = isset($_SERVER['X-LITEMAGE']) && $_SERVER['X-LITEMAGE'] ;
-        $adminSession = $this->_getAdminSession() ;
-        if ( ! $serverEnabled ) {
-            $adminSession->addError($config->__('Your installation of LiteSpeed Web Server does not have LiteMage Cache enabled.')) ;
-        }
-        if ( $moduleEnabled ) {
-            if ( $serverEnabled ) {
-                $adminSession->addNotice($config->__('To make your changes take effect immediately, purge LiteSpeed Cache (System -> Cache Management).')) ;
-            }
-        }
-        else {
-            $this->_purgeAllByAdmin($adminSession, $config) ;
-        }
-    }
-
-    public function adminConfigEditSection( $eventObj )
-    {
-        $sectionCode = Mage::app()->getRequest()->getParam('section') ;
-        if ( $sectionCode == 'litemage' ) {
-            $serverEnabled = isset($_SERVER['X-LITEMAGE']) && $_SERVER['X-LITEMAGE'] ;
-            if ( ! $serverEnabled ) {
-                $config = Mage::helper('litemage/data') ;
-                $this->_getAdminSession()->addError($config->__('Your installation of LiteSpeed Web Server does not have LiteMage Cache enabled.')) ;
-            }
-        }
-    }
-
-    protected function _purgeAllByAdmin( $adminSession, $config )
-    {
-        $tags = array( Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG ) ;
-        Mage::app()->cleanCache($tags) ;
-        $adminSession->addSuccess($config->__('Purged all LiteMage ESI block cache.')) ;
-
-        Mage::helper('litemage/esi')->setPurgeHeader(array( '*' ), 'purgeAllByAdmin') ;
-        $adminSession->addSuccess($config->__('Notified LiteSpeed web server to purge all cached items.')) ;
-    }
-
-    protected function _purgeTagByAdmin( $tags, $message = '' )
-    {
-        Mage::helper('litemage/esi')->setPurgeHeader($tags, 'purgeTagByAdmin') ;
-        if ( $message ) {
-            $this->_getAdminSession()->addSuccess(Mage::helper('litemage/data')->__('Notified LiteSpeed web server to purge ' . $message)) ;
-        }
-    }
-
-    protected function _purgeUrlByAdmin($url)
-    {
-        Mage::helper('litemage/esi')->setPurgeURLHeader($url, 'purgeUrlByAdmin') ;
-        $this->_getAdminSession()->addSuccess(Mage::helper('litemage/data')->__('Notified LiteSpeed web server to purge URL ' . $url)) ;
-    }
-
-    protected function _getAdminSession()
-    {
-        return Mage::getSingleton('adminhtml/session') ;
-    }
-
-    /**
-     * Event: admin catalog_category_save_commit_after
-     */
-    public function adminPurgeCatalogCategory( $eventObj )
-    {
-        try {
-            if ( Mage::helper('litemage/data')->moduleEnabled() ) {
-                $category = $eventObj->getEvent()->getCategory() ;
-                if ( $category != null ) {
-                    $tag = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $category->getId() ;
-                    $this->_purgeTagByAdmin(array( $tag ), $category->getName()) ;
-                }
-            }
-        } catch ( Exception $e ) {
-            Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCatalogCategory: ' . $e->getMessage()) ;
-        }
-    }
-
-    //admin catalog_product_save_commit_after
-    public function adminPurgeCatalogProduct( $eventObj )
-    {
-        try {
-            if ( Mage::helper('litemage/data')->moduleEnabled() ) {
-                $product = $eventObj->getEvent()->getProduct() ;
-                if ( $product != null ) {
-                    $this->_purgeByProduct($product) ;
-                }
-            }
-        } catch ( Exception $e ) {
-            Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCatalogProduct: ' . $e->getMessage()) ;
-        }
-    }
-
-    // global cataloginventory_stock_item_save_after
-    public function purgeCatalogProductByStock( $eventObj )
-    {
-        try {
-            if ( Mage::helper('litemage/data')->moduleEnabled() ) {
-                $item = $eventObj->getEvent()->getItem() ;
-                if ( $item->getStockStatusChangedAutomatically() || ($item->getOriginalInventoryQty() <= 0 && (($item->getQty() + $item->getQtyCorrection()) > 0)) ) {
-                    $product = Mage::getModel('catalog/product')->load($item->getProductId());
-                    $this->_purgeByProduct($product) ;
-                }
-            }
-        } catch ( Exception $e ) {
-            Mage::helper('litemage/data')->debugMesg('Error on purgeCatalogProductByStock: ' . $e->getMessage()) ;
-        }
-    }
-
-    // on admin cms_page_save_commit_after
-    public function adminPurgeCmsPage( $eventObj )
-    {
-        try {
-            if ( Mage::helper('litemage/data')->moduleEnabled() ) {
-                $page = $eventObj->getEvent()->getObject() ;
-                if ( $page != null ) {
-                    $id = $page->getId() ;
-                    if ( $id != null ) {
-                        $tag = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CMS . $id ;
-                        $this->_purgeTagByAdmin(array( $tag ), 'Page ' . $page->getTitle()) ;
-                    }
-                }
-            }
-        } catch ( Exception $e ) {
-            Mage::helper('litemage/data')->debugMesg('Error on adminPurgeCmsPage: ' . $e->getMessage()) ;
-        }
-    }
-
-    protected function _purgeByProduct( $product )
-    {
-        $productId = $product->getId() ;
-        if ( $this->_curProductId == $productId )
-            return ; // already purged
-        $this->_curProductId = $productId ;
-
-        $cids = $product->getCategoryIds() ;
-
-        if ( $cids == null )
-            $cids = array() ;
-
-        $tags = array() ;
-        $tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_PRODUCT . $productId ;
-
-        $pids = array_unique(array_merge(Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($productId), Mage::getModel('catalog/product_type_grouped')->getParentIdsByChild($productId))) ;
-
-        foreach ( $pids as $pid ) {
-            $tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_PRODUCT . $pid ;
-            $pp = Mage::getModel('catalog/product')->load($pid) ;
-            if ( $pp->isVisibleInCatalog() ) {
-                if ( ($pcids = $pp->getCategoryIds()) != null ) {
-                    $cids = array_merge($cids, $pcids) ;
-                }
-            }
-        }
-
-        $cids = array_unique($cids) ;
-        $pcids = array() ;
-
-        foreach ( $cids as $cid ) {
-            $tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $cid ;
-            $cat = Mage::getModel('catalog/category')->load($cid) ;
-            $pcids = array_merge($pcids, $cat->getParentIds()) ;
-        }
-
-        $pcids = array_diff(array_unique($pcids), $cids) ;
-        foreach ( $pcids as $cid ) {
-            $cat = Mage::getModel('catalog/category')->load($cid) ;
-            $dispmode = $cat->getDisplayMode() ;
-            if ( $dispmode == Mage_Catalog_Model_Category::DM_PRODUCT || $dispmode == Mage_Catalog_Model_Category::DM_MIXED )
-                $tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $cid ;
-        }
-
-        $this->_purgeTagByAdmin($tags, $product->getName()) ;
-    }
-
-    /* protected function _addDelta($urls)
-      {
-      $app = Mage::app();
-      if ($delta = $app->loadCache( self::WARMUP_DELTA_CACHE_ID )) {
-      $delta .= "\n" . implode("\n", $urls);
-      }
-      else {
-      $delta = time() . "\n" . implode("\n", $urls);
-      }
-      $tags = array(Litespeed_Litemage_Helper_Data::LITEMAGE_GENERAL_CACHE_TAG);
-      $app->saveCache($delta, self::WARMUP_DELTA_CACHE_ID, $tags);
-
-      } */
-}
+<?php //0046a
+if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo('Site error: the file <b>'.__FILE__.'</b> requires the ionCube PHP Loader '.basename($__ln).' to be installed by the website operator. If you are the website operator please use the <a href="http://www.ioncube.com/lw/">ionCube Loader Wizard</a> to assist with installation.');exit(199);
+?>
+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
+hgPaXMrKBcY8kGiUWoEx4DKOSCUHk+7kChi=

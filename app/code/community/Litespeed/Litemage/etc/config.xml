@@ -1,32 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-/**
- * LiteMage
- *
- * NOTICE OF LICENSE
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see https://opensource.org/licenses/GPL-3.0 .
- *
- * @package   LiteSpeed_LiteMage
- * @copyright  Copyright (c) 2015-2016 LiteSpeed Technologies, Inc. (https://www.litespeedtech.com)
- * @license     https://opensource.org/licenses/GPL-3.0 
- */
--->
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.18</version>
+            <version>1.0.3</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -67,7 +43,7 @@
             <adminhtml>
                 <args>
                     <modules>
-                        <litemage after="Mage_Adminhtml">Litespeed_Litemage_Adminhtml</litemage>
+                        <Litespeed_Litemage before="Mage_Adminhtml">Litespeed_Litemage_Adminhtml</Litespeed_Litemage>
                     </modules>
                 </args>
             </adminhtml>
@@ -76,7 +52,7 @@
     <adminhtml>
         <layout>
             <updates>
-                <litemage>
+                <litemage module="Litespeed_Litemage">
                     <file>litemage.xml</file>
                 </litemage>
             </updates>
@@ -87,18 +63,11 @@
                     <children>
                         <system>
                             <children>
-                                <cache>
-                                    <children>
-                                        <litemage>
-                                            <title>LiteMage Cache Management</title>
-                                        </litemage>
-                                    </children>
-                                </cache>
                                 <config>
                                     <children>
-                                        <litemage>
-                                            <title>LiteMage Cache Configuration</title>
-                                        </litemage>
+                                    <litemage translate="title">
+                                    <title>Litemage options powered by LiteSpeed Cache</title>
+                                    </litemage>
                                     </children>
                                 </config>
                             </children>
@@ -126,15 +95,6 @@
                     </litemage_purge>
                 </observers>
             </controller_action_postdispatch_adminhtml_cache_flushSystem>
-            <controller_action_postdispatch_adminhtml_system_currency_saveRates>
-                <observers>
-                    <litemage_purge>
-                        <type>singleton</type>
-                        <class>litemage/observer_purge</class>
-                        <method>adminPurgeCurrency</method>
-                    </litemage_purge>
-                </observers>
-            </controller_action_postdispatch_adminhtml_system_currency_saveRates>
             <!-- purge category cache after save -->
             <catalog_category_save_commit_after>
                 <observers>
@@ -162,7 +122,7 @@
                     </litemage_purge>
                 </observers>
             </cms_page_save_commit_after>
-            <!-- purge all caches when module disabled -->
+            <!-- purge all cache when module disabled -->
             <admin_system_config_changed_section_litemage>
                 <observers>
                     <litemage_purge>
@@ -171,7 +131,7 @@
                     </litemage_purge>
                 </observers>
             </admin_system_config_changed_section_litemage>
-            <!-- displays warning if license not enabled -->
+            <!-- display warning if license not enabled -->
             <controller_action_predispatch_adminhtml_system_config_edit>
                 <observers>
                     <litemage_purge>
@@ -347,27 +307,30 @@
         </events>
         <litemage>
             <esiblock>
-                <!-- If you need to inject any other privately cached custom block groupings, 
-                you can add them here. <blocks> contains the block names defined in your 
-                layout files. All blocks that share the same purge events can be listed 
-                together in a single grouping. If their purge events are not being watched 
-                in the previous events section, you will also need to add a litemage esi 
-                observer for those events.
-                
-                This config file will be overwritten with upgrades to the LiteMage module. 
-                If you have made any modifications, please make sure to keep a copy -->
+                <!--    If you need to inject other privately changed blocks, you can add here. 
+<blocks> contains the block names defined in the layout files. All blocks that 
+share the same purge events can be listed together. If their purge  events are 
+not watched in previous events section, you will need to add litemage esi observer for those events.
+ 
+This config file will be updated with module upgrade. If you modified the settings here, please make sure
+you keep a copy. -->
+                <!-- blocks only purged by login/logout, no purge_events config required. login/logout will auto purge all the private blocks -->
                 <welcome>
-                    <!-- blocks only purged by login/logout events, no purge_events configuration is required as login/logout will auto purge all private blocks -->
                     <access>private</access>
-                    <blocks>T:Mage_Page_Block_Html_Welcome,welcome,litemage.jsvar,nickname$v</blocks>
-                    <!-- Marking a block as valueonly, denoted by the suffix “$v”, will only output 
-                    the blocks html value without the added html tags and comments when in debug mode. 
-                    The block will also not be highlighted when using the LITEMAGE_DEBUG=SHOWHOLES parameter -->
+                    <blocks>welcome, litemage.jsvar</blocks>
                 </welcome>
+                <nickname>
+                    <access>private</access>
+                    <blocks>nickname</blocks>
+                    <!-- valueonly will only output block html with no added html tags, comments -->
+                    <valueonly/>
+                </nickname>
                 <cart>
                     <access>private</access>
-                    <!-- Blocks can be set using class type, denoted by the prefix "T:". This will include all blocks that inherit this type in the grouping -->
-                    <blocks>T:Mage_Checkout_Block_Cart_Abstract</blocks>
+                    <!-- other possible block names under same purge events, customized block names from different themes.
+              If you are familiar with what blocks used in your theme, you can add/remove block names here.
+                mini-cart(from sns theme), mini-cartpro (from sm_market) -->
+                    <blocks>cart_sidebar, minicart_head, mini-cart, mini-cartpro</blocks>
                     <purge_events>
                         <sales_quote_save_after/>
                     </purge_events>
@@ -375,14 +338,15 @@
                 <toplinks>
                     <access>private</access>
                     <blocks>top.links</blocks>
-                    <purge_tags>cart, wishlist</purge_tags>
-                    <!-- This is a composite grouping. The purge events for the blocks in this grouping are 
-                    a combination of existing purge event sets from other groupings. By using purge_tags 
-                    to reference these other groupings, you do not need to redefine these purge events.  -->
+                    <purge_events>
+                        <wishlist_item_save_after/>
+                        <wishlist_item_delete_after/>
+                        <sales_quote_save_after/>
+                    </purge_events>
                 </toplinks>
                 <compare>
                     <access>private</access>
-                    <blocks>T:Mage_Catalog_Block_Product_Compare_Sidebar, T:Mage_Reports_Block_Product_Compared</blocks>
+                    <blocks>catalog.compare.sidebar, right.reports.product.compared</blocks>
                     <purge_events>
                         <catalog_product_compare_add_product/>
                         <catalog_product_compare_remove_product/>
@@ -391,14 +355,14 @@
                 </compare>
                 <viewed>
                     <access>private</access>
-                    <blocks>T:Mage_Reports_Block_Product_Viewed</blocks>
+                    <blocks>right.reports.product.viewed, left.reports.product.viewed</blocks>
                     <purge_events>
                         <catalog_controller_product_view/>
                     </purge_events>
                 </viewed>
                 <poll>
                     <access>private</access>
-                    <blocks>T:Mage_Poll_Block_ActivePoll</blocks>
+                    <blocks>right.poll</blocks>
                     <purge_events>
                         <poll_vote_add/>
                     </purge_events>
@@ -406,7 +370,7 @@
                 <!-- messages is specially handled, cannot change the tag name here, has to be "messages" -->
                 <messages>
                     <access>private</access>
-                    <blocks>T:Mage_Core_Block_Messages</blocks>
+                    <blocks>global_messages, messages</blocks>
                     <purge_events>
                         <core_session_abstract_add_message/>
                     </purge_events>
@@ -414,7 +378,7 @@
                 <!-- Blocks only visible when logged in -->
                 <reorder>
                     <access>private</access>
-                    <blocks>T:Mage_Sales_Block_Reorder_Sidebar</blocks>
+                    <blocks>sale.reorder.sidebar</blocks>
                     <purge_events>
                         <sales_quote_save_after/>
                         <checkout_onepage_controller_success_action/>
@@ -422,20 +386,17 @@
                 </reorder>
                 <wishlist>
                     <access>private</access>
-                    <blocks>T:Mage_Wishlist_Block_Customer_Sidebar</blocks>
+                    <blocks>wishlist_sidebar</blocks>
                     <purge_events>
                         <wishlist_item_save_after/>
                         <wishlist_item_delete_after/>
                     </purge_events>
                 </wishlist>
                 <!-- public blocks -->
-                    <!-- Some themes will use a variable in footer that is declared in the header, 
-                this causes the footer block to fail to generate. You can modify the 
-                template to generate the missing variable or simply choose to not punch 
-                a hole in footer (comment out the footer block).
-                
-                Making the footer a public block will speed up page generation and save some disk space  -->
                 <footer>
+                    <!-- some theme will use a variable in footer which is declared in the header, cause footer block fail to generate.
+               you can modify the template to generate the missing variable, or simply do not punch hole in footer (comment out this footer block).
+                Make it a public block will speed up page generation and save some disk space.  -->
                     <access>public</access>
                     <blocks>footer</blocks>
                 </footer>
@@ -446,43 +407,28 @@
         <litemage>
             <general>
                 <enabled>0</enabled>
-                <admin_ips>127.0.0.1</admin_ips>
                 <public_ttl>28800</public_ttl>
                 <private_ttl>1800</private_ttl>
                 <track_viewed>0</track_viewed>
                 <diff_customergroup>0</diff_customergroup>
                 <diff_cookie/>
-                <alt_esi_syntax>0</alt_esi_syntax>
             </general>
             <warmup>
                 <enable_warmup>0</enable_warmup>
                 <load_limit>5</load_limit>
-                <thread_limit>6</thread_limit>
-                <max_time>360</max_time>
-                <interval>21600</interval>
-                <priority>100</priority>
-                <multi_currency/>
-                <custlist/>
-                <custlist_priority>50</custlist_priority>
-                <custlist_interval>7200</custlist_interval>
+                <max_time>300</max_time>
             </warmup>
             <default>
-                <!-- Full or partial match on controller full action name for cacheable routes. Space, return, and comma separated -->
+                <!-- Full or partial match on controller full action name for cacheable routes. space, return, comma separated -->
                 <cache_routes><![CDATA[catalog cms contacts_index_index]]></cache_routes>
-                <!-- Full or partial match on controller full action name for non-cacheable routes within cacheable routes. Space, return, and comma separated -->
-                <nocache_subroutes><![CDATA[catalog_product_compare catalogsearch]]></nocache_subroutes>
-                <!-- Entire response cached based on routes, same content for all urls, such as "cms_index_noRoute" for 404 pages. Space, return, and comma separated. -->
+                <!-- Full or partial match on controller full action name for no cache, which are within cacheable routes. space, return, comma separated -->
+                <nocache_subroutes><![CDATA[catalog_product_compare]]></nocache_subroutes>
+                <!-- Whole response cached based on routes, same content for all url, current for 404 -->
                 <fullcache_routes><![CDATA[cms_index_noRoute]]></fullcache_routes>
             </default>
             <donotcache>
-                <!-- configured through Admin Panel, do not update here. Customized settings will be picked up from database -->
-                <cache_routes/>
-                <nocache_subroutes/>
-                <vars>no_cache</vars>
+                <vars/>
                 <urls/>
-                <welcome/>
-                <toplinks/>
-                <messages/>
             </donotcache>
             <test>
                 <debug>0</debug>
