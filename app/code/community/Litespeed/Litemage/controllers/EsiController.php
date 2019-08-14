@@ -26,7 +26,6 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 {
 
 	const ESICACHE_ID = 'litemage_esi_data' ;
-	const ESICACHE_ENTRYONLY = '__' ;
 
 	protected $_processed = array() ;
 	protected $_scheduled = array() ;
@@ -35,7 +34,7 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 	protected $_config ;
 	protected $_isDebug ;
 	protected $_layout ;
-	protected $_env = array( 'shared' => false, 'fetch_all' => false ) ;
+	protected $_env = array( 'shared' => false ) ;
 
 	// defaultHandles, cache_id, cache_updated, layout_unique, translate_inline, inline_tag
 
@@ -133,7 +132,7 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 	{
 		$this->_getSingle() ;
 	}
-
+	
 	protected function _getSingle()
 	{
 		$esiUrl = $this->_setOriginalReq() ;
@@ -157,15 +156,19 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 
 		$esiIncludes = $_REQUEST['esi_include'] ;
 
-		if ( $this->_isDebug ) {
-			$this->_config->debugMesg('combined includes = ' . print_r($esiIncludes, true)) ;
-		}
-
 		if ( ($key = array_search('*', $esiIncludes)) !== false ) {
-			$this->_env['fetch_all'] = true ;
 			unset($esiIncludes[$key]) ;
 			// need to add getformkey
-			$esiIncludes = array_unique(array_merge($esiIncludes, array_keys($this->_esiCache))) ;
+			$extraUrls = array_keys($this->_esiCache);
+			$esiIncludes = array_unique(array_merge($esiIncludes, $extraUrls)) ;
+			if ( $this->_isDebug ) {
+				$this->_config->debugMesg('combined includes * = ' . print_r($esiIncludes, true)) ;
+			}
+		}
+		else {
+			if ( $this->_isDebug ) {
+				$this->_config->debugMesg('combined includes = ' . print_r($esiIncludes, true)) ;
+			}
 		}
 
 		//add raw header here, to handle ajax exception
@@ -192,6 +195,19 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		}
 		try {
 			$out = $block->toHtml() ;
+			$tag = $esiData->getCacheAttribute('tag');
+			if ( $tag == 'E.cart' || $tag == 'E.toplinks') {
+				// remove /checkout/cart/delete uenc
+				///checkout/cart/delete/id/588/form_key/UItDHAGUxKVcMKX0/uenc/aHR0cDovL21hZ2Vud..........v/
+				$rcount = 0;
+				$out1 = preg_replace('/(\/checkout\/cart\/delete\/id\/\d+\/form_key\/\w+\/)uenc\/[^\/]*\//', '$1', $out, -1, $rcount);
+				if ($rcount > 0) {
+					if ( $this->_isDebug ) {
+						$this->_config->debugMesg('removed ' . $rcount . ' uenc from cart delete url') ;
+					}
+					$out = $out1;
+				}
+			}
 			if ( $this->_env['translate_inline'] ) {
 				Mage::getSingleton('core/translate_inline')->processResponseBody($out) ;
 			}
@@ -229,24 +245,6 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			Mage::throwException('Illegal entrance for LiteMage module') ;
 		}
 		return $origEsiUrl ;
-	}
-
-	protected function _parseUrlParams( $esiUrl )
-	{
-		$esiUrl = urldecode($esiUrl) ;
-		$pos = strpos($esiUrl, 'litemage/esi/') ;
-		if ( $pos === false ) {
-			Mage::throwException('LiteMage module invalid esi data ' . $esiUrl) ;
-		}
-		$buf = explode('/', substr($esiUrl, $pos + 13)) ;
-		$c = count($buf) ;
-		$param = array() ;
-		$param['action'] = $buf[0] ;
-		$param['url'] = $esiUrl ;
-		for ( $i = 1 ; ($i + 1) < $c ; $i+=2 ) {
-			$param[$buf[$i]] = $buf[$i + 1] ;
-		}
-		return $param ;
 	}
 
 	protected function _processIncoming( $esiUrls )
@@ -301,7 +299,6 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		}
 		$this->_helper->setCacheControlFlag($flag, $attr['ttl'], $tag) ;
 
-
 		$this->getResponse()->setBody($esiData->getRawOutput()) ;
 	}
 
@@ -343,8 +340,6 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			$body .= $inlineHtml ;
 		}
 		$this->getResponse()->setBody($body) ;
-
-
 
 		if ( $this->_env['cache_updated'] && $this->_config->useInternalCache() ) {
 			$this->_config->saveInternalCache(serialize($this->_esiCache), $this->_env['cache_id']) ;
@@ -524,7 +519,8 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		$d = $esiData->getData() ;
 
 		$app = Mage::app() ;
-		$app->setCurrentStore($app->getStore($d['s'])) ;
+		$store = $app->getStore($d['s']);
+		$app->setCurrentStore($store) ;
 
 		if ( $action == Litespeed_Litemage_Model_EsiData::ACTION_LOG ) {
 			return ; // only need to set store
@@ -577,10 +573,10 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 
 		$this->getLayout()->getUpdate()->setCachePrefix($unique) ;
 	}
-
+	
 	protected function _getShared( $url )
 	{
-		if ( ! empty($this->_esiCache[$url]) && ($this->_esiCache[$url] != self::ESICACHE_ENTRYONLY) ) {
+		if ( ! empty($this->_esiCache[$url]) && (strpos($url, 'getFormKey') === false) ) {
 			return $this->_esiCache[$url] ;
 		}
 		return null ;
@@ -594,11 +590,12 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			return -1 ;
 		}
 
-		$isEntryOnly = ($esiData->getAction() == Litespeed_Litemage_Model_EsiData::ACTION_GET_FORMKEY );
+		$isFormKey = ($esiData->getAction() == Litespeed_Litemage_Model_EsiData::ACTION_GET_FORMKEY );
 
 		if ( $this->_env['shared'] ) {
-			if ( empty($this->_esiCache[$url]) ) {
-				$this->_esiCache[$url] = $isEntryOnly ? self::ESICACHE_ENTRYONLY : $inlineHtml ;
+			if (!isset($this->_esiCache[$url])
+					|| (!$isFormKey && ($this->_esiCache[$url] == ''))) {
+				$this->_esiCache[$url] = $isFormKey ? '' : $inlineHtml ;
 				$this->_env['cache_updated'] = true ;
 				return 2 ;
 			}
@@ -607,13 +604,13 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 
 		if ( ! isset($this->_esiCache[$url]) ) {
 			// insert if entry not exist
-			$this->_esiCache[$url] = $isEntryOnly ? self::ESICACHE_ENTRYONLY : '' ;
+			$this->_esiCache[$url] = '' ;
 			$this->_env['cache_updated'] = true ;
 			return 1 ;
 		}
 
 		$html = $this->_esiCache[$url] ;
-		if ( $html != '' && $html != self::ESICACHE_ENTRYONLY ) {
+		if ( $html != '' && !$isFormKey ) {
 			// check if same as shared
 			$raw = '">' . $esiData->getRawOutput() . '</' . $this->_env['inline_tag'] . '>' ;
 			if ( strpos($html, $raw) ) {
@@ -623,5 +620,5 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		}
 		return 0 ;
 	}
-
+	
 }

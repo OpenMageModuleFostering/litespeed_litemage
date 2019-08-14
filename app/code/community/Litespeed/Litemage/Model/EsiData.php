@@ -193,8 +193,6 @@ class Litespeed_Litemage_Model_EsiData
 
 	protected function _initBlock($params, $configHelper)
 	{
-		$this->_initShared($params);
-
 		if (!isset($params['t']) || !isset($params['bi'])) {
 			$this->_exceptionOut('missing param t_bi');
 		}
@@ -265,23 +263,10 @@ class Litespeed_Litemage_Model_EsiData
 	{
 		// ttl is 0, no cache
 		if ( isset($params['product']) && isset($params['s']) ) {
-			$this->_data = array('product' => $params['product'],
-					's' => $params['s']);
+			$this->_data['product'] = $params['product'];
 			$this->_batchId = self::BATCH_DIRECT;
 		}
 		// else exception out
-	}
-
-	protected function _initShared($params)
-	{
-		if ( ! isset($params['s']) || ! isset($params['dp']) || ! isset($params['dt']) ) {
-			$this->_exceptionOut('missing s_dp_dt') ;
-		}
-		$this->_data = array(
-			's' => $params['s'],
-			'dp' => $params['dp'],
-			'dt' => $params['dt']
-		);
 	}
 
 	public function getData()
@@ -291,7 +276,6 @@ class Litespeed_Litemage_Model_EsiData
 
 	protected function _initCombined($params)
 	{
-		$this->_initShared($params);
 		if ( empty($_REQUEST['esi_include']) ) {
 			$this->_exceptionOut('missing esi_include');
 		}
@@ -342,6 +326,22 @@ class Litespeed_Litemage_Model_EsiData
 		}
 		$dparams = $configHelper->decodeEsiUrlParams($param);
 		$dparams['_layout_Id_'] = $url1;
+		
+		$this->_data = array();
+		if (isset($dparams['s']))
+			$this->_data['s'] = $dparams['s'];
+		if (isset($dparams['dp']))
+			$this->_data['dp'] = $dparams['dp'];
+		if (isset($dparams['dt']))
+			$this->_data['dt'] = $dparams['dt'];
+		
+		if ($this->_action == self::ACTION_GET_COMBINED
+				|| $this->_action == self::ACTION_GET_BLOCK
+				|| $this->_action == self::ACTION_GET_MESSAGE) {
+			if ( ! isset($dparams['s']) || ! isset($dparams['dp']) || ! isset($dparams['dt']) ) {
+				$this->_exceptionOut('missing s_dp_dt') ;
+			}
+		}
 		return $dparams ;
 	}
 

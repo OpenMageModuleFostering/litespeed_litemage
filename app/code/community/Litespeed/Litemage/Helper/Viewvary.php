@@ -25,7 +25,6 @@
 
 class Litespeed_Litemage_Helper_Viewvary
 {
-
     protected $_vary = array( 'toolbar' => '_adjustToolbar', 'env' => '_setEnv', 'review' => '_checkReviewVary' ) ;
 
     public function persistViewVary( $tags )
@@ -59,15 +58,26 @@ class Litespeed_Litemage_Helper_Viewvary
 			// only set if there's existing cookie
 			if (!Mage::helper('review')->getIsGuestAllowToWrite()) {
 				// only logged in allow to write review
-				if (0 == Mage::helper('litemage/data')->getConf(Litespeed_Litemage_Helper_Data::CFG_DIFFCUSTGRP)) {
+				$diffGrp = Mage::helper('litemage/data')->getConf(Litespeed_Litemage_Helper_Data::CFG_DIFFCUSTGRP);
+				$addReviewVary = 0;
+				if (0 == $diffGrp) {
 					// no seperate copy per user group, so need to distinguish here
-					$cookieName = '_lscache_vary_review' ;
-					if (Mage::getSingleton('customer/session')->isLoggedIn()) {
-						Mage::helper('litemage/esi')->addEnvVars($cookieName, 'write', '1') ;
+					$addReviewVary = Mage::getSingleton('customer/session')->isLoggedIn() ? 2 : 1;
+				}
+				elseif (3 == $diffGrp) {
+					$cgset = Mage::helper('litemage/data')->getConf(Litespeed_Litemage_Helper_Data::CFG_DIFFCUSTGRP_SET);
+					$currCustomerGroup = Mage::getSingleton('customer/session')->getCustomerGroupId() ;
+					if (!isset($cgset[$currCustomerGroup])) {
+						// mixed logged in group with non-logged-in
+						$addReviewVary = (Mage_Customer_Model_Group::NOT_LOGGED_IN_ID != $currCustomerGroup) ? 2 : 1;
 					}
-					else {
-						Mage::helper('litemage/esi')->addEnvVars($cookieName) ;
-					}
+				}
+				
+				if ($addReviewVary == 1) { // cookie only
+					Mage::helper('litemage/esi')->addEnvVars('_lscache_vary_review') ;
+				}
+				elseif ($addReviewVary == 2) { // cookie & value
+					Mage::helper('litemage/esi')->addEnvVars('_lscache_vary_review', 'write', '1') ;
 				}
 			}
 		}

@@ -604,7 +604,7 @@ class Litespeed_Litemage_Helper_Esi
 
         if ( ($this->_cacheVars['flag'] & self::CHBM_ESI_ON) != 0 ) {
             // no need to use comment, will be removed by minify extensions
-            $combined = '<' . $esiIncludeTag . ' src="' . $this->_getSubReqUrl('litemage/esi/getCombined', $sharedParams) . '" combine="main" cache-control="no-cache"/>' ;
+            $combined = '<' . $esiIncludeTag . ' src="' . $this->_getSubReqUrl('litemage/esi/getCombined', $sharedParams) . '" combine="main2" cache-control="no-cache"/>' ;
 			if ($this->_isDebug) {
 				$this->_config->debugMesg('_updateResponseBody combined is ' . $combined);
 			}
@@ -1073,13 +1073,18 @@ class Litespeed_Litemage_Helper_Esi
 			$default['st'] = intval($currStoreId) ;
 		}
 		if ($diffGrp = $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_DIFFCUSTGRP)) {
-			// diff cache copy peer customer group
+			// diff cache copy per customer group
 			$currCustomerGroup = Mage::getSingleton('customer/session')->getCustomerGroupId() ;
 			if ( Mage_Customer_Model_Group::NOT_LOGGED_IN_ID != $currCustomerGroup ) {
 				if ($diffGrp == 1) // diff copy per group
 					$default['cgrp'] = $currCustomerGroup ;
-				else    // diff copy for logged in user
+				elseif ($diffGrp == 2)    // diff copy for logged in user
 					$default['cgrp'] = 'in' ;
+				elseif ($diffGrp == 3) {
+					$cgset = $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_DIFFCUSTGRP_SET);
+					if (isset($cgset[$currCustomerGroup]))
+						$default['cgrp'] = $cgset[$currCustomerGroup];
+				}
 			}
 		}
 		if ($this->_config->isRestrainedIP()) {
@@ -1125,8 +1130,13 @@ class Litespeed_Litemage_Helper_Esi
                 if ( Mage_Customer_Model_Group::NOT_LOGGED_IN_ID != $currCustomerGroup ) {
                     if ($diffGrp == 1) // diff copy per group
                         $urlParams['cg'] = $currCustomerGroup ;
-                    else    // diff copy for logged in user
+                    elseif ($diffGrp == 2)    // diff copy for logged in user
                         $urlParams['cg'] = 'in' ;
+					elseif ($diffGrp == 3) {
+						$cgset = $this->_config->getConf(Litespeed_Litemage_Helper_Data::CFG_DIFFCUSTGRP_SET);
+						if (isset($cgset[$currCustomerGroup]))
+							$urlParams['cg'] = $cgset[$currCustomerGroup];						
+						}
                 }
             }
             // for public block, should consider vary on

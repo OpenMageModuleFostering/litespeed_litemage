@@ -26,7 +26,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.2.3</version>
+            <version>1.3.0</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -466,6 +466,7 @@
                 <home_ttl>28800</home_ttl>
                 <track_viewed>0</track_viewed>
                 <diff_customergroup>0</diff_customergroup>
+                <diff_customergroup_set/>
                 <flush_prodcat>0</flush_prodcat>
                 <alt_esi_syntax>0</alt_esi_syntax>
                 <cache_tag_prefix>M</cache_tag_prefix>
@@ -479,6 +480,7 @@
                 <interval>21600</interval>
                 <priority>100</priority>
                 <multi_currency/>
+                <multi_custgroup/>
                 <autolist_interval>28800</autolist_interval>
                 <autolist_priority>300</autolist_priority>
                 <enable_autocollect>0</enable_autocollect>

@@ -149,16 +149,16 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 				$disp['file'] = (isset($store_stat['file']) ? $store_stat['file'] : '') ;
 				$disp['ttl'] = $store_stat['ttl'] ;
 				$disp['interval'] = $store_stat['interval'] ;
-				$disp['gentime'] = ($store_stat['gentime'] > 0) ? date($timefmt, $store_stat['gentime']) : ' ' ;
+				$disp['gentime'] = ($store_stat['gentime'] > 0) ? date($timefmt, $store_stat['gentime']) : 'N/A' ;
 				$disp['tmpmsg'] = isset($store_stat['tmpmsg']) ? $store_stat['tmpmsg'] : '' ;
-				$disp['endtime'] = ($store_stat['endtime'] > 0) ? date($timefmt, $store_stat['endtime']) : ' ' ;
+				$disp['endtime'] = ($store_stat['endtime'] > 0) ? date($timefmt, $store_stat['endtime']) : (($store_stat['gentime'] > 0) ? 'Not finished' : ' ') ;
 				$disp['lastendtime'] = ($store_stat['lastendtime'] > 0) ? date($timefmt, $store_stat['lastendtime']) : ' ' ;
 				$disp['listsize'] = ($store_stat['listsize'] > 0) ? $store_stat['listsize'] : 'N/A' ;
 				$disp['curpos'] = $store_stat['curpos'] ;
 				$disp['env'] = $store_stat['env'] ;
 				$disp['curvary'] = preg_replace("/_lscache_vary=.+;/", '', $store_stat['curvary']) ;
 			}
-			$disp['lastquerytime'] = ($store_stat['lastquerytime'] > 0) ? date($timefmt, $store_stat['lastquerytime']) : ' ' ;
+			$disp['lastquerytime'] = ($store_stat['lastquerytime'] > 0) ? date($timefmt, $store_stat['lastquerytime']) : 'N/A' ;
 			$disp['queried'] = $store_stat['queried'] ;
 			$priority[$listId] = $store_stat['priority'] ;
 			$lists[$listId] = $disp ;
@@ -523,20 +523,34 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 				}
 
 				foreach ( $multiCgrp as $cgrp ) {
+					
+					$cookie_vary2 = $cookie_vary;
+					$lsvary2 = $lsvary1;
+					
 					if ( $cgrp != '-' ) {
-						// need to set user id
-						$lsvary1['cgrp'] = $cgrp ;
+						// need to set user id, group_userid
+						if ($pos = strpos($cgrp, '_')) {
+							$group = substr($cgrp, 0, $pos);
+							$customerId = substr($cgrp, $pos+1);
+							if ($group == 'review') {
+								$cookie_vary2 .= '_lscache_vary_review=write%7E1%7E;' ;
+							}
+							else {
+								$lsvary2['cgrp'] = $group ;
+							}
+							$cookie_vary2 .= 'lmcron_customer=' . $customerId . ';' ;
+						}
 					}
 
-					if ( ! empty($lsvary1) ) {
-						ksort($lsvary1) ;
-						$lsvary1_val = '' ;
-						foreach ( $lsvary1 as $k => $v ) {
-							$lsvary1_val .= $k . '%7E' . urlencode($v) . '%7E' ; // %7E is "~"
+					if ( ! empty($lsvary2) ) {
+						ksort($lsvary2) ;
+						$lsvary2_val = '' ;
+						foreach ( $lsvary2 as $k => $v ) {
+							$lsvary2_val .= $k . '%7E' . urlencode($v) . '%7E' ; // %7E is "~"
 						}
-						$cookie_vary .= self::ENV_COOKIE_NAME . '=' . $lsvary1_val . ';' ;
+						$cookie_vary2 .= self::ENV_COOKIE_NAME . '=' . $lsvary2_val . ';' ;
 					}
-					$vary[] = $cookie_vary ; // can be empty string for default no vary
+					$vary[] = $cookie_vary2 ; // can be empty string for default no vary
 				}
 			}
 		}
@@ -1046,66 +1060,72 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		$basen = strlen($baseUrl) ;
 
 		$urls = array( '' ) ; // first line is empty for base url
+		$rootCatId = $store->getRootCategoryId();
 
-		$visibility = array(
+		$visibleAll = array('neq' => Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE);
+		$visibility = array('in'=> array(
 			Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH,
-			Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG,
-				) ;
+			Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG)) ;
+		$status = array('eq' => Mage_Catalog_Model_Product_Status::STATUS_ENABLED);
 		$catModel = Mage::getModel('catalog/category') ;
 
 		$activeCat = $catModel->getCollection($storeId)->addIsActiveFilter() ;
 
 		$produrls = array() ;
-
 		// url with cat in path
 		foreach ( $activeCat as $cat ) {
-			$caturl = $cat->getUrl() ;
-			if ( strncasecmp($baseUrl, $caturl, $basen) == 0 ) {
-				$urls[] = substr($caturl, $basen) ;
+			$cid = $cat->getId();
+			if ($cid == $rootCatId) {
+				continue;
 			}
-			foreach ( $cat->getProductCollection($storeId)
-					->addUrlRewrite($cat->getId())
-					->addAttributeToFilter('visibility', $visibility)
-			as $prod ) {
+			else {
+				$caturl = $cat->getUrl() ;
+				if ( strncasecmp($baseUrl, $caturl, $basen) == 0 ) {
+					$urls[] = substr($caturl, $basen) ;
+				}
+				$prods = $cat->getProductCollection($storeId)
+						->addUrlRewrite($cid)
+						->addAttributeToFilter('visibility', $visibility)
+						->addAttributeToFilter('status', $status);
+			}
+			foreach ($prods as $prod ) {
 				$produrl = $prod->getProductUrl() ;
 				if ( strncasecmp($baseUrl, $produrl, $basen) == 0 ) {
 					$produrls[] = substr($produrl, $basen) ;
 				}
 			}
 		}
+		$produrls = array_unique($produrls) ;
 
-		// url with no cat info
-		foreach ( $activeCat as $cat ) {
-			foreach ( $cat->getProductCollection($storeId)
-					->addAttributeToFilter('visibility', $visibility)
-			as $prod ) {
-				$produrl = $prod->getProductUrl() ;
-				if ( strncasecmp($baseUrl, $produrl, $basen) == 0 ) {
-					$produrls[] = substr($produrl, $basen) ;
-				}
+		$collection = Mage::getResourceModel('catalog/product_collection');
+        $collection->addStoreFilter($storeId)
+            ->addAttributeToFilter('visibility', $visibleAll)
+            ->addAttributeToFilter('status', $status);
+        $prods = $collection->load();
+		foreach ($prods as $prod) {
+			$produrl = $prod->getProductUrl() ;
+			if ( strncasecmp($baseUrl, $produrl, $basen) == 0 ) {
+				$produrls[] = substr($produrl, $basen) ;
 			}
 		}
+		$produrls = array_unique($produrls) ;
 
-		$sitemap = 'sitemap/cms_page' ;
 		$sitemap = (Mage::getConfig()->getNode('modules/MageWorx_XSitemap') !== false) ?
 				'xsitemap/cms_page' : 'sitemap/cms_page' ;
 
-		$sitemodel = Mage::getResourceModel($sitemap) ;
-		if ( $sitemodel != null ) {
+		if (($sitemodel = Mage::getResourceModel($sitemap)) != null) {
 			foreach ( $sitemodel->getCollection($storeId) as $item ) {
-				$sitemapurl = $item->getUrl() ;
-				$urls[] = $sitemapurl ;
+				$urls[] = $item->getUrl() ;
 			}
 		}
 
-		$produrls = array_unique($produrls) ;
 		$urls = array_merge($urls, $produrls) ;
 
 		$this->_saveCrawlListFileData($listId, $urls) ;
 
 		return $urls ;
 	}
-
+	
 	protected function _generateCustUrlList( $listId )
 	{
 		$baseUrl = $this->_meta[$listId]['baseurl'] ;

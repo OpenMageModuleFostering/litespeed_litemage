@@ -29,6 +29,7 @@ class Litespeed_Litemage_Model_Config_Source_CustomerGroup {
         return array(
             array( 'value' => 1, 'label' => $helper->__( 'Yes' ) ),
             array( 'value' => 2, 'label' => $helper->__( 'Only distinguish between logged-in vs logged-out' ) ),
+			array( 'value' => 3, 'label' => $helper->__( 'Only distinguish between defined groupings vs logged-out' ) ),
             array( 'value' => 0, 'label' => $helper->__( 'No' ) ),
         );
     }

@@ -32,6 +32,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	const STOREXML_HOMETTL = 'litemage/general/home_ttl' ;
 	const STOREXML_TRACKLASTVIEWED = 'litemage/general/track_viewed' ;
 	const STOREXML_DIFFCUSTGRP = 'litemage/general/diff_customergroup' ;
+	const STOREXML_DIFFCUSTGRP_SET = 'litemage/general/diff_customergroup_set' ;
 	const STOREXML_WARMUP_ENABLED = 'litemage/warmup/enable_warmup' ;
 	const STOREXML_FPWP_ENABLED = 'litemage/fishpigwp/fpwp_cache';
 	const STOREXML_FPWP_TTL = 'litemage/fishpigwp/fpwp_ttl';
@@ -46,6 +47,7 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	const CFG_AUTOCOLLECT = 'collect' ;
 	const CFG_TRACKLASTVIEWED = 'track_viewed' ;
 	const CFG_DIFFCUSTGRP = 'diff_customergroup' ;
+	const CFG_DIFFCUSTGRP_SET = 'diff_customergroup_set' ;
 	const CFG_PUBLICTTL = 'public_ttl' ;
 	const CFG_PRIVATETTL = 'private_ttl' ;
 	const CFG_HOMETTL = 'home_ttl' ;
@@ -371,6 +373,85 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 		return $this->_conf[self::CFG_AUTOCOLLECT][$storeId] ;
 	}
 
+	protected function _getStoreWarmUpCustGroupVary($store)
+	{
+		$storeId = $store->getId();
+		$customers	 = trim(Mage::getStoreConfig('litemage/warmup/multi_custgroup', $storeId));
+		if (!$customers)
+			return '';
+
+		$cids = array_unique(preg_split("/[\s,]+/", $customers, null, PREG_SPLIT_NO_EMPTY));
+		if (count($cids) == 0)
+			return '';
+
+		$vary_cgrp	 = '';
+		$customer = Mage::getModel('customer/customer')->setWebsiteId($store->getWebsiteId());
+		
+		$diffGrp = Mage::getStoreConfig(self::STOREXML_DIFFCUSTGRP, $storeId);
+		if ($diffGrp == 1) {
+			// per group
+			$grps = array();
+			foreach ($cids as $cid) {
+				$customer->load($cid);
+				if ($customer->getId() == $cid) {
+					$gid = $customer->getGroupId();
+					if (!in_array($gid, $grps)) {
+						$grps[] = $gid;
+						$vary_cgrp .= ',' . $gid . '_' . $cid;
+					}
+				}
+			}
+		}
+		elseif ($diffGrp == 2) {
+			// for in & out
+			foreach ($cids as $cid) {
+				$customer->load($cid);
+				if ($customer->getId() == $cid) {
+					$vary_cgrp .= ',in_' . $cid;
+					break;
+				}
+			}
+		}
+		elseif ($diffGrp == 3) {
+			$rgids		 = $this->_parseCustGrpSets(Mage::getStoreConfig(self::STOREXML_DIFFCUSTGRP_SET, $storeId));
+			$grps		 = array();
+			$guestReview = Mage::helper('review')->getIsGuestAllowToWrite();
+			foreach ($cids as $cid) {
+				$customer->load($cid);
+				if ($customer->getId() == $cid) {
+					$gid = $customer->getGroupId();
+					if (isset($rgids[$gid])) {
+						if (!in_array($rgids[$gid], $grps)) {
+							$grps[] = $rgids[$gid];
+							$vary_cgrp .= ',' . $rgids[$gid] . '_' . $cid;
+						}
+					}
+					elseif (!$guestReview && !in_array('review', $grps)) {
+						$grps[] = 'review';
+						$vary_cgrp .= ',review_' . $cid;
+					}
+				}
+			}
+		}
+		elseif ($diffGrp == 0) {
+			$guestReview = Mage::helper('review')->getIsGuestAllowToWrite();
+			if (!$guestReview) {
+				foreach ($cids as $cid) {
+					$customer->load($cid);
+					if ($customer->getId() == $cid) {
+						$vary_cgrp .= ',review_' . $cid;
+						break;
+					}
+				}
+			}
+		}
+
+		if ($vary_cgrp) {
+			$vary_cgrp = '/vary_cgrp/-' . $vary_cgrp; // "-" means default, can also be review_userid
+		}
+		return $vary_cgrp;
+	}
+
 	protected function _getStoreWarmUpInfo( $storeId, $vary_dev )
 	{
 		$storeInfo = array() ;
@@ -420,19 +501,8 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 			}
 		}
 
-		$vary_cgrp = '' ;
-		/* if ( $diffGrp = Mage::getStoreConfig(self::STOREXML_DIFFCUSTGRP, $storeId)) ) {
-		  //  $crawlgrp = 'out' ;
-		  $crawlUsers = array(138, 137);
-		  if ($crawlUsers) {
-		  if ($diffGrp == 2) {
-		  // for in & out
-		  $crawlgrp .= ',in_138';
-		  }
-		 * '/vary_cgrp/' . $vary_customergroup ;
-		  }
-		  //} */
-
+		$vary_cgrp = $this->_getStoreWarmUpCustGroupVary($store);
+		
 		$env = '' ;
 
 		$storeName = $store->getName() ;
@@ -607,20 +677,25 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 		}
 
 		// get store override, because store id may change after init
-		if ( $name == self::CFG_DIFFCUSTGRP ) {
-			$this->_conf[self::CFG_DIFFCUSTGRP] = Mage::getStoreConfig(self::STOREXML_DIFFCUSTGRP) ;
-		}
-		elseif ( $name == self::CFG_PUBLICTTL ) {
-			$this->_conf[self::CFG_PUBLICTTL] = Mage::getStoreConfig(self::STOREXML_PUBLICTTL) ;
-		}
-		elseif ( $name == self::CFG_PRIVATETTL ) {
-			$this->_conf[self::CFG_PRIVATETTL] = Mage::getStoreConfig(self::STOREXML_PRIVATETTL) ;
-		}
-		elseif ( $name == self::CFG_HOMETTL ) {
-			$this->_conf[self::CFG_HOMETTL] = Mage::getStoreConfig(self::STOREXML_HOMETTL) ;
-		}
-		elseif ( $name == self::CFG_TRACKLASTVIEWED ) {
-			$this->_conf[self::CFG_TRACKLASTVIEWED] = Mage::getStoreConfig(self::STOREXML_TRACKLASTVIEWED) ;
+		switch ($name) {
+			case self::CFG_DIFFCUSTGRP:
+				$this->_conf[self::CFG_DIFFCUSTGRP] = Mage::getStoreConfig(self::STOREXML_DIFFCUSTGRP) ;
+				break;
+			case self::CFG_DIFFCUSTGRP_SET:
+				$this->_conf[self::CFG_DIFFCUSTGRP_SET] = $this->_parseCustGrpSets(Mage::getStoreConfig(self::STOREXML_DIFFCUSTGRP_SET)) ;
+				break;
+			case self::CFG_PUBLICTTL:
+				$this->_conf[self::CFG_PUBLICTTL] = Mage::getStoreConfig(self::STOREXML_PUBLICTTL) ;
+				break;
+			case self::CFG_PRIVATETTL:
+				$this->_conf[self::CFG_PRIVATETTL] = Mage::getStoreConfig(self::STOREXML_PRIVATETTL) ;
+				break;
+			case self::CFG_HOMETTL:
+				$this->_conf[self::CFG_HOMETTL] = Mage::getStoreConfig(self::STOREXML_HOMETTL) ;
+				break;
+			case self::CFG_TRACKLASTVIEWED:
+				$this->_conf[self::CFG_TRACKLASTVIEWED] = Mage::getStoreConfig(self::STOREXML_TRACKLASTVIEWED) ;
+				break;
 		}
 
 		if ( $type == '' )
@@ -631,9 +706,39 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 			return $this->_conf[$type][$name] ;
 	}
 
+	protected function _parseCustGrpSets($groupings)
+	{
+		//return array of reversed gid -> groupings
+		$groupingids = array_unique(preg_split("/[\s,]+/", $groupings, null, PREG_SPLIT_NO_EMPTY)) ;
+		$rgids = array(); // reversed gid -> groupings (groupings convert : to .
+		foreach ($groupingids as $groupingid) {
+			if (strpos($groupingid, ':') !== false) {
+				$gids2 = explode(':', $groupingid);
+				$trgids = array();
+				foreach ($gids2 as $singlegid) {
+					$sgid = intval($singlegid);
+					if ((strval($sgid) == $singlegid) && ($sgid > 0))
+						$trgids[] = $sgid;
+				}
+				if (count($trgids)) {
+					sort($trgids);
+					$cleangroupid = implode('.', $trgids);
+					foreach ($trgids as $sgid) {
+						$rgids[$sgid] = $cleangroupid;
+					}
+				}
+			}
+			else {
+				$sgid = intval($groupingid);
+				if ((strval($sgid) == $groupingid) && ($sgid > 0))
+					$rgids[$sgid] = $groupingid;				
+			}
+		}
+		return $rgids;
+	}
+	
 	protected function _initConf( $type = '' )
 	{
-		$storeId = Mage::app()->getStore()->getId() ;
 		if ( ! isset($this->_conf['defaultlm']) ) {
 			$this->_conf['defaultlm'] = $this->_getConfigByPath(self::CFGXML_DEFAULTLM) ;
 		}
@@ -742,8 +847,12 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 					break ;
 
 				// get store override
+				$storeId = Mage::app()->getStore()->getId() ;
 				$this->_conf[self::CFG_TRACKLASTVIEWED] = Mage::getStoreConfig(self::STOREXML_TRACKLASTVIEWED, $storeId) ;
 				$this->_conf[self::CFG_DIFFCUSTGRP] = Mage::getStoreConfig(self::STOREXML_DIFFCUSTGRP, $storeId) ;
+				if ($this->_conf[self::CFG_DIFFCUSTGRP] == 3) {
+					$this->_conf[self::CFG_DIFFCUSTGRP_SET] = $this->_parseCustGrpSets(Mage::getStoreConfig(self::STOREXML_DIFFCUSTGRP_SET, $storeId)) ;
+				}
 				$this->_conf[self::CFG_PUBLICTTL] = Mage::getStoreConfig(self::STOREXML_PUBLICTTL, $storeId) ;
 				$this->_conf[self::CFG_PRIVATETTL] = Mage::getStoreConfig(self::STOREXML_PRIVATETTL, $storeId) ;
 				$this->_conf[self::CFG_HOMETTL] = Mage::getStoreConfig(self::STOREXML_HOMETTL, $storeId) ;

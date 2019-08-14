@@ -27,7 +27,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.2.3</label>
+            <label>LiteMage Cache 1.3.0</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -128,6 +128,18 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </diff_customergroup>
+                        <diff_customergroup_set translate="label,comment">
+                            <label>Define User Groups for Separate Cache Copies</label>
+                            <comment>List the user group IDs that will have different cache copies vs logged-out users. For example, if user groups with IDs 3 and 4 have VIP view, a group with ID 6 has wholesale view, and all other user groups will have same view as logged-out users, you can input "3:4, 6". To specify multiple groups with the same view, use ":". Use "," or space to separate different groupings.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>65</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <diff_customergroup>3</diff_customergroup>
+                            </depends>
+                        </diff_customergroup_set>
                         <flush_prodcat translate="label,comment">
                             <label>Flush Product and Categories When Product Qty Changes</label>
                             <comment>Selection depends on whether product page shows quantity and whether category pages hide or label out of stock products.</comment>
@@ -356,6 +368,15 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </multi_currency>
+                        <multi_custgroup translate="label,comment">
+                            <label>Crawl on Behalf of Logged-in Users</label>
+                            <comment>Warm up pages for logged-in user representatives. Space, comma separated list of user IDs from representative groups. For example, the user with ID 135 is from the VIP group and "Separate Cache Copy Per Customer Group" is set for the VIP group. In this case, you can list user 135 to warm the VIP user version of the site. If user 138 is in the General group and only logged-in users can write reviews and the General group is not in separate cache copy group, you can add 138, like "135, 138".</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>75</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </multi_custgroup>
                         <custlist_note translate="label,comment">
                             <label>Custom Defined URL List Files</label>
                             <comment>You can supply your own URL list for each store view.  To do this go to the “Current Configuration Scope” box and select a store.</comment>

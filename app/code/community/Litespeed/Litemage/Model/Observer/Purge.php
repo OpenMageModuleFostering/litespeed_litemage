@@ -96,7 +96,7 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
             }
         }
     }
-
+	
     public function adminConfigChangedSection( $eventObj )
     {
         $config = Mage::helper('litemage/data') ;
@@ -104,7 +104,7 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
         $serverEnabled = $config->licenseEnabled();
         $adminSession = $this->_getAdminSession() ;
         if ( ! $serverEnabled ) {
-			$adminSession()->addError($config->__('Your installation of LiteSpeed Web Server does not have LiteMage Cache enabled. Please make sure your LiteSpeed license includes the LiteMage cache module, and LiteMage is turned on in  the .htaccess file in the root directory of your Magento installation.')) ;
+			$adminSession->addError($config->__('Your installation of LiteSpeed Web Server does not have LiteMage Cache enabled. Please make sure your LiteSpeed license includes the LiteMage cache module, and LiteMage is turned on in  the .htaccess file in the root directory of your Magento installation.')) ;
 		}
         if ( $moduleEnabled ) {
             if ( $serverEnabled ) {

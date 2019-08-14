@@ -107,6 +107,13 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
         $curActionName = $controller->getFullActionName() ;
         $reqUrl = $req->getRequestString() ;
 		$session = Mage::getSingleton('core/session');
+		
+		if (!isset($_COOKIE['frontend']) && isset($_COOKIE['litemage_key'])) {
+			//restore formkey
+			$session->setData('_form_key', $_COOKIE['litemage_key']); // new visitor
+			setcookie('litemage_key', '', time()-1000);
+		}
+		
 		$lmuser = $session->getData('_litemage_user');
 		if ($lmuser == null) {
 			$session->setData('_litemage_user', 1); // new visitor
@@ -207,11 +214,17 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
 
 			$internalData = array( 'url' => $fullUrl);
 
-			if ( $cron = Mage::getSingleton('core/cookie')->get('litemage_cron') ) {
+			$cookie = Mage::getSingleton('core/cookie');
+			if ( $cron = $cookie->get('litemage_cron') ) {
 				$internalData['cron'] = $cron;
-                $currency = Mage::getSingleton('core/cookie')->get('currency');
-                if ($currency != '')
+                if ( ($currency = $cookie->get('currency')) != '') {
                     Mage::app()->getStore()->setCurrentCurrencyCode($currency);
+				}
+                if ( ($customerId = $cookie->get('lmcron_customer')) != '') {
+					$cs = Mage::getSingleton('customer/session');
+					$cs->setId($customerId);
+					$cs->setCustomerId($customerId);
+				}
             }
 			$this->_helper->setInternal($internalData);
 
@@ -438,11 +451,13 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
     public function initNewVisitor($eventObj)
     {
         if ( $this->_moduleEnabledForUser ) {
-            if (Mage::registry('LITEMAGE_NEWVISITOR')) {
-                Mage::unregister('LITEMAGE_NEWVISITOR'); // to be safe
+            if ($value = Mage::registry('LITEMAGE_NEWVISITOR')) {
+				if ($value != 1) {// 1 is by preprocessor ok
+					Mage::unregister('LITEMAGE_NEWVISITOR'); // to be safe
+				}
             }
             else {
-                Mage::register('LITEMAGE_NEWVISITOR', 1);
+                Mage::register('LITEMAGE_NEWVISITOR', 2);
             }
         }
     }
