@@ -529,8 +529,19 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		if ( $action == Litespeed_Litemage_Model_EsiData::ACTION_LOG ) {
 			return ; // only need to set store
 		}
-
-		Mage::getSingleton('core/design_package')->setPackageName($d['dp'])->setTheme($d['dt']) ;
+		$design= Mage::getDesign();
+		$design->setPackageName($d['dp']);
+		$dt = explode(',', $d['dt']);
+		if (count($dt) == 1) {
+			$design->setTheme($dt[0]) ;
+		}
+		else {
+			$design->setTheme('template', $dt[0]);
+			if ($dt[1])
+				$design->setTheme('skin', $dt[1]);
+			if ($dt[2])
+				$design->setTheme('layout', $dt[2]);
+		}
 
 		$curLocale = $app->getLocale() ;
 		$locale = Mage::getStoreConfig(Mage_Core_Model_Locale::XML_PATH_DEFAULT_LOCALE) ;

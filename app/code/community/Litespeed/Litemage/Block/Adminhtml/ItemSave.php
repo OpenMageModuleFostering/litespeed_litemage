@@ -27,9 +27,10 @@
 class Litespeed_Litemage_Block_Adminhtml_ItemSave extends Mage_Adminhtml_Block_Template
 {
 	const SAVE_PROD_SESSION_KEY = 'litemage_admin_saveprod';
+	const SAVE_CAT_SESSION_KEY = 'litemage_admin_savecat';
 	
 	public function getProductSaveOptionUrl()
-    {
+	{
 		if (($product = Mage::registry('product')) == null) {
             $product = Mage::registry('current_product');
         }
@@ -39,6 +40,11 @@ class Litespeed_Litemage_Block_Adminhtml_ItemSave extends Mage_Adminhtml_Block_T
 		}
 		return null;
     }
+	
+	public function getCategoryPurgeUrl()
+	{
+		return $this->getUrl('*/litemageCache/categorySaveOption');
+	}
 	
 	public function getCurrentProdSaveOptions()
 	{
@@ -52,18 +58,27 @@ class Litespeed_Litemage_Block_Adminhtml_ItemSave extends Mage_Adminhtml_Block_T
 		$options = array('c' => $lmhelper->__('For This Product and Related Parent Categories'),
 			'p' => $lmhelper->__('For This Product Only'),
 			'n' => $lmhelper->__('Do Not Purge'));
-		$buf = '';
-		foreach($options as $k => $v) {
-			$buf .= '<option value="' . $k . '"';
-			if ($k == $cur) {
-				$buf .= ' selected';
-			}
-			$buf .= '>' . $v . '</option>';
+		return $this->_getSelectOptions($options, $cur);
+	}
+	
+	public function getCurrentCatSaveOptions()
+	{
+		$session = Mage::getSingleton('admin/session');
+		if (!$session->getData(self::SAVE_CAT_SESSION_KEY)) {
+			$session->setData(self::SAVE_CAT_SESSION_KEY, 'c');
 		}
-		return $buf;
+		$cur = $session->getData(self::SAVE_CAT_SESSION_KEY);
+		
+		$lmhelper = Mage::helper('litemage/data');
+		$options = array( 'n' => $lmhelper->__('Not purge anything'),
+			'c' => $lmhelper->__('Purge this category'),
+			's' => $lmhelper->__('Purge this category and its sub-categories'),
+			'p' => $lmhelper->__('Purge this category and its parent categories'),
+			'a' => $lmhelper->__('Purge this category and its parent and sub-categories'));
+		return $this->_getSelectOptions($options, $cur);
 	}
 
-    /**
+	/**
      * Check if block can be displayed
      *
      * @return bool
@@ -78,6 +93,17 @@ class Litespeed_Litemage_Block_Adminhtml_ItemSave extends Mage_Adminhtml_Block_T
         return Mage::app()->useCache('layout') && Mage::app()->useCache('config');
     }
 
-
+	protected function _getSelectOptions($options, $current)
+	{
+		$buf = '';
+		foreach($options as $k => $v) {
+			$buf .= '<option value="' . $k . '"';
+			if ($k == $current) {
+				$buf .= ' selected';
+			}
+			$buf .= '>' . $v . '</option>';
+		}
+		return $buf;
+	}
 
 }

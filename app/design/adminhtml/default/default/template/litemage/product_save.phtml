@@ -23,17 +23,17 @@
  */
 
 if ($this->canShowButton()):
-	if ($url = $this->getProductSaveOptionUrl()) :
+	if ($prodsaveurl = $this->getProductSaveOptionUrl()) :
 		//$lmhelper = Mage::helper('litemage/data');
 ?>
 <br/>
 
 <div class="entry-edit"><ul class="messages">
 		<li class="notice-msg">
-<form action="<?php echo $this->getProductSaveOptionUrl()?>" method="post" id="litemage_prodsave">
+<form action="<?php echo $prodsaveurl;?>" method="post" id="litemage_prodsave">
 <?php echo $this->getBlockHtml('formkey')?>			
 LiteMage Cache: Clicking the Save Button Will Automatically Purge Cache  
-<select name="prodpurgeoption" onchange="submit()">
+<select name="litemage_prodpurgeoption" onchange="submit()">
 	<?php echo $this->getCurrentProdSaveOptions(); ?>
 </select>
 <div class="form-buttons">

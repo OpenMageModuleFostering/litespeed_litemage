@@ -1100,11 +1100,19 @@ class Litespeed_Litemage_Helper_Esi
     {
         if (!isset($this->_cacheVars['esiUrlSharedParams'])) {
             $design = Mage::getDesign() ;
+			$theme_template = $design->getTheme('template') ;
+			$theme_skin = $design->getTheme('skin') ;
+			$theme_layout = $design->getTheme('layout') ;
+			$dt = $theme_template;
+			if ($theme_skin != $theme_template || $theme_layout != $theme_template) {
+				$dt .= ',' . $theme_skin . ',' . $theme_layout;
+			}
+			
             $currStore = Mage::app()->getStore() ;
             $urlParams = array(
                 's' => $currStore->getId(),  // current store id
                 'dp' => $design->getPackageName(),
-                'dt' => $design->getTheme('layout') ) ;
+                'dt' => $dt ) ;
 
             $currency = $currStore->getCurrentCurrencyCode();
             if ($currency != $currStore->getDefaultCurrencyCode()) {

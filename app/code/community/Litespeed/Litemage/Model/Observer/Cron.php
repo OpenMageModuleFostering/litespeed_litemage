@@ -195,6 +195,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 
 		$options = array(
 			CURLOPT_SSL_VERIFYPEER => 0,
+			CURLOPT_SSL_VERIFYHOST => 0,
 			CURLOPT_TIMEOUT => 180
 		) ;
 
@@ -227,7 +228,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 						$domain = $m[1];
 						$pos = strpos($url, $domain);
 						$url2 = substr($url, 0, $pos) . $server_ip . substr($url, $pos + strlen($domain));
-						$curlOptions[CURLOPT_HTTPHEADER] = array("Host: $domain");
+						$curlOptions[CURLOPT_HTTPHEADER][] = "Host: $domain";
 					}
 					else {
 						if ( $this->_isDebug ) {
@@ -346,25 +347,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		}
 
 		$m = &$this->_meta[$id] ;
-		// parse env & get all possible varies
-		$vary = array() ;
-		$fixed = 'litemage_cron=' . $id . ';' ;
-		$fixed .= $this->_parseEnvCookies($m['env'], $vary) ;
-		if ( ! in_array($m['curvary'], $vary) || $m['curpos'] > $m['listsize'] ) {
-			// reset current pointer
-			$m['curvary'] = $vary[0] ;
-			$m['curpos'] = 0 ;
-			if ( $this->_isDebug ) {
-				$this->_debugLog('Reset current position pointer to 0. curvary is ' . $m['curvary']) ;
-			}
-		}
-
-		while ( ! empty($vary) && ($m['curvary'] != $vary[0]) ) {
-			array_shift($vary) ;
-		}
-
-		$this->_curList = array(
-			'id' => $id, 'fixed' => $fixed, 'vary' => $vary, 'working' => 0 ) ;
+		$this->_curList = array();
 
 		if ( $m['gentime'] > 0 && $m['endtime'] == 0 && ($urls = $this->_getCrawlListFileData($id))
 				!= null ) {
@@ -385,13 +368,34 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 			$this->_curList['urls'] = $this->_generateUrlList($id) ;
 		}
 
-		if ( $m['listsize'] > 0 ) {
-			return true ;
-		}
-		else {
+		if ( $m['listsize'] == 0 ) {
 			// get next list
 			return $this->_prepareCurList() ;
+		}	
+		
+		// parse env & get all possible varies
+		$vary = array() ;
+		$fixed = 'litemage_cron=' . $id . ';' ;
+		$fixed .= $this->_parseEnvCookies($m['env'], $vary) ;
+		if ( ! in_array($m['curvary'], $vary) || $m['curpos'] > $m['listsize'] ) {
+			// reset current pointer
+			$m['curvary'] = $vary[0] ;
+			$m['curpos'] = 0 ;
+			if ( $this->_isDebug ) {
+				$this->_debugLog('Reset current position pointer to 0. curvary is ' . $m['curvary']) ;
+			}
 		}
+
+		while ( ! empty($vary) && ($m['curvary'] != $vary[0]) ) {
+			array_shift($vary) ;
+		}
+		
+		$this->_curList['id'] = $id;
+		$this->_curList['fixed'] = $fixed;
+		$this->_curList['vary'] = $vary;
+		$this->_curList['working'] = 0;
+		
+		return true ;
 	}
 
 	protected function _prepareDeltaList()
@@ -431,7 +435,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 				foreach ($ud as $url => $data) {
 					if (($level == 0 && count($u) == 0) // always include first one
 							|| (($data[1] & 28) > 0 ) // auto+cust+store = 16+8+4 = 28, from crawler list
-							|| ($data[0] > 1)) { // or visitor count > 1
+							|| ($data[0] > 10)) { // or visitor count > 10 (hard coded number for now)
 						$u[] = $url;
 					}
 				}
@@ -539,7 +543,6 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 		else {
 			$vary[] = '' ; // no vary
 		}
-
 		return $fixed ;
 	}
 
@@ -555,7 +558,6 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 				return null ;
 			}
 		}
-
 		$isAutoList = ($id{0} == 'a');
 		$curpos = $this->_meta[$id]['curpos'] ;
 		$curCookie = $this->_curList['fixed'] . $this->_meta[$id]['curvary'] ;

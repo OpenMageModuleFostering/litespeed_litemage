@@ -73,8 +73,8 @@ class Litespeed_Litemage_Adminhtml_LitemageCacheController extends Mage_Adminhtm
 			Mage::dispatchEvent('litemage_purge_trigger',
 				 array('action'=>'admin_prod_save', 'option'=>'c', 'id'=>$id));	
 		}
-		elseif ($req->getParam('prodpurgeoption')) {
-			$option = $req->getParam('prodpurgeoption');
+		elseif ($req->getParam('litemage_prodpurgeoption')) {
+			$option = $req->getParam('litemage_prodpurgeoption');
 			if (in_array($option, array('c','p','n'))) {
 				$session->setData(Litespeed_Litemage_Block_Adminhtml_ItemSave::SAVE_PROD_SESSION_KEY, $option);
 			}
@@ -82,7 +82,46 @@ class Litespeed_Litemage_Adminhtml_LitemageCacheController extends Mage_Adminhtm
 		$this->_redirect('*/catalog_product/edit', array('id'=>$id));
 	}
 
-    protected function _isAllowed()
+	public function categorySaveOptionAction()
+	{
+		$req = $this->getRequest();
+		$session = Mage::getSingleton('admin/session');
+		$id = $session->getLastEditedCategory(false);
+		$params = array( 'id' => $id);
+		$storeId = (int) $req->getParam('store');
+		$parentId = (int) $req->getParam('parent');
+		$prevStoreId = $session->getLastViewedStore(false);
+		if (!empty($prevStoreId)) {
+			$storeId = $prevStoreId;
+		}
+		if (!empty($storeId)) {
+			$params['store'] = $storeId;
+		}
+		if (!empty($parentId))
+			$params['parent'] = $parentId;
+		
+		if ($req->getParam('saveoption')) {
+			$option = $req->getParam('saveoption');
+			if (in_array($option, array('c','s','p','a','n'))) {
+				$session->setData(Litespeed_Litemage_Block_Adminhtml_ItemSave::SAVE_CAT_SESSION_KEY, $option);
+			}
+		}
+		else if ($req->getParam('useoption')) {
+			$use = $req->getParam('useoption');
+			$option = 'c';
+			if ($use == 2) {
+				$option = $session->getData(Litespeed_Litemage_Block_Adminhtml_ItemSave::SAVE_CAT_SESSION_KEY);
+			}
+			if ($option != 'n') {
+				Mage::dispatchEvent('litemage_purge_trigger',
+					 array('action'=>'admin_cat_purge', 'option'=>$option, 'id'=>$id));	
+			}
+		}
+
+		$this->_forward('edit', 'catalog_category',null,$params);
+	}
+
+	protected function _isAllowed()
     {
         return Mage::getSingleton('admin/session')->isAllowed('system/cache/litemage');
     }

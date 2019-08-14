@@ -23,16 +23,35 @@
  */
 
 if ($this->canShowButton()):
+	if ($catsaveurl = $this->getCategoryPurgeUrl()) :
 	//$lmhelper = Mage::helper('litemage/data');
 ?>
 <br/>
-
-<div><ul class="messages">
-		<li class="notice-msg">
-LiteMage Cache: Clicking the Save Button Will Automatically Purge Cache For This Category.
+<script type="text/javascript">
+//<![CDATA[	
+function lmcategoryPurge(useoption) {
+	updateContent("<?php echo $catsaveurl; ?>", {'useoption':useoption}, false);
+}
+function lmcategorySaveOption(sel) {
+	updateContent("<?php echo $catsaveurl; ?>", {'saveoption':sel.value}, false);
+}
+//]]>
+</script>
+<div class="entry-edit">
+	<ul class="messages">
+<li class="notice-msg">
+	LiteMage Cache: Clicking the "Save Category" Button Will 
+<select name="litemage_catsaveoption" onchange="lmcategorySaveOption(this)">
+	<?php echo $this->getCurrentCatSaveOptions(); ?>
+</select>
+<div class="form-buttons">
+ <input type="button" onclick="lmcategoryPurge(1)" class="form-button" name="litemage_purgecat" value="Purge This Category" id="litemage_purgecat" /> 
+ <input type="button" onclick="lmcategoryPurge(2)" class="form-button" name="litemage_purgecats" value="Purge with Selected Options" id="litemage_purgepcats" />
+</div>	
 </li>
 </ul></div>
 
 <?php 
+endif;
 endif;
 ?>

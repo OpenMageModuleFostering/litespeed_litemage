@@ -343,7 +343,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
         $tags = array($actionName);
         $tags[] = $app->getStore()->getId() ;
         $tags[] = $design->getPackageName();
-        $tags[] = $design->getTheme('layout');
+        $tags[] = $design->getTheme('layout') . '_' . $design->getTheme('template') . '_' . $design->getTheme('skin');
         $cacheId = 'LITEMAGE_ROUTE_' . md5(join('__', $tags));
 
         $this->_routeCache = array('actionName' => $actionName, 'cacheId' => $cacheId);

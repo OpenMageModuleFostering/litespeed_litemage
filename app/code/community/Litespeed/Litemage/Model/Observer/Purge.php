@@ -131,6 +131,7 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
 	public function purgeTrigger($eventObj)
 	{
 		// array('action'=>'admin_prod_save', 'option'=>$curOption, 'id'=>$id)
+		// array('action'=>'admin_cat_purge', 'option'=>$option, 'id'=>$id));	
 		$action = $eventObj->getAction();
 		$option = $eventObj->getOption();
 		$id = $eventObj->getId();
@@ -150,12 +151,24 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
 				}
 				
 			}
-			$this->_getAdminSession()->addSuccess(Mage::helper('litemage/data')->__('Notified LiteSpeed web server to purge ' . $message)) ;
+		}
+		elseif ($action == 'admin_cat_purge') {
+			if ($option == 'c') {
+				$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $id ;
+			}
+			else {
+				$category = Mage::getModel('catalog/category')->load($id);
+				if ($category) {
+					$tags = $this->_getPurgeCatTags($category, $option);
+				}
+			}
+			$message = 'category ' . implode(', ', $tags);
 		}
 
 		Mage::helper('litemage/data')->debugMesg($reason);
 		if (!empty($tags)) {
 			Mage::helper('litemage/esi')->setPurgeHeader($tags, $reason) ;
+			$this->_getAdminSession()->addSuccess(Mage::helper('litemage/data')->__('Notified LiteSpeed web server to purge ' . $message)) ;
 		}
 	}
 
@@ -195,10 +208,19 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
     {
         try {
             if ( Mage::helper('litemage/data')->moduleEnabled() ) {
+				$curOption = Mage::getSingleton('admin/session')->getData(Litespeed_Litemage_Block_Adminhtml_ItemSave::SAVE_CAT_SESSION_KEY);
+				if ($curOption == 'n') { // no purge
+					return;
+				}
                 $category = $eventObj->getEvent()->getCategory() ;
                 if ( $category != null ) {
-                    $tag = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $category->getId() ;
-                    $this->_purgeTagByAdmin(array( $tag ), $category->getName()) ;
+					$tags = $this->_getPurgeCatTags($category, $curOption);
+					$msg = array('c' => 'this category',
+						's' => 'this category and its sub-categories',
+						'p' => 'this category and its parent categories',
+						'a' => 'this category and its parent and sub-categories'
+						);
+                    $this->_purgeTagByAdmin($tags, $msg[$curOption]) ;
                 }
             }
         } catch ( Exception $e ) {
@@ -321,6 +343,27 @@ class Litespeed_Litemage_Model_Observer_Purge extends Varien_Event_Observer
         }
     }
 
+	protected function _getPurgeCatTags($category, $option)
+	{
+		$tags = array();
+		if ($option != 'n') {
+			$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $category->getId() ;
+		}
+		if ($option == 's' || $option == 'a') {
+			$sub = $category->getAllChildren(true);
+			foreach ($sub as $sid) {
+				$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $sid ;
+			}
+		}
+		if ($option == 'p' || $option == 'a') {
+			$pids = $category->getParentIds();
+			foreach ($pids as $pid) {
+				$tags[] = Litespeed_Litemage_Helper_Esi::TAG_PREFIX_CATEGORY . $pid ;
+			}
+		}
+		return array_unique($tags);
+	}
+	
     protected function _getPurgeProductTags( $product, $purgeCategory )
     {
         $productId = $product->getId() ;
