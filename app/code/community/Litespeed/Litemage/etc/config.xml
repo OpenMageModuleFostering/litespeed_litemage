@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.11</version>
+            <version>1.0.12</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -43,7 +43,7 @@
             <adminhtml>
                 <args>
                     <modules>
-                        <Litespeed_Litemage before="Mage_Adminhtml">Litespeed_Litemage_Adminhtml</Litespeed_Litemage>
+                        <litemage after="Mage_Adminhtml">Litespeed_Litemage_Adminhtml</litemage>
                     </modules>
                 </args>
             </adminhtml>
@@ -65,9 +65,9 @@
                             <children>
                                 <cache>
                                     <children>
-                                    <litemage>
-                                        <title>LiteMage Cache Management</title>
-                                    </litemage>
+                                        <litemage>
+                                            <title>LiteMage Cache Management</title>
+                                        </litemage>
                                     </children>
                                 </cache>
                                 <config>
@@ -440,7 +440,7 @@
                 <!-- Full or partial match on controller full action name for cacheable routes. Space, return, and comma separated -->
                 <cache_routes><![CDATA[catalog cms contacts_index_index]]></cache_routes>
                 <!-- Full or partial match on controller full action name for non-cacheable routes within cacheable routes. Space, return, and comma separated -->
-                <nocache_subroutes><![CDATA[catalog_product_compare]]></nocache_subroutes>
+                <nocache_subroutes><![CDATA[catalog_product_compare catalogsearch]]></nocache_subroutes>
                 <!-- Entire response cached based on routes, same content for all urls, such as "cms_index_noRoute" for 404 pages. Space, return, and comma separated. -->
                 <fullcache_routes><![CDATA[cms_index_noRoute]]></fullcache_routes>
             </default>

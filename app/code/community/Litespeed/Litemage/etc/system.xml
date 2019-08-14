@@ -11,7 +11,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.0.11</label>
+            <label>LiteMage Cache 1.0.12</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -25,7 +25,7 @@
             <show_in_website>0</show_in_website>
             <show_in_store>0</show_in_store>
             <groups>
-                <info translate="label" module="litemage">
+                <info translate="label,comment" module="litemage">
                     <label>About LiteMage</label>
                     <comment> <![CDATA[
 <p>LiteMage Cache is a powerful full page cache built for Magento stores running on LiteSpeed Web Server. For more information on the installation and configuration of the LiteMage Cache module, visit the <a href="https://www.litespeedtech.com/support/wiki/doku.php/litespeed_wiki:cache:litemage" target="_blank">LiteMage Cache Wiki</a>.</p>
@@ -53,7 +53,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </enabled>
-                        <admin_ips translate="label comment">
+                        <admin_ips translate="label,comment">
                             <label>Admin IPs</label>
                             <comment>Allows listed IPs (space or comma separated) to perform certain actions from their browsers using LITEMAGE_DEBUG and LITEMAGE_CTRL parameters.</comment>
                             <frontend_type>text</frontend_type>
@@ -62,7 +62,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </admin_ips>
-                        <public_ttl translate="label comment">
+                        <public_ttl translate="label,comment">
                             <label>Default Public Cache TTL (seconds)</label>
                             <comment>Default timeout for public cache pages. Recommended value is 28800.</comment>
                             <frontend_type>text</frontend_type>
@@ -72,7 +72,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </public_ttl>
-                        <private_ttl translate="label comment">
+                        <private_ttl translate="label,comment">
                             <label>Default Private Cache TTL (seconds)</label>
                             <comment>Default timeout for private cache ESI blocks. Suggested value is 1800. Should not be set over 3600.</comment>
                             <frontend_type>text</frontend_type>
@@ -82,7 +82,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </private_ttl>
-                        <track_viewed translate="label comment">
+                        <track_viewed translate="label,comment">
                             <label>Track Recently Viewed Products</label>
                             <comment>Allows for recently viewed products functionality to work correctly even when page is served from cache. Disabling this will speed up page loading, but may make recently viewed products not appear and Magento "most viewed" reports not accurate.</comment>
                             <frontend_type>select</frontend_type>
@@ -92,7 +92,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </track_viewed>
-                        <diff_customergroup translate="label comment">
+                        <diff_customergroup translate="label,comment">
                             <label>Separate Cache Copy per Customer Group</label>
                             <comment>Enable this only if you have a different view or pricing schema for different customer groups.</comment>
                             <frontend_type>select</frontend_type>
@@ -102,7 +102,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </diff_customergroup>
-                        <diff_cookie translate="label comment">
+                        <diff_cookie translate="label,comment">
                             <label>Separate Cache Copy for Customized Cookie Values</label>
                             <comment>This settings has been retired since 1.0.11 as using rewrite rules is more efficient. Add the below rewrite rule in .htaccess:  <![CDATA[<br>]]>RewriteRule .* - [E=cache-vary:cookie_name]</comment>
                             <frontend_type>label</frontend_type>
@@ -111,7 +111,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </diff_cookie>
-                        <alt_esi_syntax translate="label comment">
+                        <alt_esi_syntax translate="label,comment">
                             <label>Use Alternative ESI Syntax</label>
                             <comment>If the standard ESI include tags are being filtered by some extension(s) and causing ESI parser errors, you can enable Alternative ESI Syntax, which is known only by LiteMage and LiteSpeed Web Server. </comment>
                             <frontend_type>select</frontend_type>
@@ -123,7 +123,7 @@
                         </alt_esi_syntax>
                     </fields>
                 </general>
-                <default translate="label" module="litemage">
+                <default translate="label,comment" module="litemage">
                     <label>System-Defined Cache Rules</label>
                     <comment> <![CDATA[<span class="notice">Defined in module config.xml. To modify, config.xml must be modified directly.</span>]]></comment>
                     <frontend_type>label</frontend_type>
@@ -132,7 +132,7 @@
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
                     <fields>
-                        <cache_routes translate="label comment">
+                        <cache_routes translate="label,comment">
                             <label>Cacheable Routes</label>
                             <frontend_type>label</frontend_type>
                             <comment>Routes to be cached. Partial matches will also be cached.</comment>
@@ -141,7 +141,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </cache_routes>
-                        <nocache_subroutes translate="label comment">
+                        <nocache_subroutes translate="label,comment">
                             <label>Do-Not-Cache Subroutes</label>
                             <frontend_type>label</frontend_type>
                             <comment>Subroutes within cacheable routes to be excluded from caching.</comment>
@@ -160,7 +160,7 @@
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
                     <fields>
-                        <cache_routes translate="label comment">
+                        <cache_routes translate="label,comment">
                             <label>Cacheable Routes</label>
                             <frontend_type>textarea</frontend_type>
                             <comment>Routes to be cached. Partial matches will also be cached. Space, comma, return separated.</comment>
@@ -169,7 +169,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </cache_routes>
-                        <nocache_subroutes translate="label comment">
+                        <nocache_subroutes translate="label,comment">
                             <label>Do-Not-Cache Subroutes</label>
                             <frontend_type>textarea</frontend_type>
                             <comment>Subroutes within cacheable routes to be excluded from caching. Space, comma, return separated.</comment>
@@ -178,7 +178,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </nocache_subroutes>
-                        <vars translate="label comment">
+                        <vars translate="label,comment">
                             <label>Do-Not-Cache GET Parameters</label>
                             <comment>Comma-separated list of GET variables that prevents caching URLs within Cacheable Routes.</comment>
                             <frontend_type>text</frontend_type>
@@ -187,7 +187,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </vars>
-                        <urls translate="label comment">
+                        <urls translate="label,comment">
                             <label>URL Blacklist</label>
                             <frontend_type>textarea</frontend_type>
                             <comment>List of relative URLs contained in Cacheable Routes that you would like to exclude from caching. Space, comma, return separated.</comment>
@@ -196,7 +196,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </urls>
-                        <welcome translate="label comment">
+                        <welcome translate="label,comment">
                             <label>Customized Block Names for "welcome" Tag</label>
                             <comment>Comma-separated list of customized block names associated with the "welcome" tag. These are private blocks and only purged by login and logout events.</comment>
                             <frontend_type>text</frontend_type>
@@ -205,7 +205,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </welcome>
-                        <toplinks translate="label comment">
+                        <toplinks translate="label,comment">
                             <label>Customized Block Names for "toplinks" Tag</label>
                             <comment>Comma-separated list of customized block names associated with the "toplinks" tag. These are private blocks and only purged by cart and wishlist related events.</comment>
                             <frontend_type>text</frontend_type>
@@ -214,7 +214,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </toplinks>
-                        <messages translate="label comment">
+                        <messages translate="label,comment">
                             <label>Customized Block Names for "messages" Tag</label>
                             <comment>Comma-separated list of customized block names associated with the "messages" tag. Only define here if the block is not derived from Mage_Core_Block_Messages.</comment>
                             <frontend_type>text</frontend_type>
@@ -232,7 +232,7 @@
                     <show_in_store>0</show_in_store>
                     <sort_order>40</sort_order>
                     <fields>
-                        <enable_warmup translate="label comment">
+                        <enable_warmup translate="label,comment">
                             <label>Enable Cache Warm Up</label>
                             <comment>Allow LiteMage to automatically warm up the cache. Magento cron job must be enabled.</comment>
                             <frontend_type>select</frontend_type>
@@ -242,7 +242,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </enable_warmup>                        
-                        <load_limit translate="label comment">
+                        <load_limit translate="label,comment">
                             <label>Only Run When Load Is Less Than</label>
                             <comment>Warm up will only run when current server load is less than this limit.</comment>
                             <frontend_type>text</frontend_type>
@@ -252,7 +252,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </load_limit>
-                        <max_time translate="label comment">
+                        <max_time translate="label,comment">
                             <label>Maximum Run Time (seconds)</label>
                             <comment>Limit how long Cache Warm Up can run. Warm up cron job is set to run every 10 minutes. Set this value lower than the cron job time interval.</comment>
                             <frontend_type>text</frontend_type>
@@ -262,7 +262,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </max_time>
-                        <multi_currency translate="label comment">
+                        <multi_currency translate="label,comment">
                             <label>Crawl Non-Default Currencies</label>
                             <comment>Warm up pages for non-default currencies. Set to "ALL" to include all available currencies, or list only the most used currencies. Space, comma separated currency codes, like "USD,GBP,EUR".</comment>
                             <frontend_type>text</frontend_type>
@@ -281,7 +281,7 @@
                     <show_in_store>0</show_in_store>
                     <sort_order>50</sort_order>
                     <fields>
-                        <allow_ips translate="label comment">
+                        <allow_ips translate="label,comment">
                             <label>Enable LiteMage Cache Only for Listed IPs</label>
                             <comment>Limit LiteMage Cache to specified IPs. (Space or comma separated.) Allows cache testing on a live site. If empty, cache will be served to everyone.</comment>
                             <frontend_type>text</frontend_type>
@@ -290,7 +290,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </allow_ips>
-                        <debug translate="label comment">
+                        <debug translate="label,comment">
                             <label>Enable Debug</label>
                             <comment>Prints additional information to /var/log/system.log for debugging purposes. (Ensure developer log is enabled.) 
                              <![CDATA[<span class="notice">Turn off for production use.</span>]]></comment>
