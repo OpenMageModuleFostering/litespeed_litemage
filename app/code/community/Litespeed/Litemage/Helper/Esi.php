@@ -526,7 +526,8 @@ class Litespeed_Litemage_Helper_Esi
                 && ((($flag & self::CHBM_ESI_ON) != 0)  // esi on
                         || (($flag & self::CHBM_FORMKEY_REPLACED) != 0) // formkey replaced
                         || ($this->_viewedTracker != null))) { // has view tracker
-            $this->_updateResponseBody($response) ;
+            $this->_updateResponseBody($response) ; // flag may change
+			$flag = $this->_cacheVars['flag']; 
         }
 
         if ( ($flag & self::CHBM_ESI_ON) != 0 ) {
