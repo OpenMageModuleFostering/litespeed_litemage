@@ -44,6 +44,7 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 		if ( Mage::getSingleton('core/design_package')->getArea() == 'frontend' && Mage::helper('litemage/data')->moduleEnabled() ) {
 			$this->_modified = true ;
 			$this->_layoutMaster = Mage::getSingleton('litemage/layout_master') ;
+			$this->_resetInternals() ;
 			$this->_isDebug = Mage::helper('litemage/data')->isDebug() ;
 		}
 		parent::__construct() ;
@@ -68,6 +69,12 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 
 	public function getUsedHandles()
 	{
+		if ( !$this->_modified ) {
+			if ( $this->_isDebug ) {
+				Mage::helper('litemage/data')->debugMesg('LayoutUpdate SHOULD NOT GET HERE getUsedHandles');
+			}
+		}
+		
 		return array_keys($this->_handleUpdates) ;
 	}
 
@@ -140,9 +147,30 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 			$tags[] = 'LITEMAGE_MODIFY' ;
 			$this->_cacheId = 'LAYOUT_' . Mage::app()->getStore()->getId() . md5(join('__', $tags)) ;
 		}
+		elseif (empty($this->_layoutHandles)) {
+			// cacheId is set through setCacheId from outside, so handles not initialized 
+			$this->_layoutHandles = $this->getHandles() ;
+		}
 		return $this->_cacheId ;
 	}
 
+    /**
+     * Set cache id
+     *
+     * @param string $cacheId
+     * @return Litespeed_Litemage_Model_Layout_Update
+     */
+    public function setCacheId($cacheId)
+    {
+		if ( $this->_modified ) {
+			$this->_resetInternals() ;
+			if ( $this->_isDebug ) {
+				Mage::helper('litemage/data')->debugMesg('LayoutUpdate CONTAINS setCacheId ' . $cacheId) ;
+			}
+		}
+		return parent::setCacheId($cacheId) ;
+    }
+	
 	public function loadCache()
 	{
 		if ( ! Mage::app()->useCache('layout') ) {
@@ -233,6 +261,11 @@ class Litespeed_Litemage_Model_Layout_Update extends Mage_Core_Model_Layout_Upda
 
 	public function getBlockHandles( $blockNameList )
 	{
+		if ( !$this->_modified ) {
+			if ( $this->_isDebug ) {
+				Mage::helper('litemage/data')->debugMesg('LayoutUpdate SHOULD NOT COME HERE ' . implode(',', $blockNameList));
+			}
+		}
 		if ( $this->_handleXml == null ) {
 			$this->_handleXml = array() ;
 			foreach ( $this->_handleUpdates as $h => $update ) {

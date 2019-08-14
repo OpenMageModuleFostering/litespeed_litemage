@@ -155,7 +155,7 @@ class Litespeed_Litemage_Model_Observer_Cron extends Varien_Event_Observer
 				$disp['lastendtime'] = ($store_stat['lastendtime'] > 0) ? date($timefmt, $store_stat['lastendtime']) : ' ' ;
 				$disp['listsize'] = ($store_stat['listsize'] > 0) ? $store_stat['listsize'] : 'N/A' ;
 				$disp['curpos'] = $store_stat['curpos'] ;
-				$disp['env'] = $store_stat['env'] ;
+				$disp['env'] = str_replace(',', ', ', $store_stat['env']) ;
 				$disp['curvary'] = preg_replace("/_lscache_vary=.+;/", '', $store_stat['curvary']) ;
 			}
 			$disp['lastquerytime'] = ($store_stat['lastquerytime'] > 0) ? date($timefmt, $store_stat['lastquerytime']) : 'N/A' ;

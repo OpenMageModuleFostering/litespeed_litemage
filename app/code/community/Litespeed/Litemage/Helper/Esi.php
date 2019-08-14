@@ -175,25 +175,27 @@ class Litespeed_Litemage_Helper_Esi
 		$this->_cacheVars['internal']['nickname'] = 1; // replaced
     }
 
-    public function addPrivatePurgeEvent( $eventName )
+    public function addPrivatePurgeEvent( $eventName, $tags=null )
     {
         // always set purge header, due to ajax call, before_reponse_send will not be triggered, also it may die out in the middle, so must set raw header using php directly
 		if (isset($this->_esiPurgeEvents[$eventName]))
 			return;
 
-		$this->_esiPurgeEvents[$eventName] = $eventName ;
-		
-        $events = $this->_config->getEsiConf('event');
-        $tags = array() ;
-        foreach ( $this->_esiPurgeEvents as $e ) {
-            if (isset($events[$e])) {
-                foreach($events[$e] as $t) {
-                    if (!in_array($t, $tags)) {
-                        $tags[] = $t;
-                    }
-                }
-            }
-        }
+		if ($tags == null) {
+			$tags = array() ;
+			$this->_esiPurgeEvents[$eventName] = $eventName ;
+
+			$events = $this->_config->getEsiConf('event');
+			foreach ( $this->_esiPurgeEvents as $e ) {
+				if (isset($events[$e])) {
+					foreach($events[$e] as $t) {
+						if (!in_array($t, $tags)) {
+							$tags[] = $t;
+						}
+					}
+				}
+			}
+		}
 
         if (count($tags)) {		
 			$purgeHeader = 'private,' ;
@@ -569,7 +571,6 @@ class Litespeed_Litemage_Helper_Esi
         $tracker = '' ;
         $sharedParams = $this->getEsiSharedParams();
         $esiIncludeTag = $this->_config->esiTag('include');
-
         if ( (($this->_cacheVars['flag'] & self::CHBM_FORMKEY_REPLACED) != 0) && strpos($responseBody, self::FORMKEY_REPLACE) ) {
 			// use single quote for pagespeed module
             $replace = '<' . $esiIncludeTag . " src='" . $this->getEsiBaseUrl() . "litemage/esi/getFormKey' as-var='1' combine='sub' cache-control='no-vary,private' cache-tag='E.formkey'/>" ;
@@ -628,7 +629,7 @@ class Litespeed_Litemage_Helper_Esi
 				$isAjax = $this->_cacheVars['internal']['is_ajax'];
 				// json output will add slashes
 				if ($isAjax) {
-					$responseBody = preg_replace_callback('|src=\'.*\\\/litemage\\\/esi\\\/.+\\\/>|',
+					$responseBody = preg_replace_callback('|src=\'.*\\\/litemage\\\/esi\\\/[^>]+\\\/>|U',
 						function ($matches) {
 							$b = stripslashes($matches[0]);
 							$c = preg_replace('/\/esi\/([^\/]+)\//', '/esi/$1/ajax/strip/', $b);

@@ -160,9 +160,17 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			unset($esiIncludes[$key]) ;
 			// need to add getformkey
 			$extraUrls = array_keys($this->_esiCache);
-			$esiIncludes = array_unique(array_merge($esiIncludes, $extraUrls)) ;
+			$esiInclude0 = $esiIncludes;
+			$esiIncludes = array_unique(array_merge($esiInclude0, $extraUrls)) ;
 			if ( $this->_isDebug ) {
-				$this->_config->debugMesg('combined includes * = ' . print_r($esiIncludes, true)) ;
+				$esiInclude1 = array();
+				foreach($esiIncludes as $uri) {
+					if (in_array($uri, $esiInclude0))
+						$esiInclude1[] = $uri;
+					else
+						$esiInclude1[] = '* ' . $uri;
+				}
+				$this->_config->debugMesg('combined includes * = ' . print_r($esiInclude1, true)) ;
 			}
 		}
 		else {
@@ -330,6 +338,7 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			if ( $this->_isDebug ) {
 				switch ($refreshed) {
 					case -1: $status = ':no_cache' ; break;
+					case -2: $status = ':param_mismatch' ; break;
 					case 1: $status = ':upd_entry' ; break;
 					case 2: $status = ':upd_detail' ; break;
 					case 3: $status = ':match_shared' ; break;
@@ -353,6 +362,9 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 
 		if ( $this->_env['cache_updated'] && $this->_config->useInternalCache() ) {
 			$this->_config->saveInternalCache(serialize($this->_esiCache), $this->_env['cache_id']) ;
+			if ( $this->_isDebug ) {
+				$this->_config->debugMesg('saved esi_data cache');
+			}
 		}
 	}
 
@@ -506,7 +518,9 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 	protected function _initEnv( $esiData )
 	{
 		$session = Mage::getSingleton('core/session');
-		if (($session->getData('_litemage_user') == 1) && (Mage::registry('current_customer') == null)) {
+		if (($session->getData('_litemage_user') == 1) 
+				&& (Mage::registry('current_customer') == null)
+				&& (!Mage::getSingleton('customer/session')->isLoggedIn())) {
 			if (Mage::registry('LITEMAGE_NEWVISITOR')) {
 				$this->_env['shared'] = true ;
 			}
@@ -516,9 +530,6 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 					if (Mage::helper('log')->isLogDisabled()) {
 						$this->_env['shared'] = true ;
 					}
-				}
-				else { // prior to 1.9
-					$this->_env['shared'] = true ;
 				}
 			}
 		}
@@ -571,16 +582,26 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			$this->_env['defaultHandles'] = array( 'customer_logged_out' ) ;
 		}
 
-		$unique = join('__', $this->_helper->getEsiSharedParams()) ;
+		$sharedParams = $this->_helper->getEsiSharedParams();
+		$sharedUrlParts = '';
+		
+		foreach ( $sharedParams as $key => $value ) {
+            $sharedUrlParts .= $key . '/' . $value . '/';
+        }
+		$unique = join('__', $sharedParams) ;
 
 		$this->_env['cache_id'] = self::ESICACHE_ID . '_' . md5($unique) ;
 		$this->_env['cache_updated'] = false ;
+		$this->_env['shared_url_parts'] = $sharedUrlParts;
 		$this->_env['layout_unique'] = $unique . '__' . $this->_env['defaultHandles'][0] ;
 
 		$this->_esiCache = array() ;
 		if ( Mage::app()->useCache('layout') ) {
 			if ( $data = Mage::app()->loadCache($this->_env['cache_id']) ) {
 				$this->_esiCache = unserialize($data) ;
+				if ($this->_isDebug) {
+					$this->_config->debugMesg('loaded esi_data cache ' . substr($this->_env['cache_id'], 18, 8));				
+				}
 			}
 		}
 
@@ -595,7 +616,8 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 		return null ;
 	}
 
-	// return -1: no cache, 0: no update, 1: update entry, 2: update detail
+	// return -1: no_cache, 0: no update, 1: update entry, 2: update detail, 3: match shared, -2: shared url param not match
+	
 	protected function _refreshCacheEntry( $url, $esiData, &$inlineHtml )
 	{
 		$cacheAttr = $esiData->getCacheAttribute() ;
@@ -603,7 +625,15 @@ class Litespeed_Litemage_EsiController extends Mage_Core_Controller_Front_Action
 			return -1 ;
 		}
 
-		$isFormKey = ($esiData->getAction() == Litespeed_Litemage_Model_EsiData::ACTION_GET_FORMKEY );
+		$esiAction = $esiData->getAction();
+		$isFormKey = ($esiAction == Litespeed_Litemage_Model_EsiData::ACTION_GET_FORMKEY );
+		
+		// validate against shared param
+		if (!$isFormKey 
+				&& ($esiAction != Litespeed_Litemage_Model_EsiData::ACTION_GET_NICKNAME)
+				&& (strpos($url, $this->_env['shared_url_parts']) === false)) {
+			return -2;
+		}
 
 		if ( $this->_env['shared'] ) {
 			if (!isset($this->_esiCache[$url])

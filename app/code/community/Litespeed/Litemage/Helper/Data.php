@@ -670,6 +670,12 @@ class Litespeed_Litemage_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return $this->getConf($name, self::CFG_NOCACHE) ;
 	}
+	
+	public function isWholeRouteCache($actionName)
+	{
+		return in_array($actionName, 
+				$this->getConf(Litespeed_Litemage_Helper_Data::CFG_FULLCACHE_ROUTE, self::CFG_NOCACHE));		
+	}
 
 	public function getConf( $name, $type = '' )
 	{

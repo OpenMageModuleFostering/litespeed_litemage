@@ -71,6 +71,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
             $this->_viewVary[] = 'env';
 			$this->_viewVary[] = 'review';
 			$this->_internal['purgeUserPrivateCache'] = 1;
+			$this->_helper->addPrivatePurgeEvent($eventObj->getEvent()->getName(), array('*')) ;
         }
     }
 
@@ -179,7 +180,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
                 $this->_viewVary[] = 'toolbar' ;
                 Mage::Helper('litemage/viewvary')->restoreViewVary($this->_viewVary) ;
             }
-            elseif (in_array($curActionName, $this->_config->getNoCacheConf(Litespeed_Litemage_Helper_Data::CFG_FULLCACHE_ROUTE))) {
+            elseif ($this->_config->isWholeRouteCache($curActionName)) {
                 $this->_setWholeRouteCache($curActionName, $controller);
             }
 
@@ -384,13 +385,51 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
             return ;
 
         $this->_helper->initFormKey() ;
-
+		
         foreach ( $this->_injectedBlocks as $block ) {
-			$this->_injectEsiBlock($block);
+			$esiBlock = $this->_injectEsiBlock($block);
+			$block->setData('litemage_lost', $esiBlock);
+		}
+		
+		if (count($this->_injectedBlocks)) {
+			$layout = $this->_injectedBlocks[0]->getLayout();
+			// only check header for now, this is to capture bad coded themes
+			$this->_catchLostChildBlocks('header', $layout->getBlock('header'));
 		}
 
 		$this->_startDynamic = true;
     }
+	
+	protected function _catchLostChildBlocks($alias, $block, $parent=null)
+	{
+		if ($block == null 
+				|| $block instanceof Litespeed_Litemage_Block_Core_Esi 
+				|| $block instanceof Litespeed_Litemage_Block_Core_Messages) {
+			return;
+		}
+
+		if ($esiReplace = $block->getData('litemage_lost')) {
+			$msg = 'Found Lost child ' . $alias;
+			if ($parent === null) {
+				$msg .= ' - EMPTY PARENT - Ignore';
+			}
+			else {
+				$msg .= ' - REPLACED';
+				$oldParent = $esiReplace->getParentBlock(); // reserve the old parent
+				$parent->setChild($alias, $esiReplace);
+				$esiReplace->setParentBlock($oldParent);
+			}
+		    if ($this->_isDebug) {
+                $this->_config->debugMesg('_catchLostChildBlocks ' . $msg) ;
+            }
+		}
+		else {
+			$children = $block->getChild(); 
+			foreach ($children as $alias => $child) {
+				$this->_catchLostChildBlocks($alias, $child, $block);
+			}
+		}
+	}
 
 	protected function _injectEsiBlock($block)
 	{
@@ -414,10 +453,8 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
     {
         $app = Mage::app();
         $design = Mage::getDesign() ;
-        $tags = array($actionName);
-        $tags[] = $app->getStore()->getId() ;
-        $tags[] = $design->getPackageName();
-        $tags[] = $design->getTheme('layout') . '_' . $design->getTheme('template') . '_' . $design->getTheme('skin');
+		$tags = $this->_helper->getEsiSharedParams();
+        $tags[] = $actionName;
         $cacheId = 'LITEMAGE_ROUTE_' . md5(join('__', $tags));
 
         $this->_routeCache = array('actionName' => $actionName, 'cacheId' => $cacheId);
@@ -515,9 +552,7 @@ class Litespeed_Litemage_Model_Observer_Esi extends Varien_Event_Observer
     {
         if ( $this->_moduleEnabledForUser ) {
             if ($value = Mage::registry('LITEMAGE_NEWVISITOR')) {
-				if ($value != 1) {// 1 is by preprocessor ok
-					Mage::unregister('LITEMAGE_NEWVISITOR'); // to be safe
-				}
+				Mage::unregister('LITEMAGE_NEWVISITOR'); // to be safe
             }
             else {
                 Mage::register('LITEMAGE_NEWVISITOR', 2);

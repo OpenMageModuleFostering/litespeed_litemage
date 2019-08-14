@@ -26,7 +26,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.3.4</version>
+            <version>1.3.5</version>
         </Litespeed_Litemage>
     </modules>
     <global>
