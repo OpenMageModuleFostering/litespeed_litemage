@@ -40,6 +40,18 @@ class Litespeed_Litemage_Block_Core_Xml extends Mage_Core_Block_Abstract
 		$xml = $this->_getBlockXmlString($bi);
 		return $xml;
 	}
+	
+	// xml block not exist in ESILayout, they are not ESI block, safe to ignore
+	public function __call($method, $args)
+	{
+		Mage::helper('litemage/data')->debugMesg('Xml block ' . $this->_name . " called $method - ignore");
+
+	}
+
+	public static function __callStatic($method, $args)
+	{
+		Mage::helper('litemage/data')->debugMesg('Xml block ' . $this->_name . " called static $method - ignore");
+	}
 
 	protected function _getBlockXmlString($bi)
 	{

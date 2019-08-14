@@ -44,6 +44,18 @@ class Litespeed_Litemage_Block_Core_Esi extends Mage_Core_Block_Abstract
 			$this->_layout->setBlock($this->_nameInLayout, $this) ;
 		}
 	}
+	
+	public function __call($method, $args)
+	{
+		Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_name . " called $method - ignore");
+
+	}
+
+	public static function __callStatic($method, $args)
+	{
+		Mage::helper('litemage/data')->debugMesg('esi block ' . $this->_name . " called static $method - ignore");
+	}
+	
 
 	protected function _loadCache()
 	{
