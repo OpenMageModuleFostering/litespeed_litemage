@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+LiteMage plugin for LiteSpeed web server
+@copyright  Copyright (c) 2015 LiteSpeed Technologies, Inc. (http://www.litespeedtech.com)
+-->
+
+<layout>
+    <default>
+        <reference name="before_body_end">
+            <block type="litemage/inject_jsvar" name="litemage.jsvar" template="litemage/inject/jsvar.phtml" />
+        </reference>
+    </default>
+</layout>

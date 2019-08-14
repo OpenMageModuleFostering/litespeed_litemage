@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout version="0.1.0">
+    <adminhtml_cache_index>
+        <reference name="content">
+            <block type="litemage/adminhtml_cache_management" name="litemage.cache.management" template="litemage/cache_management.phtml" after="cache.additional" />
+        </reference>
+    </adminhtml_cache_index>
+</layout>

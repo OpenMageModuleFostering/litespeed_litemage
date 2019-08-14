@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/LiteSpeed_LiteMage",
+    "type": "magento-module",
+    "license": "LiteSpeed-proprietary-license-",
+    "homepage": "",
+    "description": "LiteMage Cache speeds up Magento by automatically integrating Magento with LiteSpeed's superior ESI implementation.",
+    "authors": [
+    {
+        "name": "LiteSpeed Technologies",
+        "email": "lsong@litespeedtech.com"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}

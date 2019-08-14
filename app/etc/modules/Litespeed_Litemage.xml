@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+    LiteSpeed LiteMage Extension for Magento
+    Copyright (C) 2015  LiteSpeed Technologies, Inc. (www.litespeedtech.com)
+-->
+<config>
+    <modules>
+        <Litespeed_Litemage>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Litespeed_Litemage>
+    </modules>
+</config>
