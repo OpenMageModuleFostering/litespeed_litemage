@@ -11,7 +11,7 @@
 <config>
     <tabs>
         <Litespeed_Litemage translate="label">
-            <label>LiteMage Cache 1.0.12</label>
+            <label>LiteMage Cache 1.0.13</label>
             <sort_order>5000</sort_order>
         </Litespeed_Litemage>
     </tabs>
@@ -22,8 +22,8 @@
             <frontend_type>text</frontend_type>
             <sort_order>5000</sort_order>
             <show_in_default>1</show_in_default>
-            <show_in_website>0</show_in_website>
-            <show_in_store>0</show_in_store>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
             <groups>
                 <info translate="label,comment" module="litemage">
                     <label>About LiteMage</label>
@@ -40,8 +40,8 @@
                     <label>General Settings</label>
                     <frontend_type>label</frontend_type>
                     <show_in_default>1</show_in_default>
-                    <show_in_website>0</show_in_website>
-                    <show_in_store>0</show_in_store>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
                     <sort_order>10</sort_order>
                     <fields>
                         <enabled translate="label">
@@ -69,8 +69,8 @@
                             <validate>validate-greater-than-zero</validate>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </public_ttl>
                         <private_ttl translate="label,comment">
                             <label>Default Private Cache TTL (seconds)</label>
@@ -79,8 +79,8 @@
                             <validate>validate-greater-than-zero</validate>
                             <sort_order>30</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </private_ttl>
                         <track_viewed translate="label,comment">
                             <label>Track Recently Viewed Products</label>
@@ -89,8 +89,8 @@
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>40</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </track_viewed>
                         <diff_customergroup translate="label,comment">
                             <label>Separate Cache Copy per Customer Group</label>
@@ -99,8 +99,8 @@
                             <source_model>litemage/config_source_customerGroup</source_model>
                             <sort_order>50</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </diff_customergroup>
                         <diff_cookie translate="label,comment">
                             <label>Separate Cache Copy for Customized Cookie Values</label>
@@ -228,8 +228,8 @@
                 <warmup translate="label" module="litemage">
                     <label>Cache Warm Up</label>
                     <show_in_default>1</show_in_default>
-                    <show_in_website>0</show_in_website>
-                    <show_in_store>0</show_in_store>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
                     <sort_order>40</sort_order>
                     <fields>
                         <enable_warmup translate="label,comment">
@@ -239,8 +239,8 @@
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </enable_warmup>                        
                         <load_limit translate="label,comment">
                             <label>Only Run When Load Is Less Than</label>
@@ -262,14 +262,24 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </max_time>
+                        <priority translate="label,comment">
+                            <label>Warm Up Priority</label>
+                            <comment>Sets a custom warm up sequence at the store level. Value should be larger than 0 where the lowest number is given the highest priority.</comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-greater-than-zero</validate>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </priority>                        
                         <multi_currency translate="label,comment">
                             <label>Crawl Non-Default Currencies</label>
                             <comment>Warm up pages for non-default currencies. Set to "ALL" to include all available currencies, or list only the most used currencies. Space, comma separated currency codes, like "USD,GBP,EUR".</comment>
                             <frontend_type>text</frontend_type>
-                            <sort_order>30</sort_order>
+                            <sort_order>50</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </multi_currency>
                     </fields>
                 </warmup>

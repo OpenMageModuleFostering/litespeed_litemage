@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Litespeed_Litemage>
-            <version>1.0.12</version>
+            <version>1.0.13</version>
         </Litespeed_Litemage>
     </modules>
     <global>
@@ -434,6 +434,7 @@
                 <enable_warmup>0</enable_warmup>
                 <load_limit>5</load_limit>
                 <max_time>300</max_time>
+                <priority>100</priority>
                 <multi_currency/>
             </warmup>
             <default>
