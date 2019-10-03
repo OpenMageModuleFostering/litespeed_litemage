@@ -1,3 +1,5 @@
+
+
 ## Original Package Description
 
 LiteMage Cache speeds up Magento by automatically integrating Magento with LiteSpeed's superior ESI implementation.
